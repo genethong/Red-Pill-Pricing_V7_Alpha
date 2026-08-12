@@ -6014,7 +6014,9 @@ export default function App() {
 
               {activeSection === 'life_sim' && (
                 <div className="space-y-6">
-                  <LifeSimulationPanel inputs={sanitizedInputs} />
+                  <LifeSimulationPanel
+                    projects={userDbTemplates.map(t => ({ id: t.id, name: t.name, data: t.data }))}
+                  />
                 </div>
               )}
 

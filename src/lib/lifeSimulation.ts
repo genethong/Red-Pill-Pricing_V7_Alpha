@@ -12,12 +12,18 @@ export type LifeSimMode = 'A' | 'B' | 'compare';
 export interface EnvironmentChange {
   /** Operating year when new regime starts (1..tenure). */
   changeYear: number;
+  /**
+   * Full post-change site config (from a saved My Project).
+   * After changeYear, grid / system / load come from this project.
+   * Financials & costs stay from baseline for consistent commercial compare.
+   */
+  changeProject?: SiteInputs | null;
   gridCondition?: GridCondition;
   dailyOutages?: number | null;
   outageDuration?: number | null;
   /** Absolute tenant loads after change (if set, replaces all tenants). */
   tenantLoads?: TenantLoad[];
-  /** Scale all load fields by this factor (e.g. 1.3 = +30%). Applied if tenantLoads not set. */
+  /** Scale load on the active (post-change) regime. e.g. 1.3 = +30%. */
   loadScale?: number | null;
 }
 
@@ -102,24 +108,44 @@ function cloneInputs(inputs: SiteInputs): SiteInputs {
   return JSON.parse(JSON.stringify(inputs));
 }
 
+function scaleLoads(inputs: SiteInputs, loadScale: number | null | undefined): SiteInputs {
+  if (loadScale == null || loadScale <= 0 || loadScale === 1) return inputs;
+  const next = cloneInputs(inputs);
+  next.tenantLoads = next.tenantLoads.map(t => ({
+    peakLoad: (t.peakLoad || 0) * loadScale,
+    averageLoad: (t.averageLoad || 0) * loadScale,
+    runningLoad: (t.runningLoad || 0) * loadScale
+  }));
+  return next;
+}
+
+/**
+ * Pre-change years: baseline project as-is.
+ * Post-change years: use saved change project (config + grid + loads), keep baseline financials/costs/tenure.
+ * Optional loadScale applies only after change.
+ */
 function applyEnvironment(base: SiteInputs, change: EnvironmentChange, active: boolean): SiteInputs {
-  const next = cloneInputs(base);
-  if (!active) return next;
+  if (!active) return cloneInputs(base);
 
-  if (change.gridCondition != null) next.gridCondition = change.gridCondition;
-  if (change.dailyOutages != null) next.dailyOutages = change.dailyOutages;
-  if (change.outageDuration != null) next.outageDuration = change.outageDuration;
+  let next: SiteInputs;
 
-  if (change.tenantLoads && change.tenantLoads.length > 0) {
-    next.tenantLoads = change.tenantLoads.map(t => ({ ...t }));
-    next.numTenants = change.tenantLoads.length;
-  } else if (change.loadScale != null && change.loadScale > 0) {
-    next.tenantLoads = next.tenantLoads.map(t => ({
-      peakLoad: (t.peakLoad || 0) * change.loadScale!,
-      averageLoad: (t.averageLoad || 0) * change.loadScale!,
-      runningLoad: (t.runningLoad || 0) * change.loadScale!
-    }));
+  if (change.changeProject) {
+    next = cloneInputs(change.changeProject);
+    // Commercial model anchored to baseline project
+    next.financials = cloneInputs(base.financials);
+    next.costs = cloneInputs(base.costs);
+  } else {
+    next = cloneInputs(base);
+    if (change.gridCondition != null) next.gridCondition = change.gridCondition;
+    if (change.dailyOutages != null) next.dailyOutages = change.dailyOutages;
+    if (change.outageDuration != null) next.outageDuration = change.outageDuration;
+    if (change.tenantLoads && change.tenantLoads.length > 0) {
+      next.tenantLoads = change.tenantLoads.map(t => ({ ...t }));
+      next.numTenants = change.tenantLoads.length;
+    }
   }
+
+  next = scaleLoads(next, change.loadScale);
 
   if (next.gridCondition === 'Off-grid') {
     next.dailyOutages = 1;
