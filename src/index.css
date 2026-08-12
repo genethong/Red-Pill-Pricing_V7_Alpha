@@ -1,0 +1,629 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Myriad Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Myriad Pro", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
+  
+  --color-red-600: #E50914; /* Elite bold cinematic red */
+  --color-red-500: #F40F1D; /* Bright hover red */
+  --color-red-700: #B2070F; /* Dark press red */
+  
+  --color-[#0a0a0a]: #050505; /* True bottomless pitch black background */
+  --color-dark-surface: #121212; /* Sleek surface card background */
+  --color-dark-card: #161616; /* Clean nested container background */
+  --color-dark-border: rgba(255, 255, 255, 0.05); /* Soft faint premium border */
+  --color-dark-red-border: rgba(229, 9, 20, 0.15); /* Red glowing element background */
+}
+
+/* Custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #E50914;
+}
+
+/* High-contrast and cinematic overrides for native elements */
+body {
+  background-color: #050505;
+  color: #F5F5F5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
+}
+
+/* Global design system headings pairing Apple SF Pro Display styling */
+h1, h2, h3, h4, .font-display-paired {
+  font-family: var(--font-display);
+  letter-spacing: -0.022em;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* Redesign Form Inputs & Selects to look pristine and ultra UI compliant */
+input[type="text"], input[type="number"], select {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus {
+  border-color: rgba(229, 9, 20, 0.4) !important;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.1) !important;
+}
+
+/* Interactive elements hover animation properties */
+.interactive-hover-red {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.interactive-hover-red:hover {
+  background-color: rgba(229, 9, 20, 0.08) !important;
+  border-color: rgba(229, 9, 20, 0.3) !important;
+  color: #FFFFFF !important;
+}
+
+/* Redesign Select Dropdowns to look amazing and clean on dark backgrounds */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-size: 1.25em 1.25em;
+  background-repeat: no-repeat;
+  appearance: none;
+}
+
+option {
+  background-color: #121212 !important;
+  color: #f5f5f5 !important;
+}
+
+/* Number inputs spinhide */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Custom typography treatments */
+.title-glow {
+  text-shadow: 0 0 20px rgba(229, 9, 20, 0.25);
+}
+
+.card-layer-1 {
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+}
+
+.card-layer-2 {
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Smooth transitions */
+.transition-all-300 {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   DAY MODE (LIGHT THEME) OVERRIDES & PAIRINGS
+   Inspired by Apple/Google style minimalism, generous whitespace, pristine hierarchy.
+   ========================================================================== */
+
+/* Root / body selector adjustments when light mode is enabled */
+.light-theme {
+  background-color: #FAFAFA !important;
+  color: #1F2937 !important;
+}
+
+/* Let's have a custom global rule to make sure the document body adapts as well */
+:root:has(.light-theme) {
+  background-color: #FAFAFA;
+}
+
+/* Headings color in light-theme */
+.light-theme h1, 
+.light-theme h2, 
+.light-theme h3, 
+.light-theme h4, 
+.light-theme .font-display-paired {
+  color: #111827 !important;
+}
+
+/* Card layers re-pairings */
+.light-theme .card-layer-1 {
+  background-color: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+}
+
+.light-theme .card-layer-2 {
+  background-color: #F3F4F6 !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Re-pair black/white transparent surfaces to clean crisp designs in light mode */
+.light-theme .bg-black\/30 {
+  background-color: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+}
+
+.light-theme .bg-black\/45, 
+.light-theme .bg-black\/40 {
+  background-color: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.light-theme .bg-black\/50 {
+  background-color: #F3F4F6 !important;
+}
+
+.light-theme .bg-black\/60 {
+  background-color: #F3F4F6 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-theme .bg-\[\#050505\] { background-color: #FAFAFA !important; }
+.light-theme .bg-\[\#050505\]\/90 { background-color: rgba(250, 250, 250, 0.9) !important; }
+.light-theme .bg-\[\#0e0e0e\] { background-color: #FFFFFF !important; border-right-color: rgba(0,0,0,0.08) !important; }
+.light-theme .bg-\[\#121212\] { background-color: #FFFFFF !important; }
+.light-theme .bg-\[\#121212\]\/50 { background-color: rgba(0, 0, 0, 0.03) !important; }
+.light-theme .bg-\[\#121212\]\/30 { background-color: rgba(0, 0, 0, 0.02) !important; }
+.light-theme .bg-\[\#161616\] { background-color: #F3F4F6 !important; }
+.light-theme .bg-\[\#1a1a1a\] { background-color: #FFFFFF !important; }
+.light-theme .bg-neutral-900 { background-color: #E5E7EB !important; }
+.light-theme .bg-neutral-950 { background-color: #D1D5DB !important; }
+
+.light-theme .bg-neutral-900 *,
+.light-theme .bg-neutral-950 * {
+  color: #111827 !important;
+}
+
+/* Subtle standard transparent backgrounds overrides */
+.light-theme .bg-white\/5 { background-color: #F3F4F6 !important; border: 1px solid rgba(0,0,0,0.06) !important; }
+.light-theme .bg-white\/\[0\.02\] { background-color: #FFFFFF !important; border: 1px solid rgba(0,0,0,0.06) !important; }
+.light-theme .bg-white\/\[0\.03\] { background-color: #F9FAFB !important; border: 1px solid rgba(0,0,0,0.06) !important; }
+.light-theme .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.04) !important; }
+.light-theme .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.06) !important; }
+
+/* Text colors overrides for secondary/faint layers */
+.light-theme .text-gray-100 { color: #111827 !important; }
+.light-theme .text-gray-200 { color: #111827 !important; }
+.light-theme .text-gray-300 { color: #1F2937 !important; }
+.light-theme .text-gray-400 { color: #374151 !important; }
+.light-theme .text-gray-500 { color: #4B5563 !important; }
+.light-theme .text-gray-600 { color: #6B7280 !important; }
+.light-theme .text-\[\#f5f5f5\] { color: #111827 !important; }
+
+/* Elegant safety containment for text-white on pure red/dark sections */
+.light-theme .text-white:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-green-650):not(.bg-\[\#E50914\]):not(button):not(.text-white-always) {
+  color: #111827 !important;
+}
+.light-theme .text-white\/90:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) { color: #111827 !important; }
+.light-theme .text-white\/80:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) { color: #1F2937 !important; }
+.light-theme .text-white\/70:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) { color: #374151 !important; }
+.light-theme .text-white\/60:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) { color: #4B5563 !important; }
+.light-theme .text-zinc-400 { color: #374151 !important; }
+.light-theme .text-neutral-400 { color: #374151 !important; }
+.light-theme .text-zinc-500, .light-theme .text-neutral-500 { color: #4B5563 !important; }
+
+/* Keep active, glowing red elements and buttons completely crisp with white text */
+.light-theme .bg-\[\#E50914\] {
+  background-color: #E50914 !important;
+}
+.light-theme .bg-\[\#E50914\] *,
+.light-theme .bg-\[\#E50914\] {
+  color: #FFFFFF !important;
+}
+.light-theme .bg-red-600 {
+  background-color: #E50914 !important;
+  color: #FFFFFF !important;
+}
+.light-theme .bg-red-600 * {
+  color: #FFFFFF !important;
+}
+.light-theme .bg-red-600 .text-red-200 {
+  color: #FECACA !important;
+}
+
+.model-pill-indicator {
+  background-color: var(--indicator-color) !important;
+}
+
+/* Red highlighting and alerts in light-theme */
+.light-theme .text-red-400 { color: #B91C1C !important; }
+.light-theme .text-red-500 { color: #B91C1C !important; }
+
+/* Borders overrides */
+.light-theme .border-white\/5 { border-color: rgba(0, 0, 0, 0.08) !important; }
+.light-theme .border-white\/10 { border-color: rgba(0, 0, 0, 0.12) !important; }
+.light-theme .border-white\/20 { border-color: rgba(0, 0, 0, 0.18) !important; }
+.light-theme .divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0, 0, 0, 0.08) !important; }
+
+/* Input, select, option colors when in light mode */
+.light-theme input[type="text"], 
+.light-theme input[type="number"], 
+.light-theme select {
+  background-color: #FFFFFF !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #111827 !important;
+}
+
+.light-theme option {
+  background-color: #FFFFFF !important;
+  color: #111827 !important;
+}
+
+/* Modals layer override */
+.light-theme .fixed.inset-0.bg-black\/80 {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.light-theme .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   INCREASE CONTRAST FOR ALL GREY/DARK SHADED BOX TEXTS (WCAG COMPLIANCE)
+   ========================================================================== */
+
+/* Dark Mode (Default Theme): Uplift dark/zinc/gray values for readability */
+.text-gray-400, .text-zinc-400, .text-neutral-400, .text-slate-400 {
+  color: #D1D5DB !important; /* Pristine bright screen gray */
+}
+
+.text-gray-500, .text-zinc-500, .text-neutral-500, .text-slate-500 {
+  color: #9CA3AF !important; /* Soft premium display gray */
+}
+
+/* Highlight metrics and numeric details inside tables/cards to be fully clear */
+.font-mono.text-gray-500, 
+.text-gray-500.font-medium, 
+.text-gray-500.font-semibold, 
+.text-gray-400.font-medium {
+  color: #E5E7EB !important;
+}
+
+.light-theme .font-mono.text-gray-500, 
+.light-theme .text-gray-500.font-medium, 
+.light-theme .text-gray-500.font-semibold,
+.light-theme .text-gray-400.font-medium {
+  color: #111827 !important;
+}
+
+/* ==========================================================================
+   MUDDY COLOR CORRECTIONS & SATURATION TWEAKS FOR EYE COMFORT
+   ========================================================================== */
+
+/* Red glowing/alert layers overrides (Dark mode) */
+.bg-red-500\/10, .bg-\[\#E50914\]\/10, .bg-\[\#E50914\]\/15, .bg-red-650\/10 {
+  background-color: rgba(239, 68, 68, 0.08) !important; /* Pure eye-safe minimal rose tint */
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+.text-red-400\/80 {
+  color: #F87171 !important; /* Remove muddy text opacity reduction */
+}
+
+/* Crisp delicate colors on red containers (no neon text flicker) */
+.bg-red-500\/10 * {
+  color: #FAFAFA !important;
+}
+
+.bg-red-500\/10 .text-red-500, 
+.bg-[#121212] .text-red-400 {
+  color: #FCA5A5 !important; /* High comfort rose gold */
+}
+
+/* Light mode overrides for red warning layers (Ensure dark red color, NEVER white on white) */
+.light-theme .bg-red-500\/10, 
+.light-theme .bg-red-950\/40, 
+.light-theme .bg-red-950\/20, 
+.light-theme .bg-red-650\/10, 
+.light-theme .bg-\[\#E50914\]\/10,
+.light-theme .bg-\[\#E50914\]\/15 {
+  background-color: #FDE8E8 !important;
+  border-color: #FBD5D5 !important;
+}
+
+.light-theme .bg-red-500\/10 *, 
+.light-theme .bg-red-950\/40 *, 
+.light-theme .bg-red-950\/20 *, 
+.light-theme .bg-red-650\/10 *, 
+.light-theme .bg-[#E50914]\/15 * {
+  color: #9B1C1C !important; /* Ensure strong contrast, never white! */
+}
+
+.light-theme .bg-red-500\/10 .text-red-500, 
+.light-theme .bg-red-950\/40 .text-red-400, 
+.light-theme .bg-red-950\/20 .text-red-400, 
+.light-theme .bg-[#121212] .text-red-400,
+.light-theme .text-red-400\/80 {
+  color: #9B1C1C !important; /* Deep highly visible dark maroon */
+}
+
+/* Comfort and clear Timeline Segments overrides (Resolves white text on white bg) */
+.light-theme .bg-green-500\/10 {
+  background-color: #DEF7EC !important; /* Clear pastel green */
+  border-color: #BCF0DA !important;
+}
+.light-theme .bg-green-500\/10 *,
+.light-theme .bg-green-500\/10 {
+  color: #03543F !important; /* Strong dark green text */
+  font-weight: 800 !important;
+}
+
+.light-theme .hover\:bg-green-500\/20:hover {
+  background-color: #BCF0DA !important;
+}
+
+.light-theme .hover\:bg-red-500\/20:hover {
+  background-color: #FBD5D5 !important;
+}
+
+/* Crisp colors for metrics on white backgrounds in light mode */
+.light-theme .text-green-500 {
+  color: #15803D !important; /* Rich Dark Green */
+}
+.light-theme .text-green-400 {
+  color: #166534 !important; /* Even Richer Green */
+}
+.light-theme .text-\[\#E50914\] {
+  color: #C2410C !important; /* Energetic Dark Red with perfect WCAG compliance */
+}
+
+/* Elegant comfort backgrounds for comparing metrics (blue, emerald, amber, violet, pink) */
+.bg-blue-950\/40, .bg-blue-950\/20 {
+  background-color: rgba(59, 130, 246, 0.08) !important; border-color: rgba(59, 130, 246, 0.25) !important;
+}
+.bg-blue-950\/40 *, .bg-blue-950\/20 * { color: #F8FAFC !important; }
+.bg-blue-950\/40 .text-blue-400, .bg-blue-950\/20 .text-blue-400, .bg-\[\#121212\] .text-blue-400 { color: #93C5FD !important; }
+
+.bg-emerald-950\/40, .bg-emerald-950\/20 {
+  background-color: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.25) !important;
+}
+.bg-emerald-950\/40 *, .bg-emerald-950\/20 * { color: #F0FDF4 !important; }
+.bg-emerald-950\/40 .text-emerald-400, .bg-emerald-950\/20 .text-emerald-400, .bg-\[\#121212\] .text-emerald-400 { color: #6EE7B7 !important; }
+
+.bg-amber-950\/40, .bg-amber-950\/20 {
+  background-color: rgba(245, 158, 11, 0.08) !important; border-color: rgba(245, 158, 11, 0.25) !important;
+}
+.bg-amber-950\/40 *, .bg-amber-950\/20 * { color: #FFFDF2 !important; }
+.bg-amber-950\/40 .text-amber-400, .bg-amber-950\/20 .text-amber-400, .bg-\[\#121212\] .text-amber-400 { color: #FCD34D !important; }
+
+.bg-violet-950\/40, .bg-violet-950\/20 {
+  background-color: rgba(139, 92, 246, 0.08) !important; border-color: rgba(139, 92, 246, 0.25) !important;
+}
+.bg-violet-950\/40 *, .bg-violet-950\/20 * { color: #FAFAFE !important; }
+.bg-violet-950\/40 .text-violet-400, .bg-violet-950\/20 .text-violet-400, .bg-\[\#121212\] .text-violet-400 { color: #C4B5FD !important; }
+
+.bg-pink-950\/40, .bg-pink-950\/20 {
+  background-color: rgba(236, 72, 153, 0.08) !important; border-color: rgba(236, 72, 153, 0.25) !important;
+}
+.bg-pink-950\/40 *, .bg-pink-950\/20 * { color: #FFF1F2 !important; }
+.bg-pink-950\/40 .text-pink-400, .bg-pink-950\/20 .text-pink-400, .bg-\[\#121212\] .text-pink-400 { color: #F9A8D4 !important; }
+
+/* Light Theme overrides for comparing metrics (Container backgrounds - DO NOT apply background-color to descendants *) */
+.light-theme .bg-blue-950\/40, .light-theme .bg-blue-950\/20 { background-color: #EFF6FF !important; border-color: #BFDBFE !important; }
+.light-theme .bg-emerald-950\/40, .light-theme .bg-emerald-950\/20 { background-color: #ECFDF5 !important; border-color: #A7F3D0 !important; }
+.light-theme .bg-amber-950\/40, .light-theme .bg-amber-950\/20 { background-color: #FFFBEB !important; border-color: #FDE68A !important; }
+.light-theme .bg-violet-950\/40, .light-theme .bg-violet-950\/20 { background-color: #F5F3FF !important; border-color: #DDD6FE !important; }
+.light-theme .bg-pink-950\/40, .light-theme .bg-pink-950\/20 { background-color: #FDF2F8 !important; border-color: #FBCFE8 !important; }
+
+/* High-contrast and comfort text inside light-theme comparing metric cards */
+.light-theme .bg-blue-950\/40 *, .light-theme .bg-blue-950\/20 * { color: #1E3A8A !important; }
+.light-theme .bg-emerald-950\/40 *, .light-theme .bg-emerald-950\/20 * { color: #064E3B !important; }
+.light-theme .bg-amber-950\/40 *, .light-theme .bg-amber-950\/20 * { color: #78350F !important; }
+.light-theme .bg-violet-950\/40 *, .light-theme .bg-violet-950\/20 * { color: #4C1D95 !important; }
+.light-theme .bg-pink-950\/40 *, .light-theme .bg-pink-950\/20 * { color: #831843 !important; }
+
+/* Re-highlighting special colored text selectors inside comparing metric cards in light-theme to be even higher contrast */
+.light-theme .bg-blue-950\/40 .text-blue-400, .light-theme .bg-blue-950\/20 .text-blue-400 { color: #123897 !important; }
+.light-theme .bg-emerald-950\/40 .text-emerald-400, .light-theme .bg-emerald-950\/20 .text-emerald-400 { color: #046A4B !important; }
+.light-theme .bg-amber-950\/40 .text-amber-400, .light-theme .bg-amber-950\/20 .text-amber-400 { color: #A13C02 !important; }
+.light-theme .bg-violet-950\/40 .text-violet-400, .light-theme .bg-violet-950\/20 .text-violet-400 { color: #5B1CB2 !important; }
+.light-theme .bg-pink-950\/40 .text-pink-400, .light-theme .bg-pink-950\/20 .text-pink-400 { color: #A00C49 !important; }
+
+/* Color on Grey Contrast adjustments for Light Mode (Resolves "color on grey is bad idea") */
+.light-theme .text-emerald-400, .light-theme .text-emerald-500 { color: #047857 !important; }
+.light-theme .text-amber-400, .light-theme .text-amber-500 { color: #B45309 !important; }
+.light-theme .text-red-400, .light-theme .text-red-500 { color: #B91C1C !important; }
+.light-theme .text-blue-400, .light-theme .text-blue-500 { color: #1D4ED8 !important; }
+.light-theme .text-violet-400, .light-theme .text-violet-500 { color: #6D28D9 !important; }
+.light-theme .text-pink-400, .light-theme .text-pink-500 { color: #BE185D !important; }
+
+/* ==========================================================================
+   DARK MODAL (PORTAL/DIALOG) IMMUNITY OVERRIDES FOR LIGHT THEME
+   Prevents .light-theme selectors from contaminating dark-styled modals
+   ========================================================================== */
+.light-theme .modal-dark {
+  background-color: #0c0f1d !important; /* Force sleek dark bg */
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F3F4F6 !important;
+}
+
+/* Force bright titles and white text with higher specificity to defeat global rules */
+.light-theme .modal-dark h1,
+.light-theme .modal-dark h2,
+.light-theme .modal-dark h3,
+.light-theme .modal-dark h4,
+.light-theme .modal-dark .font-display-paired,
+.light-theme .modal-dark .text-white,
+.light-theme .modal-dark .text-white:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-green-650):not(.bg-\[\#E50914\]):not(button):not(.text-white-always) {
+  color: #FFFFFF !important;
+}
+
+/* Gray subheadings and label overrides helper chain */
+.light-theme .modal-dark .text-gray-300,
+.light-theme .modal-dark .text-zinc-300,
+.light-theme .modal-dark .text-neutral-300,
+.light-theme .modal-dark .text-slate-300 {
+  color: #E5E7EB !important;
+}
+
+.light-theme .modal-dark .text-gray-400,
+.light-theme .modal-dark .text-zinc-400,
+.light-theme .modal-dark .text-neutral-400,
+.light-theme .modal-dark .text-slate-400 {
+  color: #D1D5DB !important;
+}
+
+.light-theme .modal-dark .text-gray-500,
+.light-theme .modal-dark .text-zinc-500,
+.light-theme .modal-dark .text-neutral-500,
+.light-theme .modal-dark .text-slate-500 {
+  color: #9CA3AF !important;
+}
+
+.light-theme .modal-dark .text-gray-600,
+.light-theme .modal-dark .text-zinc-600,
+.light-theme .modal-dark .text-neutral-600,
+.light-theme .modal-dark .text-slate-600 {
+  color: #64748B !important;
+}
+
+/* Maintain proper dark semi-transparent icon squares */
+.light-theme .modal-dark .bg-red-500\/10,
+.light-theme .modal-dark .bg-red-650\/10,
+.light-theme .modal-dark .bg-red-950\/40,
+.light-theme .modal-dark .bg-red-950\/20 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.light-theme .modal-dark .bg-orange-500\/10,
+.light-theme .modal-dark .bg-orange-950\/40 {
+  background-color: rgba(249, 115, 22, 0.1) !important;
+  border-color: rgba(249, 115, 22, 0.15) !important;
+}
+
+.light-theme .modal-dark .bg-amber-500\/10,
+.light-theme .modal-dark .bg-amber-950\/40 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+/* Force correct vibrant glowing icon foreground colors corresponding to their designs */
+.light-theme .modal-dark .bg-red-500\/10 *,
+.light-theme .modal-dark .text-red-400,
+.light-theme .modal-dark .text-red-500 {
+  color: #ef4444 !important;
+}
+
+.light-theme .modal-dark .bg-orange-500\/10 *,
+.light-theme .modal-dark .text-orange-400,
+.light-theme .modal-dark .text-orange-500 {
+  color: #f97316 !important;
+}
+
+.light-theme .modal-dark .bg-amber-500\/10 *,
+.light-theme .modal-dark .text-amber-400,
+.light-theme .modal-dark .text-amber-500 {
+  color: #f59e0b !important;
+}
+
+/* Fix input, select and typed text value visibility in light mode */
+.light-theme .modal-dark input[type="text"],
+.light-theme .modal-dark input[type="number"],
+.light-theme .modal-dark select {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #FFFFFF !important;
+}
+
+/* Select option styling in modals */
+.light-theme .modal-dark option,
+.light-theme .modal-dark select option,
+.light-theme .modal-dark select option:disabled {
+  background-color: #0c0f1d !important;
+  color: #FFFFFF !important;
+}
+
+/* Make sure text elements that might match .text-white/x are styled for contrast */
+.light-theme .modal-dark .text-white\/90:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) {
+  color: #F3F4F6 !important;
+}
+.light-theme .modal-dark .text-white\/80:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) {
+  color: #E5E7EB !important;
+}
+.light-theme .modal-dark .text-white\/70:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) {
+  color: #D1D5DB !important;
+}
+.light-theme .modal-dark .text-white\/60:not(.bg-red-500):not(.bg-red-600):not(.bg-red-700):not(.bg-\[\#E50914\]) {
+  color: #9CA3AF !important;
+}
+
+/* Checkbox alignment */
+.light-theme .modal-dark input[type="checkbox"] {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #E50914 !important;
+}
+
+/* General button layouts inside dark modals */
+.light-theme .modal-dark .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.light-theme .modal-dark .hover\:bg-white\/10:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Custom light theme overrides for secondary buttons, ghost/transparent elements, and SVGs */
+.light-theme :not(.modal-dark) button.bg-white\/5:not(.bg-red-600):not(.bg-\[\#E50914\]),
+.light-theme :not(.modal-dark) button.bg-white\/10:not(.bg-red-600):not(.bg-\[\#E50914\]),
+.light-theme :not(.modal-dark) .bg-white\/5 button:not(.bg-red-600):not(.bg-\[\#E50914\]),
+.light-theme :not(.modal-dark) .bg-white\/10 button:not(.bg-red-600):not(.bg-\[\#E50914\]),
+.light-theme :not(.modal-dark) button[class*="bg-white/"]:not(.bg-red-600):not(.bg-\[\#E50914\]),
+.light-theme :not(.modal-dark) label[class*="bg-white/"] {
+  background-color: #F3F4F6 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #111827 !important;
+}
+
+.light-theme :not(.modal-dark) button.bg-white\/5:not(.bg-red-600):not(.bg-\[\#E50914\]):hover,
+.light-theme :not(.modal-dark) button.bg-white\/10:not(.bg-red-600):not(.bg-\[\#E50914\]):hover,
+.light-theme :not(.modal-dark) .bg-white\/5 button:not(.bg-red-600):not(.bg-\[\#E50914\]):hover,
+.light-theme :not(.modal-dark) .bg-white\/10 button:not(.bg-red-600):not(.bg-\[\#E50914\]):hover,
+.light-theme :not(.modal-dark) button[class*="bg-white/"]:not(.bg-red-600):not(.bg-\[\#E50914\]):hover,
+.light-theme :not(.modal-dark) label[class*="bg-white/"]:hover {
+  background-color: #E5E7EB !important;
+  color: #000000 !important;
+}
+
+.light-theme :not(.modal-dark) button.bg-white\/5 svg,
+.light-theme :not(.modal-dark) button.bg-white\/10 svg,
+.light-theme :not(.modal-dark) .bg-white\/5 button svg,
+.light-theme :not(.modal-dark) .bg-white\/10 button svg,
+.light-theme :not(.modal-dark) label[class*="bg-white/"] svg {
+  color: #1F2937 !important;
+}
+
+/* Ensure SVGs inside colored containers inherit their proper icon colors instead of universal text overrides */
+.bg-red-500\/10 svg, .bg-red-500\/10 svg *,
+.bg-red-650\/10 svg, .bg-red-650\/10 svg *,
+.bg-orange-500\/10 svg, .bg-orange-500\/10 svg *,
+.bg-amber-500\/10 svg, .bg-amber-500\/10 svg *,
+.bg-green-500\/10 svg, .bg-green-500\/10 svg *,
+.bg-blue-950\/40 svg, .bg-blue-950\/40 svg *,
+.bg-blue-950\/20 svg, .bg-blue-950\/20 svg *,
+.bg-emerald-950\/40 svg, .bg-emerald-950\/20 svg *,
+.bg-amber-950\/40 svg, .bg-amber-950\/20 svg *,
+.bg-violet-950\/40 svg, .bg-violet-950\/20 svg *,
+.bg-pink-950\/40 svg, .bg-pink-950\/20 svg * {
+  color: inherit !important;
+}
+
+
