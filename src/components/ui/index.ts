@@ -6,3 +6,6 @@ export type { FieldProps } from './Field';
 
 export { GroupedSection, GroupedRow } from './GroupedSection';
 export type { GroupedSectionProps, GroupedRowProps } from './GroupedSection';
+
+export { Toast } from './Toast';
+export type { ToastProps, ToastTone } from './Toast';

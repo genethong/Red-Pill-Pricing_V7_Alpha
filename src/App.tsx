@@ -83,7 +83,8 @@ import {
 import { LoginScreen } from './components/LoginScreen';
 import { AdminPanel } from './components/AdminPanel';
 import { NumericInput } from './components/NumericInput';
-import { Button, Field } from './components/ui';
+import { Button, Field, Toast } from './components/ui';
+import type { ToastTone } from './components/ui';
 import { calculateAllStats } from './lib/dcEngine';
 import { LifeSimulationPanel } from './components/LifeSimulationPanel';
 import { CHART_SERIES, chartAxis, chartGrid, chartTooltipLabelStyle, chartTooltipStyle } from './lib/chartTheme';
@@ -318,6 +319,12 @@ export default function App() {
   const [userDbTemplates, setUserDbTemplates] = useState<SavedTemplate[]>([]);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
+  const [toast, setToast] = useState<{ message: string; tone: ToastTone } | null>(null);
+  const notify = React.useCallback((message: string, tone: ToastTone = 'info') => {
+    setToast({ message, tone });
+  }, []);
+  const dismissToast = React.useCallback(() => setToast(null), []);
+
   const [showSaveTemplateDbModal, setShowSaveTemplateDbModal] = useState(false);
   const [saveTemplateDbName, setSaveTemplateDbName] = useState("");
   const [templateIdToDeleteConfirm, setTemplateIdToDeleteConfirm] = useState<string | null>(null);
@@ -363,6 +370,7 @@ export default function App() {
     setShowSaveTemplateDbModal(false);
     setSaveTemplateDbName("");
     setSaveAsSystem(false);
+    notify(`Saved “${templateName}”.`, 'success');
   };
 
   const handleDeleteTemplateFromDb = (id: string, e: React.MouseEvent) => {
@@ -389,9 +397,9 @@ export default function App() {
         
         saveUserTemplate(currentUser.username, templateName, templateData);
         refreshUserDbData();
-        alert(`Imported “${templateName}”.`);
+        notify(`Imported “${templateName}”.`, 'success');
       } catch (err) {
-        alert("Couldn’t read that file. Use a project JSON.");
+        notify("Couldn’t read that file. Use a project JSON.", 'error');
       }
     };
     reader.readAsText(file);
@@ -1798,12 +1806,12 @@ export default function App() {
   const handleSaveOptimizedProject = (chosenOptionData: SiteInputs) => {
     if (!currentUser) return;
     if (!newOptimizedProjectName.trim()) {
-      alert("Enter a project name.");
+      notify("Enter a project name.", 'error');
       return;
     }
     saveUserTemplate(currentUser.username, newOptimizedProjectName.trim(), chosenOptionData);
     refreshUserDbData();
-    alert(`Saved “${newOptimizedProjectName.trim()}”.`);
+    notify(`Saved “${newOptimizedProjectName.trim()}”.`, 'success');
     setOptimizedProject(null);
     setSelectedOptimizationOptionIndex(null);
     setNewOptimizedProjectName("");
@@ -1862,9 +1870,9 @@ export default function App() {
         setCurrentStep(1);
         setActiveSection('grid');
         window.scrollTo(0, 0);
-        alert('Opened project.');
+        notify('Opened project.', 'success');
       } catch (err) {
-        alert('Couldn’t open that file. Use a project JSON.');
+        notify('Couldn’t open that file. Use a project JSON.', 'error');
       }
     };
     reader.readAsText(file);
@@ -2123,11 +2131,11 @@ export default function App() {
                     onClick={() => {
                       if (activeSection === 'comparison') {
                         if (comparedProjects.some(cp => cp.id === t.id)) {
-                          alert(`“${t.name}” is already in this comparison.`);
+                          notify(`“${t.name}” is already in this comparison.`, 'info');
                           return;
                         }
                         if (comparedProjects.length >= 4) {
-                          alert("You can compare up to 4 projects.");
+                          notify("You can compare up to 4 projects.", 'info');
                           return;
                         }
                         setComparedProjects([...comparedProjects, { id: t.id, name: t.name, data: t.data }]);
@@ -2135,13 +2143,13 @@ export default function App() {
                         setOptimizedProject({ id: t.id, name: t.name, data: t.data });
                         setSelectedOptimizationOptionIndex(null);
                         setNewOptimizedProjectName(`${t.name}_Optimized`);
-                        alert(`“${t.name}” is ready to optimize.`);
+                        notify(`“${t.name}” is ready to optimize.`, 'success');
                       } else {
                         setInputs(t.data);
                         setCurrentTemplateName(t.name);
                         setCurrentStep(1);
                         setActiveSection('grid');
-                        alert(`Opened “${t.name}”.`);
+                        notify(`Opened “${t.name}”.`, 'success');
                       }
                     }}
                     title={
@@ -5280,11 +5288,11 @@ export default function App() {
                             const project = JSON.parse(dataStr);
                             if (project && project.id) {
                               if (comparedProjects.some(cp => cp.id === project.id)) {
-                                alert(`“${project.name}” is already in this comparison.`);
+                                notify(`“${project.name}” is already in this comparison.`, 'info');
                                 return;
                               }
                               if (comparedProjects.length >= 4) {
-                                alert("You can compare up to 4 projects.");
+                                notify("You can compare up to 4 projects.", 'info');
                                 return;
                               }
                               setComparedProjects([...comparedProjects, project]);
@@ -5628,7 +5636,7 @@ export default function App() {
                               setOptimizedProject(project);
                               setSelectedOptimizationOptionIndex(null);
                               setNewOptimizedProjectName(`${project.name}_Optimized`);
-                              alert(`“${project.name}” is ready to optimize.`);
+                              notify(`“${project.name}” is ready to optimize.`, 'success');
                             }
                           } catch (err) {
                             console.error("Failed to drop project:", err);
@@ -5658,7 +5666,7 @@ export default function App() {
                                   setOptimizedProject({ id: t.id, name: t.name, data: t.data });
                                   setSelectedOptimizationOptionIndex(null);
                                   setNewOptimizedProjectName(`${t.name}_Optimized`);
-                                  alert(`“${t.name}” is ready to optimize.`);
+                                  notify(`“${t.name}” is ready to optimize.`, 'success');
                                 }}
                                 className="px-3.5 py-1.5 text-[length:var(--text-caption-1-size)] rounded-[var(--radius-capsule)] cursor-pointer bg-[var(--tint-soft)] text-[var(--tint)] hover:opacity-90"
                               >
@@ -6326,6 +6334,12 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {toast && (
+        <div className="fixed top-[calc(var(--toolbar-height)+var(--space-3))] left-1/2 -translate-x-1/2 z-[400] pointer-events-none">
+          <Toast message={toast.message} tone={toast.tone} onDismiss={dismissToast} />
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{ __html: `
         .custom-scrollbar::-webkit-scrollbar {
