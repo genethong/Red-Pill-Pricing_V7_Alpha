@@ -324,6 +324,9 @@ export default function App() {
     setToast({ message, tone });
   }, []);
   const dismissToast = React.useCallback(() => setToast(null), []);
+  const [committedSnapshot, setCommittedSnapshot] = useState(() => JSON.stringify(INITIAL_INPUTS));
+  const [pendingOpen, setPendingOpen] = useState<{ name: string; data: SiteInputs } | null>(null);
+  const [showReplaceSheet, setShowReplaceSheet] = useState(false);
 
   const [showSaveTemplateDbModal, setShowSaveTemplateDbModal] = useState(false);
   const [saveTemplateDbName, setSaveTemplateDbName] = useState("");
@@ -370,7 +373,19 @@ export default function App() {
     setShowSaveTemplateDbModal(false);
     setSaveTemplateDbName("");
     setSaveAsSystem(false);
+    setCommittedSnapshot(JSON.stringify(inputs));
     notify(`Saved “${templateName}”.`, 'success');
+    if (pendingOpen) {
+      const next = pendingOpen;
+      setPendingOpen(null);
+      setShowReplaceSheet(false);
+      setInputs(next.data);
+      setCurrentTemplateName(next.name);
+      setCurrentStep(1);
+      setActiveSection('grid');
+      setCommittedSnapshot(JSON.stringify(next.data));
+      notify(`Opened “${next.name}”.`, 'success');
+    }
   };
 
   const handleDeleteTemplateFromDb = (id: string, e: React.MouseEvent) => {
@@ -1830,10 +1845,36 @@ export default function App() {
     setSelectedModelIndex(0);
     setCurrentStep(1);
     setActiveSection('grid');
+    setCommittedSnapshot(JSON.stringify(template));
+    setPendingOpen(null);
+    setShowReplaceSheet(false);
     setShowNewProjectModal(false);
     setSelectedTemplate("");
     setNewProjectName("");
     window.scrollTo(0, 0);
+  };
+
+  const applyOpenDesign = (name: string, data: SiteInputs) => {
+    setInputs(data);
+    setCurrentTemplateName(name);
+    setSelectedModelIndex(0);
+    setCurrentStep(1);
+    setActiveSection('grid');
+    setCommittedSnapshot(JSON.stringify(data));
+    setPendingOpen(null);
+    setShowReplaceSheet(false);
+    setIsSidebarOpen(false);
+    window.scrollTo(0, 0);
+    notify(`Opened “${name}”.`, 'success');
+  };
+
+  const requestOpenDesign = (name: string, data: SiteInputs) => {
+    if (JSON.stringify(inputs) === committedSnapshot) {
+      applyOpenDesign(name, data);
+      return;
+    }
+    setPendingOpen({ name, data });
+    setShowReplaceSheet(true);
   };
 
   const handleSaveProject = () => {
@@ -1864,13 +1905,7 @@ export default function App() {
         const json = JSON.parse(e.target?.result as string);
         const templateData = json.data || json;
         const templateName = json.name || file.name.replace(".json", "");
-        setInputs(templateData);
-        setCurrentTemplateName(templateName);
-        setSelectedModelIndex(0);
-        setCurrentStep(1);
-        setActiveSection('grid');
-        window.scrollTo(0, 0);
-        notify('Opened project.', 'success');
+        requestOpenDesign(templateName, templateData);
       } catch (err) {
         notify('Couldn’t open that file. Use a project JSON.', 'error');
       }
@@ -2128,37 +2163,8 @@ export default function App() {
                         data: t.data
                       }));
                     }}
-                    onClick={() => {
-                      if (activeSection === 'comparison') {
-                        if (comparedProjects.some(cp => cp.id === t.id)) {
-                          notify(`“${t.name}” is already in this comparison.`, 'info');
-                          return;
-                        }
-                        if (comparedProjects.length >= 4) {
-                          notify("You can compare up to 4 projects.", 'info');
-                          return;
-                        }
-                        setComparedProjects([...comparedProjects, { id: t.id, name: t.name, data: t.data }]);
-                      } else if (activeSection === 'optimization') {
-                        setOptimizedProject({ id: t.id, name: t.name, data: t.data });
-                        setSelectedOptimizationOptionIndex(null);
-                        setNewOptimizedProjectName(`${t.name}_Optimized`);
-                        notify(`“${t.name}” is ready to optimize.`, 'success');
-                      } else {
-                        setInputs(t.data);
-                        setCurrentTemplateName(t.name);
-                        setCurrentStep(1);
-                        setActiveSection('grid');
-                        notify(`Opened “${t.name}”.`, 'success');
-                      }
-                    }}
-                    title={
-                      activeSection === 'comparison' 
-                        ? "Add to comparison" 
-                        : activeSection === 'optimization'
-                          ? "Use for optimization"
-                          : "Open this project"
-                    }
+                    onClick={() => requestOpenDesign(t.name, t.data)}
+                    title="Open this project"
                     className="flex items-center justify-between px-[var(--space-3)] min-h-9 cursor-grab active:cursor-grabbing group shadow-[inset_0_-0.5px_0_var(--separator)] last:shadow-none hover:bg-[var(--fill-quaternary)]"
                   >
                     <span className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label)] truncate font-normal max-w-[130px]">
@@ -6209,6 +6215,59 @@ export default function App() {
                     Download
                   </Button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showReplaceSheet && pendingOpen && (
+          <div className="sheet-backdrop z-[280]">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              className="sheet max-w-sm"
+            >
+              <div className="flex items-center gap-[var(--space-3)] mb-[var(--space-4)]">
+                <div className="p-2.5 bg-[var(--tint-soft)] rounded-[var(--radius-element)]">
+                  <AlertTriangle className="w-5 h-5 text-[var(--tint)]" />
+                </div>
+                <div>
+                  <h2 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Replace working design?</h2>
+                  <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] text-[var(--label-secondary)]">
+                    You have unsaved changes. Opening “{pendingOpen.name}” will replace them.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-[var(--space-2)]">
+                <Button
+                  variant="filled"
+                  className="w-full"
+                  onClick={() => applyOpenDesign(pendingOpen.name, pendingOpen.data)}
+                >
+                  Replace
+                </Button>
+                <Button
+                  variant="tinted"
+                  className="w-full"
+                  onClick={() => {
+                    setShowReplaceSheet(false);
+                    setSaveTemplateDbName(currentTemplateName);
+                    setShowSaveTemplateDbModal(true);
+                  }}
+                >
+                  Save first
+                </Button>
+                <Button
+                  variant="gray"
+                  className="w-full"
+                  onClick={() => {
+                    setShowReplaceSheet(false);
+                    setPendingOpen(null);
+                  }}
+                >
+                  Cancel
+                </Button>
               </div>
             </motion.div>
           </div>
