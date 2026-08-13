@@ -389,9 +389,9 @@ export default function App() {
         
         saveUserTemplate(currentUser.username, templateName, templateData);
         refreshUserDbData();
-        alert(`Template "${templateName}" uploaded and saved to your account!`);
+        alert(`Imported “${templateName}”.`);
       } catch (err) {
-        alert("Failed to parse the template JSON file.");
+        alert("Couldn’t read that file. Use a project JSON.");
       }
     };
     reader.readAsText(file);
@@ -995,14 +995,14 @@ export default function App() {
   };
 
   const STEPS = [
-    { id: 1, name: '1. Site & Load', icon: MapPin, sections: ['grid', 'tenant'] },
-    { id: 2, name: '2. Power System', icon: Zap, sections: ['battery', 'rectifier', 'solar', 'dg', 'cabinet', 'monitoring'] },
-    { id: 3, name: '3. Modelling', icon: Calculator, sections: ['modelling'] },
-    { id: 4, name: '4. Operational Analysis', icon: Activity, sections: ['operation'] },
-    { id: 5, name: '5. Costs & Financials', icon: DollarSign, sections: ['costs', 'financials'] },
-    { id: 6, name: '6. Bill of Quantities', icon: ListChecks, sections: ['boq'] },
-    { id: 7, name: '7. Final Report', icon: FileText, sections: ['report'] },
-    { id: 8, name: '8. Life Simulation', icon: GitCompare, sections: ['life_sim'] },
+    { id: 1, name: 'Site & load', icon: MapPin, sections: ['grid', 'tenant'] },
+    { id: 2, name: 'Power system', icon: Zap, sections: ['battery', 'rectifier', 'solar', 'dg', 'cabinet', 'monitoring'] },
+    { id: 3, name: 'Modelling', icon: Calculator, sections: ['modelling'] },
+    { id: 4, name: 'Operations', icon: Activity, sections: ['operation'] },
+    { id: 5, name: 'Costs', icon: DollarSign, sections: ['costs', 'financials'] },
+    { id: 6, name: 'Bill of quantities', icon: ListChecks, sections: ['boq'] },
+    { id: 7, name: 'Report', icon: FileText, sections: ['report'] },
+    { id: 8, name: 'Life simulation', icon: GitCompare, sections: ['life_sim'] },
   ];
 
   const handleExportPDF = (customFilename?: string) => {
@@ -1798,12 +1798,12 @@ export default function App() {
   const handleSaveOptimizedProject = (chosenOptionData: SiteInputs) => {
     if (!currentUser) return;
     if (!newOptimizedProjectName.trim()) {
-      alert("Please enter a valid project name.");
+      alert("Enter a project name.");
       return;
     }
     saveUserTemplate(currentUser.username, newOptimizedProjectName.trim(), chosenOptionData);
     refreshUserDbData();
-    alert(`Optimized project "${newOptimizedProjectName.trim()}" successfully saved!`);
+    alert(`Saved “${newOptimizedProjectName.trim()}”.`);
     setOptimizedProject(null);
     setSelectedOptimizationOptionIndex(null);
     setNewOptimizedProjectName("");
@@ -1862,9 +1862,9 @@ export default function App() {
         setCurrentStep(1);
         setActiveSection('grid');
         window.scrollTo(0, 0);
-        alert('Project loaded successfully!');
+        alert('Opened project.');
       } catch (err) {
-        alert('Error loading project file. Please ensure it is a valid JSON config.');
+        alert('Couldn’t open that file. Use a project JSON.');
       }
     };
     reader.readAsText(file);
@@ -1927,7 +1927,7 @@ export default function App() {
                 <span className="text-[var(--label-quaternary)] text-[length:var(--text-footnote-size)]">/</span>
                 <span 
                   className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] tracking-[var(--text-caption-1-tracking)] px-[var(--space-2)] py-[var(--space-1)] rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] text-[var(--label-secondary)] max-w-[120px] sm:max-w-xs truncate"
-                  title={`Active Design Template: ${currentTemplateName}`}
+                  title={`Current design: ${currentTemplateName}`}
                 >
                   {currentTemplateName}
                 </span>
@@ -1940,7 +1940,7 @@ export default function App() {
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
             className="flex items-center justify-center w-9 h-9 rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label)] cursor-pointer"
-            title={isDarkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
+            title={isDarkMode ? "Use light appearance" : "Use dark appearance"}
             aria-label="Toggle Theme"
           >
             {isDarkMode ? (
@@ -2052,7 +2052,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="font-[family-name:var(--font-title)] text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] tracking-[var(--text-headline-tracking)] font-semibold text-[var(--label)]">Red Pill</h1>
-              <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] tracking-[var(--text-caption-1-tracking)] text-[var(--label-tertiary)]">Pricing Engine</p>
+              <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] tracking-[var(--text-caption-1-tracking)] text-[var(--label-tertiary)]">Design & pricing</p>
             </div>
           </div>
 
@@ -2069,7 +2069,7 @@ export default function App() {
                 setSaveTemplateDbName(currentTemplateName);
                 setShowSaveTemplateDbModal(true);
               }}
-              title="Save this configuration as a custom project in your account"
+              title="Save this design to Projects"
               className={chromeAction}
             >
               <CheckCircle2 className="w-4 h-4 text-[var(--label-secondary)]" />
@@ -2077,7 +2077,7 @@ export default function App() {
             </Button>
 
             <label 
-              title="Upload project JSON file to your account database"
+              title="Import a project file"
               className={cn(
                 chromeNav(false),
                 "cursor-pointer"
@@ -2092,7 +2092,7 @@ export default function App() {
               variant="gray"
               size="compact"
               onClick={handleSaveProject}
-              title="Download currently working design as a JSON project file"
+              title="Export this design as a file"
               className={chromeAction}
             >
               <Download className="w-4 h-4 text-[var(--label-secondary)]" />
@@ -2106,7 +2106,7 @@ export default function App() {
           {userDbTemplates.length > 0 && (
             <div>
               <span className={chromeSectionLabel}>
-                My projects ({userDbTemplates.length})
+                Projects ({userDbTemplates.length})
               </span>
               <div className="flex flex-col max-h-[160px] overflow-y-auto custom-scrollbar rounded-[var(--radius-element)] bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
                 {userDbTemplates.map((t) => (
@@ -2123,11 +2123,11 @@ export default function App() {
                     onClick={() => {
                       if (activeSection === 'comparison') {
                         if (comparedProjects.some(cp => cp.id === t.id)) {
-                          alert(`Project "${t.name}" is already in comparison!`);
+                          alert(`“${t.name}” is already in this comparison.`);
                           return;
                         }
                         if (comparedProjects.length >= 4) {
-                          alert("Maximum of 4 projects can be compared simultaneously.");
+                          alert("You can compare up to 4 projects.");
                           return;
                         }
                         setComparedProjects([...comparedProjects, { id: t.id, name: t.name, data: t.data }]);
@@ -2135,21 +2135,21 @@ export default function App() {
                         setOptimizedProject({ id: t.id, name: t.name, data: t.data });
                         setSelectedOptimizationOptionIndex(null);
                         setNewOptimizedProjectName(`${t.name}_Optimized`);
-                        alert(`Project "${t.name}" loaded for Design Optimization!`);
+                        alert(`“${t.name}” is ready to optimize.`);
                       } else {
                         setInputs(t.data);
                         setCurrentTemplateName(t.name);
                         setCurrentStep(1);
                         setActiveSection('grid');
-                        alert(`Project "${t.name}" loaded as working inputs!`);
+                        alert(`Opened “${t.name}”.`);
                       }
                     }}
                     title={
                       activeSection === 'comparison' 
-                        ? "Drag or click to add this project for side-by-side comparison" 
+                        ? "Add to comparison" 
                         : activeSection === 'optimization'
-                          ? "Click to select this project for Design Optimization"
-                          : "Click to load project inputs"
+                          ? "Use for optimization"
+                          : "Open this project"
                     }
                     className="flex items-center justify-between px-[var(--space-3)] min-h-9 cursor-grab active:cursor-grabbing group shadow-[inset_0_-0.5px_0_var(--separator)] last:shadow-none hover:bg-[var(--fill-quaternary)]"
                   >
@@ -2187,7 +2187,7 @@ export default function App() {
                           setTemplateIdToDeleteConfirm(t.id);
                         }}
                         className="p-1 text-[var(--label-quaternary)] hover:text-[var(--system-red)] opacity-0 group-hover:opacity-100 cursor-pointer"
-                        title="Delete custom template"
+                        title="Remove from Projects"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -2200,7 +2200,7 @@ export default function App() {
 
           <div>
             <span className={chromeSectionLabel}>
-              Analysis and insights
+              Analyze
             </span>
             <button
               onClick={() => {
@@ -2211,7 +2211,7 @@ export default function App() {
             >
               <div className="flex items-center gap-[var(--space-3)]">
                 <GitCompare className="w-4 h-4 shrink-0" />
-                <span>Project comparison</span>
+                <span>Compare</span>
               </div>
               <span 
                 className={cn(
@@ -2233,13 +2233,13 @@ export default function App() {
               className={chromeNav(activeSection === 'optimization')}
             >
               <Sparkles className="w-4 h-4 shrink-0" />
-              <span>Design optimization</span>
+              <span>Optimize</span>
             </button>
           </div>
 
           <div>
             <span className={chromeSectionLabel}>
-              Modulation flow
+              Design
             </span>
             {STEPS.map((step) => (
               <div key={step.id}>
@@ -2260,8 +2260,8 @@ export default function App() {
                     {step.id === 1 && (
                       <>
                         {[
-                          { id: 'grid', name: 'Grid Condition', icon: LayoutDashboard },
-                          { id: 'tenant', name: 'Tenant Loads', icon: Users },
+                          { id: 'grid', name: 'Grid', icon: LayoutDashboard },
+                          { id: 'tenant', name: 'Tenant loads', icon: Users },
                         ].map((section) => (
                           <button
                             key={section.id}
@@ -2277,12 +2277,12 @@ export default function App() {
                     {step.id === 2 && (
                       <>
                         {[
-                          { id: 'battery', name: 'Battery Storage', icon: Battery },
-                          { id: 'rectifier', name: 'Rectifier System', icon: Zap },
-                          { id: 'solar', name: 'Solar PV', icon: Sun },
-                          { id: 'dg', name: 'Diesel Generator', icon: Server },
-                          { id: 'cabinet', name: 'Cabinet Layout', icon: Box },
-                          { id: 'monitoring', name: 'Remote Control', icon: Monitor },
+                          { id: 'battery', name: 'Battery', icon: Battery },
+                          { id: 'rectifier', name: 'Rectifier', icon: Zap },
+                          { id: 'solar', name: 'Solar', icon: Sun },
+                          { id: 'dg', name: 'Generator', icon: Server },
+                          { id: 'cabinet', name: 'Cabinets', icon: Box },
+                          { id: 'monitoring', name: 'Monitoring', icon: Monitor },
                         ].map((section) => (
                           <button
                             key={section.id}
@@ -2298,8 +2298,8 @@ export default function App() {
                     {step.id === 5 && (
                       <>
                         {[
-                          { id: 'costs', name: 'Cost Breakdown', icon: ListChecks },
-                          { id: 'financials', name: 'Financial Model', icon: TrendingUp },
+                          { id: 'costs', name: 'Unit costs', icon: ListChecks },
+                          { id: 'financials', name: 'Financials', icon: TrendingUp },
                         ].map((section) => (
                           <button
                             key={section.id}
@@ -2342,14 +2342,14 @@ export default function App() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-red-500" />
-                    1. Grid Condition
+                    Grid
                   </h2>
                   
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Left: Input Selection */}
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-gray-400">Grid Condition</label>
+                        <label className="text-xs font-medium text-gray-400">Grid condition</label>
                         <select 
                           value={inputs.gridCondition}
                           onChange={(e) => setInputs({...inputs, gridCondition: e.target.value as GridCondition})}
@@ -2364,7 +2364,7 @@ export default function App() {
                       {inputs.gridCondition !== 'Off-grid' && (
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-xs font-medium text-gray-400">Daily Outages</label>
+                            <label className="text-xs font-medium text-gray-400">Outages per day</label>
                             <NumericInput 
                               value={inputs.dailyOutages ?? ""}
                               onChange={(e) => handleNumericInput(e.target.value, (val) => setInputs({...inputs, dailyOutages: val}))}
@@ -2372,7 +2372,7 @@ export default function App() {
                             />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-xs font-medium text-gray-400">Outage Duration (Hrs)</label>
+                            <label className="text-xs font-medium text-gray-400">Hours per outage</label>
                             <NumericInput 
                               value={inputs.outageDuration ?? ""}
                               onChange={(e) => handleNumericInput(e.target.value, (val) => setInputs({...inputs, outageDuration: val}))}
@@ -2489,7 +2489,7 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <Users className="w-5 h-5 text-red-500" />
-                      2. Tenant Loads
+                      Tenant loads
                     </h2>
                   </div>
 
@@ -2498,7 +2498,7 @@ export default function App() {
                       <React.Fragment key={idx}>
                         <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-4 relative">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-red-500 uppercase tracking-widest">TENANT {idx + 1}</span>
+                            <span className="text-xs font-bold text-red-500 uppercase tracking-widest">Tenant {idx + 1}</span>
                             {inputs.tenantLoads.length > 1 && (
                               <button
                                 type="button"
@@ -2570,7 +2570,7 @@ export default function App() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Battery className="w-5 h-5 text-red-500" />
-                    3. Battery Storage Details
+                    Battery
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -2637,7 +2637,7 @@ export default function App() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Server className="w-5 h-5 text-red-500" />
-                    4. Rectifier System Details
+                    Rectifier
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -2718,7 +2718,7 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <Sun className="w-5 h-5 text-red-500" />
-                      5. Solar PV Details
+                      Solar
                     </h2>
                     <div className="inline-flex items-center p-[3px] rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] shadow-[0_0_0_0.5px_var(--separator)] select-none">
                       <button
@@ -2818,7 +2818,7 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <Zap className="w-5 h-5 text-red-500" />
-                      6. Diesel Generator Details
+                      Generator
                     </h2>
                     <div className="inline-flex items-center p-[3px] rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] shadow-[0_0_0_0.5px_var(--separator)] select-none">
                       <button
@@ -2945,7 +2945,7 @@ export default function App() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Box className="w-5 h-5 text-red-500" />
-                    7. Cabinet & ACDB Details
+                    Cabinets
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -3007,7 +3007,7 @@ export default function App() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Monitor className="w-5 h-5 text-red-500" />
-                    8. Remote Monitoring
+                    Monitoring
                   </h2>
                   <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -3038,7 +3038,7 @@ export default function App() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <Activity className="w-5 h-5 text-red-500" />
-                      Operational Analysis
+                      Operations
                     </h2>
                     <div className="flex flex-wrap items-center gap-2 md:gap-3">
                       <button
@@ -3460,7 +3460,7 @@ export default function App() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <ListChecks className="w-5 h-5 text-red-500" />
-                      Multi-Model Bill of Quantities
+                      Bill of quantities
                     </h2>
                     <div className="flex flex-wrap items-center gap-2 md:gap-3">
                       {modellingResults.length > 1 && (
@@ -3490,9 +3490,9 @@ export default function App() {
                         <Calculator className="w-6 h-6 text-red-500" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-white font-bold">No Modelling Data</h3>
+                        <h3 className="text-white font-bold">No models yet</h3>
                         <p className="text-sm text-gray-500 max-w-sm mx-auto">
-                          Please run the Sensitivity Analysis in the Modelling section first to generate iterative models for comparison.
+                          Run models in Modelling before you can compare costs.
                         </p>
                       </div>
                       <button 
@@ -3502,7 +3502,7 @@ export default function App() {
                         }}
                         className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all"
                       >
-                        Go to Modelling
+                        Open Modelling
                       </button>
                     </div>
                   ) : (
@@ -3691,7 +3691,7 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <FileText className="w-5 h-5 text-red-500" />
-                      Cost Configuration
+                      Unit costs
                     </h2>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Currency:</span>
@@ -3951,10 +3951,13 @@ export default function App() {
               {activeSection === 'financials' && (
                 <div className="space-y-8">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-red-500" />
-                      Financial Model & Cash Flow
-                    </h2>
+                    <div>
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-red-500" />
+                        Financials
+                      </h2>
+                      <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">MRR is monthly recurring revenue. LCOE is lifetime cost per kWh.</p>
+                    </div>
                     <div className="flex items-center gap-4">
                       <button
                         onClick={handleExportFinancialModelXLS}
@@ -4458,7 +4461,7 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
                       <ListChecks className="w-5 h-5 text-red-500" />
-                      Itemized Cost Breakdown
+                      Cost breakdown
                     </h2>
                     <div className="text-[10px] bg-red-500/20 text-red-500 px-2 py-1 rounded font-bold uppercase tracking-wider">
                       Currency: {inputs.financials.currency}
@@ -4677,7 +4680,7 @@ export default function App() {
                 <div className="space-y-6">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     <Calculator className="w-5 h-5 text-red-500" />
-                    Modelling Requirements
+                    Modelling
                   </h2>
                   <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -4794,9 +4797,9 @@ export default function App() {
                     <div>
                       <h2 className="text-xl md:text-2xl font-black text-white flex items-center gap-3">
                         <FileText className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
-                        EXECUTIVE SUMMARY
+                        Executive summary
                       </h2>
-                      <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Project Proposal & Financial Analysis</p>
+                      <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Proposal and financial analysis</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 md:gap-3 no-print">
                       <button 
@@ -5232,7 +5235,7 @@ export default function App() {
                       <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">
                         Project comparison
                       </h2>
-                      <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-0.5">Compare load, costs, energy mix, and replacement timelines side by side</p>
+                      <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-0.5">Load, cost, energy mix, and replacement year — side by side</p>
                     </div>
                   </div>
 
@@ -5242,11 +5245,10 @@ export default function App() {
                         <GitCompare className="w-8 h-8" />
                       </div>
                       <div className="max-w-md space-y-2">
-                        <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Multiple projects required</h3>
+                        <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Save at least two projects</h3>
                         <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)]">
-                          Comparison works best with more than one saved configuration.
-                          Load a design and click <strong className="text-[var(--label)] font-medium">Save as project</strong> in the sidebar.
-                          You currently have <span className="text-[var(--tint)] font-semibold">{userDbTemplates.length}</span> saved project{userDbTemplates.length === 1 ? '' : 's'}. You need at least 2 to unlock comparative analytics.
+                          Use <strong className="text-[var(--label)] font-medium">Save as project</strong> in the sidebar.
+                          You have <span className="text-[var(--tint)] font-semibold">{userDbTemplates.length}</span> saved. Two are needed to compare.
                         </p>
                       </div>
                       {userDbTemplates.length === 1 && (
@@ -5278,11 +5280,11 @@ export default function App() {
                             const project = JSON.parse(dataStr);
                             if (project && project.id) {
                               if (comparedProjects.some(cp => cp.id === project.id)) {
-                                alert(`Project "${project.name}" is already in comparison!`);
+                                alert(`“${project.name}” is already in this comparison.`);
                                 return;
                               }
                               if (comparedProjects.length >= 4) {
-                                alert("Maximum of 4 projects can be compared simultaneously.");
+                                alert("You can compare up to 4 projects.");
                                 return;
                               }
                               setComparedProjects([...comparedProjects, project]);
@@ -5312,8 +5314,8 @@ export default function App() {
                           {comparedProjects.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-6 text-center space-y-2">
                               <GitCompare className="w-8 h-8 text-[var(--label-quaternary)] mb-1" />
-                              <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)]">Drag saved projects from My projects here</p>
-                              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">Or click them in the sidebar to add them</p>
+                              <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)]">Drag projects here, or use Quick add</p>
+                              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">You can also click a project in the sidebar</p>
                             </div>
                           ) : (
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -5586,7 +5588,7 @@ export default function App() {
                           <Columns className="w-10 h-10 text-[var(--label-quaternary)]" />
                           <div className="max-w-md space-y-1">
                             <h4 className="text-[length:var(--text-headline-size)] font-semibold text-[var(--label)]">Empty workspace</h4>
-                            <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Drag a project from My projects in the sidebar, or use Quick add above, to compare side by side.</p>
+                            <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Add a project with Quick add, or drag one from Projects.</p>
                           </div>
                         </div>
                       )}
@@ -5605,7 +5607,7 @@ export default function App() {
                       <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">
                         Design optimization
                       </h2>
-                      <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-0.5">Test battery, charger, generator, and solar options to lower LCOE and breakeven MRR</p>
+                      <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-0.5">Try other battery, charger, generator, and solar sizes to lower LCOE and breakeven MRR</p>
                     </div>
                   </div>
 
@@ -5626,7 +5628,7 @@ export default function App() {
                               setOptimizedProject(project);
                               setSelectedOptimizationOptionIndex(null);
                               setNewOptimizedProjectName(`${project.name}_Optimized`);
-                              alert(`Project "${project.name}" selected for Optimization!`);
+                              alert(`“${project.name}” is ready to optimize.`);
                             }
                           } catch (err) {
                             console.error("Failed to drop project:", err);
@@ -5638,9 +5640,9 @@ export default function App() {
                           <Sliders className="w-8 h-8" />
                         </div>
                         <div className="max-w-md space-y-2">
-                          <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Drag a saved project here to optimize</h3>
+                          <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Choose a project to optimize</h3>
                           <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)]">
-                            Drag from <strong className="text-[var(--label)] font-medium">My projects</strong> in the sidebar, or click a saved project below.
+                            Drag from <strong className="text-[var(--label)] font-medium">Projects</strong>, or pick one below.
                           </p>
                         </div>
                       </div>
@@ -5656,7 +5658,7 @@ export default function App() {
                                   setOptimizedProject({ id: t.id, name: t.name, data: t.data });
                                   setSelectedOptimizationOptionIndex(null);
                                   setNewOptimizedProjectName(`${t.name}_Optimized`);
-                                  alert(`Project "${t.name}" selected for Optimization!`);
+                                  alert(`“${t.name}” is ready to optimize.`);
                                 }}
                                 className="px-3.5 py-1.5 text-[length:var(--text-caption-1-size)] rounded-[var(--radius-capsule)] cursor-pointer bg-[var(--tint-soft)] text-[var(--tint)] hover:opacity-90"
                               >
@@ -5708,12 +5710,12 @@ export default function App() {
                               {options.length === 0 ? (
                                 <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-8 max-w-xl mx-auto text-center space-y-4 shadow-[0_0_0_0.5px_var(--separator)]">
                                   <Sparkles className="w-8 h-8 text-[var(--system-green)] mx-auto" />
-                                  <h3 className="text-[length:var(--text-headline-size)] font-semibold text-[var(--label)]">Already at peak efficiency</h3>
+                                  <h3 className="text-[length:var(--text-headline-size)] font-semibold text-[var(--label)]">No cheaper option found</h3>
                                   <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] leading-relaxed">
-                                    The optimizer tested combinations of solar, battery backup, charging rate, and generator runtime.
+                                    Solar, battery, and generator combinations were tested.
                                   </p>
                                   <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] leading-relaxed">
-                                    The current baseline cannot be improved further without raising amortized LCOE or breakeven MRR.
+                                    Changing them would raise LCOE or breakeven MRR.
                                   </p>
                                 </div>
                               ) : (
@@ -6052,7 +6054,7 @@ export default function App() {
                     disabled={currentStep === STEPS.length}
                     className={cn(currentStep === STEPS.length && "hidden")}
                   >
-                    <span>{currentStep === 6 ? (window.innerWidth < 640 ? 'Report' : 'Generate final report') : currentStep === 7 ? (window.innerWidth < 640 ? 'Life Sim' : 'Life simulation') : (window.innerWidth < 640 ? 'Next' : 'Next')}</span>
+                    <span>{currentStep === 6 ? 'Report' : currentStep === 7 ? 'Life simulation' : 'Next'}</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>

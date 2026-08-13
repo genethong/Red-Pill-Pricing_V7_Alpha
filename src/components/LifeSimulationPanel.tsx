@@ -149,10 +149,8 @@ export function LifeSimulationPanel({ projects }: Props) {
           <div>
             <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">Life simulation</h2>
             <p className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-medium text-[var(--label-secondary)] mt-1 max-w-3xl">
-              Compare a <strong className="text-[var(--label)] font-medium">baseline</strong> and a <strong className="text-[var(--label)] font-medium">change</strong> scenario
-              from <strong className="text-[var(--label)] font-medium">My projects</strong>. Save two projects first (different grid/load as needed).
-              Here you only set <strong className="text-[var(--label)] font-medium">change year</strong> and optional <strong className="text-[var(--label)] font-medium">load change</strong>.
-              Mode A keeps the baseline plant (including no genset) and only changes grid/load; Mode B may add kit such as a genset.
+              Pick a <strong className="text-[var(--label)] font-medium">baseline</strong> and a <strong className="text-[var(--label)] font-medium">change</strong> from Projects.
+              Set the <strong className="text-[var(--label)] font-medium">change year</strong> (and optional load). Mode A keeps this plant. Mode B may add kit at the change.
             </p>
           </div>
         </div>
@@ -161,11 +159,9 @@ export function LifeSimulationPanel({ projects }: Props) {
           <div className="mb-4 flex items-start gap-2 rounded-[var(--radius-element)] bg-[color-mix(in_srgb,var(--system-orange)_12%,transparent)] p-3 text-[length:var(--text-footnote-size)] text-[var(--system-orange)]">
             <Info size={16} className="shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Save at least two projects under My projects</p>
+              <p className="font-semibold">Save two projects first</p>
               <p className="mt-1 opacity-80">
-                1) Configure baseline site (grid, load, power system, costs) → Save project.<br />
-                2) Configure the post-change scenario (e.g. worse grid) → Save as a second project.<br />
-                3) Return here, pick both, set change year (± load), then review Mode A / B.
+                Save the baseline design. Save the post-change site (for example a worse grid) as a second project. Then pick both here.
               </p>
             </div>
           </div>
@@ -177,14 +173,14 @@ export function LifeSimulationPanel({ projects }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] flex items-center gap-1.5">
-                  <FolderOpen size={12} /> Baseline project (Year 0 design & grid)
+                  <FolderOpen size={12} /> Baseline (year 0 plant and grid)
                 </label>
                 <select
                   value={baselineId}
                   onChange={e => setBaselineId(e.target.value)}
                   className={`mt-1 ${selectClass}`}
                 >
-                  <option value="">— Select saved project —</option>
+                  <option value="">Choose a project…</option>
                   {projects.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
@@ -195,14 +191,14 @@ export function LifeSimulationPanel({ projects }: Props) {
               </div>
               <div>
                 <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] flex items-center gap-1.5">
-                  <FolderOpen size={12} /> Change project (post-shock grid & load)
+                  <FolderOpen size={12} /> Change (grid and load after the shock)
                 </label>
                 <select
                   value={changeId}
                   onChange={e => setChangeId(e.target.value)}
                   className={`mt-1 ${selectClass}`}
                 >
-                  <option value="">— Select saved project —</option>
+                  <option value="">Choose a project…</option>
                   {projects.map(p => (
                     <option key={p.id} value={p.id} disabled={p.id === baselineId}>{p.name}</option>
                   ))}
@@ -214,7 +210,7 @@ export function LifeSimulationPanel({ projects }: Props) {
             </div>
 
             {baselineId && changeId && baselineId === changeId && (
-              <p className="text-[length:var(--text-footnote-size)] text-[var(--system-red)]">Baseline and change must be two different saved projects.</p>
+              <p className="text-[length:var(--text-footnote-size)] text-[var(--system-red)]">Pick two different projects.</p>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
@@ -230,7 +226,7 @@ export function LifeSimulationPanel({ projects }: Props) {
                   disabled={!canRun}
                 />
                 <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
-                  Tenure from baseline: {tenure} years · Shock applies from this year onward
+                  Baseline tenure: {tenure} years. The shock applies from this year on.
                 </p>
               </div>
               <div>
@@ -242,7 +238,7 @@ export function LifeSimulationPanel({ projects }: Props) {
                     className="accent-[var(--tint)]"
                     disabled={!canRun}
                   />
-                  Additional load change on post-shock years
+                  Extra load change after the shock
                 </label>
                 {enableLoadChange && (
                   <div className="mt-2">
@@ -256,7 +252,7 @@ export function LifeSimulationPanel({ projects }: Props) {
                       className={`mt-1 ${selectClass}`}
                     />
                     <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
-                      Applied on top of the change project loads (e.g. 20 = +20%). Grid and load still from the change project.
+                      Added to the change project’s loads (20 means +20%). Grid still comes from the change project.
                     </p>
                   </div>
                 )}
@@ -269,9 +265,9 @@ export function LifeSimulationPanel({ projects }: Props) {
             <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Commercial response</label>
             <div className="flex flex-col gap-1">
               {([
-                { id: 'A' as const, label: 'Mode A — Operate as designed' },
-                { id: 'B' as const, label: 'Mode B — Adaptive re-investment' },
-                { id: 'compare' as const, label: 'Compare A vs B' }
+                { id: 'A' as const, label: 'Mode A — Keep this plant' },
+                { id: 'B' as const, label: 'Mode B — Resize at the change' },
+                { id: 'compare' as const, label: 'Compare A and B' }
               ]).map(opt => (
                 <label
                   key={opt.id}
@@ -294,10 +290,10 @@ export function LifeSimulationPanel({ projects }: Props) {
             </div>
             <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] leading-relaxed">
               {mode === 'B'
-                ? 'Mode B re-sizes at the change year to the change project’s design (e.g. add a genset) and operates that upgraded kit.'
+                ? 'Mode B rebuilds the plant at the change year to match the change project (for example adding a genset).'
                 : mode === 'compare'
-                  ? 'A keeps the Year-0 kit on the new grid/load. B may add kit (genset, battery, etc.) at the change year.'
-                  : 'Mode A keeps the Year-0 design (battery, rectifier, genset yes/no) and only applies the change project’s grid and load. Residual outage after battery is unserved if no genset was installed.'}
+                  ? 'A keeps year-0 kit on the new grid and load. B may add kit at the change year.'
+                  : 'Mode A keeps the year-0 plant and only applies the change project’s grid and load. Hours the battery cannot cover stay unserved if there is no genset.'}
             </p>
             <label className="flex items-center gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-3">
               <input
@@ -323,7 +319,7 @@ export function LifeSimulationPanel({ projects }: Props) {
 
       {!canRun && (
         <div className="text-center text-[length:var(--text-subhead-size)] text-[var(--label-tertiary)] py-12 rounded-[var(--radius-element)] shadow-[0_0_0_0.5px_var(--separator)]">
-          Select two different saved projects from MY PROJECT to run life simulation.
+          Choose two different projects to run the simulation.
         </div>
       )}
 
@@ -334,7 +330,7 @@ export function LifeSimulationPanel({ projects }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <DeltaCard title="Mode A vs Baseline" currency={currency} delta={simResult.deltaA} accent="amber" />
               <DeltaCard title="Mode B vs Baseline" currency={currency} delta={simResult.deltaB} accent="emerald" />
-              <DeltaCard title="B − A (value of reinvest)" currency={currency} delta={simResult.deltaBminusA} accent="sky" />
+              <DeltaCard title="B − A (value of resizing)" currency={currency} delta={simResult.deltaBminusA} accent="sky" />
             </div>
           ) : (
             (mode === 'B' ? simResult.deltaB : simResult.deltaA) && (
