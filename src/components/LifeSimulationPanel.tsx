@@ -140,7 +140,7 @@ export function LifeSimulationPanel({ projects }: Props) {
     'w-full h-[var(--control-height)] bg-[var(--fill-tertiary)] rounded-[var(--radius-control)] px-[var(--space-3)] text-[var(--label)] text-[length:var(--text-body-size)] outline-none shadow-[0_0_0_0.5px_var(--separator)] focus:shadow-[0_0_0_2px_var(--tint-soft),0_0_0_0.5px_var(--tint)] disabled:opacity-40';
 
   return (
-    <div className="space-y-6">
+    <div className="life-sim space-y-6">
       <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-[var(--space-5)] shadow-[0_0_0_0.5px_var(--separator)]">
         <div className="flex items-start gap-3 mb-4">
           <div className="p-2 rounded-[var(--radius-control)] bg-[var(--tint-soft)] text-[var(--tint)]">
@@ -148,7 +148,7 @@ export function LifeSimulationPanel({ projects }: Props) {
           </div>
           <div>
             <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">Life simulation</h2>
-            <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-1 max-w-3xl">
+            <p className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-medium text-[var(--label-secondary)] mt-1 max-w-3xl">
               Compare a <strong className="text-[var(--label)] font-medium">baseline</strong> and a <strong className="text-[var(--label)] font-medium">change</strong> scenario
               from <strong className="text-[var(--label)] font-medium">My projects</strong>. Save two projects first (different grid/load as needed).
               Here you only set <strong className="text-[var(--label)] font-medium">change year</strong> and optional <strong className="text-[var(--label)] font-medium">load change</strong>.

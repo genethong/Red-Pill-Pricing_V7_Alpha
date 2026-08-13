@@ -837,6 +837,44 @@ input[type="number"] {
   color: var(--label-secondary) !important;
 }
 
+.life-sim {
+  font-weight: 500;
+}
+
+.life-sim label {
+  font-weight: 500 !important;
+  color: var(--label) !important;
+}
+
+.life-sim p,
+.life-sim td,
+.life-sim li {
+  font-weight: 500;
+}
+
+.life-sim table {
+  color: var(--label);
+}
+
+.life-sim thead th {
+  color: var(--label-secondary) !important;
+  font-weight: 600 !important;
+}
+
+.life-sim .text-gray-300,
+.life-sim .text-gray-400 {
+  color: var(--label) !important;
+}
+
+.life-sim .text-gray-500,
+.life-sim .text-gray-600 {
+  color: var(--label-secondary) !important;
+}
+
+.life-sim .text-\[var\(--label-tertiary\)\] {
+  color: var(--label-secondary) !important;
+}
+
 .step-card input[type="text"]:not(.ui-numeric-input),
 .step-card input[type="number"],
 .step-card select {
