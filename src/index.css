@@ -862,6 +862,32 @@ input[type="number"] {
   color: var(--label) !important;
 }
 
+.light-theme .step-card input[type="text"]:not(.ui-numeric-input):not(.ui-field-input),
+.light-theme .step-card input[type="number"],
+.light-theme .step-card select {
+  background-color: var(--fill-tertiary) !important;
+  border-color: transparent !important;
+  color: var(--label) !important;
+}
+
+.light-theme .step-card input[type="text"]:not(.ui-numeric-input):not(.ui-field-input):focus,
+.light-theme .step-card input[type="number"]:focus,
+.light-theme .step-card select:focus {
+  border-color: transparent !important;
+  box-shadow: 0 0 0 2px var(--tint-soft), 0 0 0 0.5px var(--tint) !important;
+}
+
+.light-theme .step-card option {
+  background-color: var(--bg-elevated) !important;
+  color: var(--label) !important;
+}
+
+.light-theme .step-card .bg-\[\#121212\],
+.light-theme .step-card .bg-black\/30,
+.light-theme .step-card .bg-black\/20 {
+  background-color: var(--fill-quaternary) !important;
+}
+
 .step-card input[type="checkbox"] {
   accent-color: var(--tint);
   width: 16px;

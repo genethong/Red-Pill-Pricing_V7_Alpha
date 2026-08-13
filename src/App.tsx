@@ -5224,37 +5224,37 @@ export default function App() {
 
               {activeSection === 'comparison' && (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-[#E50914]/10 rounded-2xl">
-                      <GitCompare className="w-6 h-6 text-[#E50914]" />
+                  <div className="flex items-center gap-[var(--space-3)]">
+                    <div className="p-[var(--space-3)] bg-[var(--tint-soft)] rounded-[var(--radius-element)]">
+                      <GitCompare className="w-6 h-6 text-[var(--tint)]" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
-                        Project Comparison
+                      <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">
+                        Project comparison
                       </h2>
-                      <p className="text-xs text-gray-400 font-medium mt-0.5">Compare load configurations, costs, power contribution and battery replacement timelines side-by-side</p>
+                      <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-0.5">Compare load, costs, energy mix, and replacement timelines side by side</p>
                     </div>
                   </div>
 
                   {userDbTemplates.length < 2 ? (
-                    <div className="bg-black/30 border border-white/5 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4">
-                      <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-full text-orange-500">
-                        <GitCompare className="w-8 h-8 animate-pulse" />
+                    <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-[var(--space-8)] flex flex-col items-center justify-center text-center space-y-4 shadow-[0_0_0_0.5px_var(--separator)]">
+                      <div className="p-[var(--space-4)] bg-[color-mix(in_srgb,var(--system-orange)_12%,transparent)] rounded-full text-[var(--system-orange)]">
+                        <GitCompare className="w-8 h-8" />
                       </div>
                       <div className="max-w-md space-y-2">
-                        <h3 className="text-base font-bold text-white uppercase tracking-wider">Multiple Projects Required</h3>
-                        <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                          Project Comparison is designed to work to its full potential when multiple configurations are saved. 
-                          Please load your desired configurations and click <strong className="text-white">"SAVE AS PROJECT"</strong> in the sidebar. 
-                          You currently have <span className="text-orange-500 font-bold">{userDbTemplates.length}</span> saved project{userDbTemplates.length === 1 ? '' : 's'}. You need at least 2 saved projects to unlock comparative analytics!
+                        <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Multiple projects required</h3>
+                        <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)]">
+                          Comparison works best with more than one saved configuration.
+                          Load a design and click <strong className="text-[var(--label)] font-medium">Save as project</strong> in the sidebar.
+                          You currently have <span className="text-[var(--tint)] font-semibold">{userDbTemplates.length}</span> saved project{userDbTemplates.length === 1 ? '' : 's'}. You need at least 2 to unlock comparative analytics.
                         </p>
                       </div>
                       {userDbTemplates.length === 1 && (
                         <div className="pt-2">
-                          <div className="bg-[#121212] border border-white/10 rounded-xl p-4 text-left max-w-sm">
-                            <span className="text-[9px] text-gray-500 font-bold block mb-1">CURRENT SAVED PROJECT</span>
-                            <span className="text-xs text-white font-semibold font-mono flex items-center gap-2">
-                              <span className="inline-block w-2 h-2 rounded-full bg-orange-500"></span>
+                          <div className="bg-[var(--bg-elevated)] rounded-[var(--radius-element)] p-4 text-left max-w-sm shadow-[0_0_0_0.5px_var(--separator)]">
+                            <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] block mb-1">Current saved project</span>
+                            <span className="text-[length:var(--text-subhead-size)] text-[var(--label)] font-medium font-[family-name:var(--font-numeric)] flex items-center gap-2">
+                              <span className="inline-block w-2 h-2 rounded-full bg-[var(--system-orange)]"></span>
                               {userDbTemplates[0].name}
                             </span>
                           </div>
@@ -5291,41 +5291,41 @@ export default function App() {
                             console.error("Failed to drop project:", err);
                           }
                         }}
-                        className="border-2 border-dashed border-white/10 rounded-2xl p-6 bg-black/20 hover:border-white/20 transition-all duration-300 relative flex flex-col justify-between min-h-[140px]"
+                        className="rounded-[var(--radius-element)] p-[var(--space-6)] bg-[var(--fill-quaternary)] shadow-[0_0_0_0.5px_var(--separator)] relative flex flex-col justify-between min-h-[140px]"
                       >
                         <div>
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                              <Columns className="w-4 h-4 text-orange-500" />
-                              Project Comparison ({comparedProjects.length} / 4 Selected)
+                            <h3 className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-semibold text-[var(--label)] flex items-center gap-2">
+                              <Columns className="w-4 h-4 text-[var(--tint)]" />
+                              Selected ({comparedProjects.length} / 4)
                             </h3>
                             {comparedProjects.length > 0 && (
                               <button 
                                 onClick={() => setComparedProjects([])}
-                                className="text-[10px] uppercase font-black tracking-widest text-[#E50914] hover:text-[#ff2b36] transition-colors cursor-pointer"
+                                className="text-[length:var(--text-footnote-size)] font-medium text-[var(--tint)] hover:opacity-80 cursor-pointer"
                               >
-                                Clear All
+                                Clear all
                               </button>
                             )}
                           </div>
 
                           {comparedProjects.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-6 text-center space-y-2">
-                              <GitCompare className="w-8 h-8 text-gray-600 mb-1" />
-                              <p className="text-xs text-gray-300 font-semibold uppercase tracking-wider">Drag saved projects from "MY PROJECT" panel here</p>
-                              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Or Click them in the side panel to instantly load them</p>
+                              <GitCompare className="w-8 h-8 text-[var(--label-quaternary)] mb-1" />
+                              <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)]">Drag saved projects from My projects here</p>
+                              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">Or click them in the sidebar to add them</p>
                             </div>
                           ) : (
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                               {comparedProjects.map((p) => (
                                 <div 
                                   key={p.id}
-                                  className="flex items-center justify-between px-3 py-2 bg-[#121212] border border-white/10 rounded-xl group hover:border-[#E50914]/35 transition-all duration-300"
+                                  className="flex items-center justify-between px-3 py-2 bg-[var(--bg-elevated)] rounded-[var(--radius-element)] group shadow-[0_0_0_0.5px_var(--separator)]"
                                 >
-                                  <span className="text-xs text-white font-medium truncate max-w-[130px] pr-2" title={p.name}>{p.name || "Untitled Project"}</span>
+                                  <span className="text-[length:var(--text-footnote-size)] text-[var(--label)] font-medium truncate max-w-[130px] pr-2" title={p.name}>{p.name || "Untitled Project"}</span>
                                   <button 
                                     onClick={() => setComparedProjects(comparedProjects.filter(item => item.id !== p.id))}
-                                    className="p-1 text-gray-500 hover:text-[#E50914] hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+                                    className="p-1 text-[var(--label-tertiary)] hover:text-[var(--system-red)] hover:bg-[var(--fill-tertiary)] rounded-[var(--radius-control)] cursor-pointer"
                                     title="Remove project"
                                   >
                                     <X className="w-3.5 h-3.5" />
@@ -5333,8 +5333,8 @@ export default function App() {
                                 </div>
                               ))}
                               {comparedProjects.length < 4 && (
-                                <div className="border border-dashed border-white/10 bg-white/[0.01] rounded-xl flex items-center justify-center p-2.5 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                                  + Drop/Click next slot
+                                <div className="rounded-[var(--radius-element)] flex items-center justify-center p-2.5 text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] shadow-[0_0_0_0.5px_var(--separator)]">
+                                  + Drop or click next slot
                                 </div>
                               )}
                             </div>
@@ -5342,8 +5342,8 @@ export default function App() {
                         </div>
 
                         {/* Quick select drawer */}
-                        <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center gap-2">
-                          <span className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mr-1">Quick Add:</span>
+                        <div className="mt-4 pt-4 shadow-[inset_0_0.5px_0_var(--separator)] flex flex-wrap items-center gap-2">
+                          <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mr-1">Quick add</span>
                           {userDbTemplates.map((t) => {
                             const isAdded = comparedProjects.some(cp => cp.id === t.id);
                             return (
@@ -5354,12 +5354,12 @@ export default function App() {
                                   setComparedProjects([...comparedProjects, { id: t.id, name: t.name, data: t.data }]);
                                 }}
                                 className={cn(
-                                  "px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg transition-all duration-200 cursor-pointer",
+                                  "px-2.5 py-1 text-[length:var(--text-caption-1-size)] rounded-[var(--radius-capsule)] cursor-pointer",
                                   isAdded 
-                                    ? "bg-white/5 text-emerald-400 cursor-default"
+                                    ? "bg-[color-mix(in_srgb,var(--system-green)_14%,transparent)] text-[var(--system-green)] cursor-default"
                                     : comparedProjects.length >= 4
-                                      ? "bg-white/5 text-gray-600 cursor-not-allowed"
-                                      : "bg-[#E50914]/10 text-white hover:bg-[#E50914] border border-white/5 hover:border-transparent"
+                                      ? "bg-[var(--fill-tertiary)] text-[var(--label-quaternary)] cursor-not-allowed"
+                                      : "bg-[var(--tint-soft)] text-[var(--tint)] hover:opacity-90"
                                 )}
                               >
                                 {t.name} {isAdded && "✓"}
@@ -5396,15 +5396,15 @@ export default function App() {
                             return (
                               <div 
                                 key={project.id}
-                                className="bg-black/30 border border-white/5 rounded-2xl p-5 space-y-5 flex flex-col justify-between shadow-lg relative min-w-[200px]"
+                                className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-5 space-y-5 flex flex-col justify-between shadow-[0_0_0_0.5px_var(--separator)] relative min-w-[200px]"
                               >
                                 {/* Upper selection head */}
-                                <div className="space-y-3 pb-3 border-b border-white/5">
+                                <div className="space-y-3 pb-3 shadow-[inset_0_-0.5px_0_var(--separator)]">
                                   <div className="flex items-center justify-between">
-                                    <span className={cn("font-bold text-sm truncate pr-2", isDarkMode ? "text-gray-200" : "text-gray-800")} title={project.name}>{project.name}</span>
+                                    <span className="font-semibold text-[length:var(--text-subhead-size)] text-[var(--label)] truncate pr-2" title={project.name}>{project.name}</span>
                                     <button 
                                       onClick={() => setComparedProjects(comparedProjects.filter(p => p.id !== project.id))}
-                                      className="text-gray-500 hover:text-[#E23B44] transition-colors"
+                                      className="text-[var(--label-tertiary)] hover:text-[var(--system-red)]"
                                       title="Remove from comparison"
                                     >
                                       <X className="w-4 h-4" />
@@ -5413,7 +5413,7 @@ export default function App() {
                                   
                                   {/* Model Dropdown Menu */}
                                   <div className="space-y-1">
-                                    <label className="text-[9px] font-black tracking-wider text-gray-500 uppercase block">Compared Model Selector</label>
+                                    <label className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)] block">Model</label>
                                     <select
                                       value={selectedIdx}
                                       onChange={(e) => {
@@ -5422,10 +5422,10 @@ export default function App() {
                                           [project.id]: parseInt(e.target.value, 10)
                                         });
                                       }}
-                                      className="w-full bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-red-500 outline-none transition-colors cursor-pointer text-white font-semibold"
+                                      className="w-full px-2.5 py-1.5 text-[length:var(--text-footnote-size)] outline-none cursor-pointer"
                                     >
                                       {models.map((m, idx) => (
-                                        <option key={idx} value={idx} className="bg-gray-900 text-white font-medium">
+                                        <option key={idx} value={idx}>
                                           {m.name} (Total Load: {(m.totalPeakLoad || 0).toFixed(1)} kW Peak)
                                         </option>
                                       ))}
@@ -5435,143 +5435,143 @@ export default function App() {
 
                                 {/* KEY INFO */}
                                 <div className="space-y-3">
-                                  <span className="text-[9px] font-black tracking-widest text-[#E50914] uppercase block">1. Core Performance Info</span>
+                                  <span className="text-[length:var(--text-caption-1-size)] font-semibold text-[var(--label-secondary)] block">Core performance</span>
                                   
                                   {/* Grid condition */}
-                                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5">
-                                    <span className="text-gray-400 font-medium">Grid Condition</span>
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">Grid condition</span>
                                     <span className={cn(
-                                      "font-bold text-[10px] px-2 py-0.5 rounded-full uppercase font-display",
-                                      modelStats.gridCondition === 'Good' ? 'bg-green-500/10 text-green-400 border border-green-500/25' : 
-                                      modelStats.gridCondition === 'Poor' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/25' :
-                                      modelStats.gridCondition === 'Bad' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/25' : 
-                                      'bg-red-500/10 text-red-500 border border-red-500/25'
+                                      "font-medium text-[length:var(--text-caption-1-size)] px-2 py-0.5 rounded-[var(--radius-capsule)]",
+                                      modelStats.gridCondition === 'Good' ? 'bg-[color-mix(in_srgb,var(--system-green)_14%,transparent)] text-[var(--system-green)]' : 
+                                      modelStats.gridCondition === 'Poor' ? 'bg-[color-mix(in_srgb,var(--system-yellow)_20%,transparent)] text-[var(--system-orange)]' :
+                                      modelStats.gridCondition === 'Bad' ? 'bg-[color-mix(in_srgb,var(--system-orange)_14%,transparent)] text-[var(--system-orange)]' : 
+                                      'bg-[var(--tint-soft)] text-[var(--tint)]'
                                     )}>
                                       {modelStats.gridCondition}
                                     </span>
                                   </div>
 
                                   {/* total grid hours */}
-                                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5">
-                                    <span className="text-gray-400 font-medium">Total Grid Hours</span>
-                                    <span className="font-bold text-white font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">Total grid hours</span>
+                                    <span className="font-medium text-[var(--label)] font-[family-name:var(--font-numeric)]">
                                       {modelStats.totalGridHours?.toFixed(1)} Hrs/Day
                                     </span>
                                   </div>
 
                                   {/* total load stats */}
-                                  <div className="space-y-1.5 py-1.5 border-b border-white/5">
-                                    <div className="flex justify-between text-xs">
-                                      <span className="text-gray-400 font-medium">Total Load Models</span>
-                                      <span className="text-[10px] text-gray-500 font-black">kW</span>
+                                  <div className="space-y-1.5 py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <div className="flex justify-between text-[length:var(--text-footnote-size)]">
+                                      <span className="text-[var(--label-secondary)]">Total load</span>
+                                      <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">kW</span>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-1 text-center font-mono text-[9px] font-semibold">
-                                      <div className="bg-white/[0.02] border border-white/5 rounded-lg p-1">
-                                        <span className="block text-gray-400 text-[8px]">Peak</span>
-                                        <span className="text-white text-xs">{(modelStats.totalPeakLoad || 0).toFixed(1)}</span>
+                                    <div className="grid grid-cols-3 gap-1 text-center font-[family-name:var(--font-numeric)]">
+                                      <div className="bg-[var(--bg-elevated)] rounded-[var(--radius-control)] p-1 shadow-[0_0_0_0.5px_var(--separator)]">
+                                        <span className="block text-[var(--label-tertiary)] text-[length:var(--text-caption-2-size)]">Peak</span>
+                                        <span className="text-[var(--label)] text-[length:var(--text-footnote-size)]">{(modelStats.totalPeakLoad || 0).toFixed(1)}</span>
                                       </div>
-                                      <div className="bg-white/[0.02] border border-white/5 rounded-lg p-1">
-                                        <span className="block text-gray-400 text-[8px]">Avg</span>
-                                        <span className="text-white text-xs">{(modelStats.totalAverageLoad || 0).toFixed(1)}</span>
+                                      <div className="bg-[var(--bg-elevated)] rounded-[var(--radius-control)] p-1 shadow-[0_0_0_0.5px_var(--separator)]">
+                                        <span className="block text-[var(--label-tertiary)] text-[length:var(--text-caption-2-size)]">Avg</span>
+                                        <span className="text-[var(--label)] text-[length:var(--text-footnote-size)]">{(modelStats.totalAverageLoad || 0).toFixed(1)}</span>
                                       </div>
-                                      <div className="bg-white/[0.02] border border-white/5 rounded-lg p-1">
-                                        <span className="block text-gray-400 text-[8px]">Run</span>
-                                        <span className="text-white text-xs">{(modelStats.totalRunningLoad || 0).toFixed(1)}</span>
+                                      <div className="bg-[var(--bg-elevated)] rounded-[var(--radius-control)] p-1 shadow-[0_0_0_0.5px_var(--separator)]">
+                                        <span className="block text-[var(--label-tertiary)] text-[length:var(--text-caption-2-size)]">Run</span>
+                                        <span className="text-[var(--label)] text-[length:var(--text-footnote-size)]">{(modelStats.totalRunningLoad || 0).toFixed(1)}</span>
                                       </div>
                                     </div>
                                   </div>
 
                                   {/* total solar */}
-                                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5">
-                                    <span className="text-gray-400 font-medium">Total Solar</span>
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">Total solar</span>
                                     <span className={cn(
-                                      "font-bold font-mono",
-                                      modelStats.actualSolarCapacity > 0 ? "text-green-400" : "text-gray-500"
+                                      "font-medium font-[family-name:var(--font-numeric)]",
+                                      modelStats.actualSolarCapacity > 0 ? "text-[var(--system-green)]" : "text-[var(--label-tertiary)]"
                                     )}>
                                       {modelStats.actualSolarCapacity > 0 ? `${modelStats.actualSolarCapacity.toFixed(1)} kWp` : 'None / Disabled'}
                                     </span>
                                   </div>
 
                                   {/* backup hours */}
-                                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5">
-                                    <span className="text-gray-400 font-medium">Backup Hours</span>
-                                    <span className="font-bold text-white font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">Backup hours</span>
+                                    <span className="font-medium text-[var(--label)] font-[family-name:var(--font-numeric)]">
                                       {modelStats.rectifierStats?.batteryBackupHours?.toFixed(1)} Hrs
                                     </span>
                                   </div>
 
                                   {/* breakeven MRR */}
-                                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5">
-                                    <span className="text-gray-400 font-medium font-semibold">Breakeven MRR</span>
-                                    <span className="font-black text-[#F40F1D] font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)] font-medium">Breakeven MRR</span>
+                                    <span className="font-semibold text-[var(--tint)] font-[family-name:var(--font-numeric)]">
                                       {currency} {Math.round(modelStats.breakevenMRR || 0).toLocaleString()}
                                     </span>
                                   </div>
 
                                   {/* LCOE */}
-                                  <div className="flex items-center justify-between text-xs py-1.5 border-b border-white/5">
-                                    <span className="text-gray-400 font-medium font-semibold">LCOE</span>
-                                    <span className="font-black text-white font-mono">
-                                      {currency} {(modelStats.lcoe || 0).toFixed(4)} <span className="text-[9px] text-gray-500">/kWh</span>
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)] font-medium">LCOE</span>
+                                    <span className="font-semibold text-[var(--label)] font-[family-name:var(--font-numeric)]">
+                                      {currency} {(modelStats.lcoe || 0).toFixed(4)} <span className="text-[length:var(--text-caption-2-size)] text-[var(--label-tertiary)]">/kWh</span>
                                     </span>
                                   </div>
 
                                   {/* Initial Capex */}
-                                  <div className="flex items-center justify-between text-xs py-1.5">
-                                    <span className="text-gray-400 font-medium font-semibold">Initial CAPEX</span>
-                                    <span className="font-black text-amber-500 font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1.5">
+                                    <span className="text-[var(--label-secondary)] font-medium">Initial CAPEX</span>
+                                    <span className="font-semibold text-[var(--system-orange)] font-[family-name:var(--font-numeric)]">
                                       {currency} {Math.round(modelStats.initialCapex || 0).toLocaleString()}
                                     </span>
                                   </div>
                                 </div>
 
                                 {/* ADDITIONAL INFO */}
-                                <div className="space-y-3 pt-3 border-t border-white/5 bg-white/[0.01] -mx-5 -mb-5 p-5 rounded-b-2xl">
-                                  <span className="text-[9px] font-black tracking-widest text-orange-500 uppercase block">2. Operational Details</span>
+                                <div className="space-y-3 pt-3 shadow-[inset_0_0.5px_0_var(--separator)] -mx-5 -mb-5 p-5 rounded-b-[var(--radius-element)] bg-[var(--bg-elevated)]">
+                                  <span className="text-[length:var(--text-caption-1-size)] font-semibold text-[var(--label-secondary)] block">Operational details</span>
                                   
                                   {/* Daily DG Hours */}
-                                  <div className="flex items-center justify-between text-xs py-1 border-b border-white/5">
-                                    <span className="text-gray-400">DG Running Hours</span>
-                                    <span className="font-bold text-white font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">DG running hours</span>
+                                    <span className="font-medium text-[var(--label)] font-[family-name:var(--font-numeric)]">
                                       {modelStats.rectifierStats?.dgRunningHoursPerDay?.toFixed(1)} Hrs/Day
                                     </span>
                                   </div>
 
                                   {/* Daily fuel */}
-                                  <div className="flex items-center justify-between text-xs py-1 border-b border-white/5">
-                                    <span className="text-gray-400">Daily Fuel Vol</span>
-                                    <span className="font-bold text-white font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">Daily fuel vol</span>
+                                    <span className="font-medium text-[var(--label)] font-[family-name:var(--font-numeric)]">
                                       {modelStats.rectifierStats?.dgDailyFuel?.toFixed(1)} L/Day
                                     </span>
                                   </div>
 
                                   {/* Energy mix visually stacked bar */}
-                                  <div className="space-y-1.5 py-1 border-b border-white/5">
-                                    <span className="text-gray-400 text-xs block font-semibold">Estimated Energy Mix</span>
-                                    <div className="h-2 rounded-full overflow-hidden flex w-full bg-white/[0.02] border border-white/10">
-                                      {gridPct > 0 && <div className="bg-[#E50914] h-full" style={{ width: `${gridPct}%` }} title={`Grid: ${gridPct.toFixed(1)}%`} />}
-                                      {dgPct > 0 && <div className="bg-amber-500 h-full" style={{ width: `${dgPct}%` }} title={`DG: ${dgPct.toFixed(1)}%`} />}
-                                      {solarPct > 0 && <div className="bg-green-500 h-full" style={{ width: `${solarPct}%` }} title={`Solar: ${solarPct.toFixed(1)}%`} />}
+                                  <div className="space-y-1.5 py-1 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)] text-[length:var(--text-footnote-size)] block">Estimated energy mix</span>
+                                    <div className="h-2 rounded-[var(--radius-capsule)] overflow-hidden flex w-full bg-[var(--fill-tertiary)]">
+                                      {gridPct > 0 && <div className="bg-[var(--tint)] h-full" style={{ width: `${gridPct}%` }} title={`Grid: ${gridPct.toFixed(1)}%`} />}
+                                      {dgPct > 0 && <div className="bg-[var(--system-orange)] h-full" style={{ width: `${dgPct}%` }} title={`DG: ${dgPct.toFixed(1)}%`} />}
+                                      {solarPct > 0 && <div className="bg-[var(--system-green)] h-full" style={{ width: `${solarPct}%` }} title={`Solar: ${solarPct.toFixed(1)}%`} />}
                                     </div>
-                                    <div className="flex justify-between text-[8px] font-black uppercase tracking-wider">
-                                      <span className="text-[#E2363F]">Grid {gridPct.toFixed(0)}%</span>
-                                      <span className="text-amber-500">DG {dgPct.toFixed(0)}%</span>
-                                      <span className="text-green-400">Solar {solarPct.toFixed(0)}%</span>
+                                    <div className="flex justify-between text-[length:var(--text-caption-2-size)]">
+                                      <span className="text-[var(--tint)]">Grid {gridPct.toFixed(0)}%</span>
+                                      <span className="text-[var(--system-orange)]">DG {dgPct.toFixed(0)}%</span>
+                                      <span className="text-[var(--system-green)]">Solar {solarPct.toFixed(0)}%</span>
                                     </div>
                                   </div>
 
                                   {/* Battery replacement */}
-                                  <div className="flex items-center justify-between text-xs py-1 border-b border-white/5">
-                                    <span className="text-gray-400">Battery Replacement</span>
-                                    <span className="font-bold text-green-400 font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-1 shadow-[inset_0_-0.5px_0_var(--separator)]">
+                                    <span className="text-[var(--label-secondary)]">Battery replacement</span>
+                                    <span className="font-medium text-[var(--system-green)] font-[family-name:var(--font-numeric)]">
                                       Year {modelStats.rectifierStats?.batteryLifeYears != null && modelStats.rectifierStats.batteryLifeYears < 100 ? modelStats.rectifierStats.batteryLifeYears : project.data.financials?.tenure || 10}
                                     </span>
                                   </div>
 
                                   {/* DG replacement */}
-                                  <div className="flex items-center justify-between text-xs py-0.5">
-                                    <span className="text-gray-400">DG Replacement</span>
-                                    <span className="font-bold text-green-400 font-mono">
+                                  <div className="flex items-center justify-between text-[length:var(--text-footnote-size)] py-0.5">
+                                    <span className="text-[var(--label-secondary)]">DG replacement</span>
+                                    <span className="font-medium text-[var(--system-green)] font-[family-name:var(--font-numeric)]">
                                       Year {modelStats.rectifierStats?.dgLifeYears != null && modelStats.rectifierStats.dgLifeYears < 100 ? modelStats.rectifierStats.dgLifeYears : project.data.financials?.tenure || 10}
                                     </span>
                                   </div>
@@ -5582,11 +5582,11 @@ export default function App() {
                           })}
                         </div>
                       ) : (
-                        <div className="bg-black/20 border border-white/5 rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3">
-                          <Columns className="w-10 h-10 text-gray-600 animate-pulse" />
+                        <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-[0_0_0_0.5px_var(--separator)]">
+                          <Columns className="w-10 h-10 text-[var(--label-quaternary)]" />
                           <div className="max-w-md space-y-1">
-                            <h4 className="text-sm font-bold text-white uppercase tracking-wider">Empty Workspace</h4>
-                            <p className="text-xs text-gray-400 font-medium">Please drag at least one project from standard side panel menu or use the "Quick Add" helper buttons above to begin side-by-side comparison!</p>
+                            <h4 className="text-[length:var(--text-headline-size)] font-semibold text-[var(--label)]">Empty workspace</h4>
+                            <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Drag a project from My projects in the sidebar, or use Quick add above, to compare side by side.</p>
                           </div>
                         </div>
                       )}
