@@ -462,39 +462,50 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             </div>
           ) : null}
 
-          {/* Mode B upgrade */}
+          {/* Mode B upgrade — one BoQ per shock year */}
           {(mode === 'B' || mode === 'compare') && comparePathB && comparePathB.upgradeBoq.length > 0 && (
-            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
-              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--system-green)] mb-2 flex items-center gap-2">
-                <TrendingUp size={16} /> Mode B upgrade BoQ at year {changeYear}
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-gray-500 border-b border-white/10">
-                      <th className="text-left py-2">Item</th>
-                      <th className="text-right py-2">Qty</th>
-                      <th className="text-right py-2">Unit</th>
-                      <th className="text-right py-2">Total (Y0 $)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparePathB.upgradeBoq.map((u, i) => (
-                      <tr key={i} className="border-b border-white/5 text-gray-300">
-                        <td className="py-1.5">{u.item}</td>
-                        <td className="text-right font-mono">{u.quantity}</td>
-                        <td className="text-right font-mono">{currency}{fmt(u.unitCost)}</td>
-                        <td className="text-right font-mono text-emerald-400">{currency}{fmt(u.total)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div className="space-y-3">
+              {comparePathB.upgradeBoq.map((set, sIdx) => (
+                <div key={`${set.year}-${set.reason}-${sIdx}`} className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+                  <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--system-green)] mb-1 flex items-center gap-2">
+                    <TrendingUp size={16} /> Mode B upgrade BoQ — year {set.year}
+                  </h3>
+                  <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-2">
+                    {set.reason === 'both'
+                      ? 'Grid and load change in the same year. Kit added on top of the year-0 plant.'
+                      : set.reason === 'load'
+                        ? 'Load change. Extra batteries are added; the existing bank keeps its wear.'
+                        : 'Grid change. Incremental kit on top of what is already installed.'}
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-gray-500 border-b border-white/10">
+                          <th className="text-left py-2">Item</th>
+                          <th className="text-right py-2">Qty</th>
+                          <th className="text-right py-2">Unit</th>
+                          <th className="text-right py-2">Total (Y0)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {set.items.map((u, i) => (
+                          <tr key={i} className="border-b border-white/5 text-gray-300">
+                            <td className="py-1.5">{u.item}</td>
+                            <td className="text-right font-mono">{u.quantity}</td>
+                            <td className="text-right font-mono">{currency}{fmt(u.unitCost)}</td>
+                            <td className="text-right font-mono text-emerald-400">{currency}{fmt(u.total)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           {(mode === 'B' || mode === 'compare') && comparePathB && comparePathB.upgradeBoq.length === 0 && (
             <div className="text-[length:var(--text-footnote-size)] text-[var(--label-tertiary)] bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-3 shadow-[0_0_0_0.5px_var(--separator)]">
-              Mode B: no capacity upgrade required for this shock (baseline design still adequate under change project).
+              Mode B: no extra kit required at either change year.
             </div>
           )}
 

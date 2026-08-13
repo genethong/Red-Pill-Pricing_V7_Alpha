@@ -87,12 +87,25 @@ export interface CapexEvent {
   kind: 'initial' | 'replacement' | 'upgrade';
 }
 
+export interface UpgradeBoqItem {
+  item: string;
+  quantity: number;
+  unitCost: number;
+  total: number;
+}
+
+export interface UpgradeBoqSet {
+  year: number;
+  reason: 'grid' | 'load' | 'both';
+  items: UpgradeBoqItem[];
+}
+
 export interface ModePathResult {
   mode: 'A' | 'B';
   cashFlows: CashFlowYear[];
   wearTable: WearYearRow[];
   capexEvents: CapexEvent[];
-  upgradeBoq: { item: string; quantity: number; unitCost: number; total: number }[];
+  upgradeBoq: UpgradeBoqSet[];
   riskFlags: string[];
   npvOperator: number;
   npvSystem: number;
@@ -239,7 +252,9 @@ function applyEnvironment(
     next = scaleLoads(next, change.loadScale);
   }
 
-  if (mode === 'B' && env && (applyGrid || applyLoad)) {
+  // Mode B plant intent (DG on, backup hours, etc.) follows the *grid* shock.
+  // A load-only year keeps the baseline plant and only adds kit for extra load.
+  if (mode === 'B' && env && applyGrid) {
     next.dg = cloneInputs(env).dg;
     next.solar = cloneInputs(env).solar;
     next.battery = cloneInputs(env).battery;
@@ -421,7 +436,7 @@ function runModePath(
   const wearTable: WearYearRow[] = [];
   const capexEvents: CapexEvent[] = [];
   const allRiskFlags = new Set<string>();
-  let upgradeBoq: ModePathResult['upgradeBoq'] = [];
+  const upgradeBoq: UpgradeBoqSet[] = [];
 
   // Year-0 CAPEX from baseline BoQ
   baseline.boq.forEach(item => {
@@ -451,13 +466,14 @@ function runModePath(
       calendarLife: calendarLifeForItem(b.item, baseline, baseInputs)
     }));
 
-  // Wear state
+  // Wear state — battery lots keep their own age (add-on modules do not reset the old bank)
   let design = { ...baseline.designLock };
-  let batteryCyclesCum = 0;
-  let batteryYearsSinceInstall = 0;
+  type BatteryLot = { modules: number; cyclesCum: number; yearsSinceInstall: number };
+  const batteryLots: BatteryLot[] = design.batteryModules > 0
+    ? [{ modules: design.batteryModules, cyclesCum: 0, yearsSinceInstall: 0 }]
+    : [];
   let dgHoursCum = 0;
   let dgYearsSinceInstall = 0;
-  // Base CAPEX amounts for wear-asset replacements
   const batteryUnitCost = getUnitCost(baseInputs, 'Battery Modules');
   let batteryModulesInstalled = design.batteryModules;
   let dgKvaInstalled = design.selectedDGKva;
@@ -475,8 +491,12 @@ function runModePath(
     if (mode === 'B' && (y === gridYear || y === loadYear)) {
       const resized = calculateAllStats(yearInputs, { monteCarloSamples: mcSamples });
       const yearUpgrade = computeDeltaBoq(design, resized.designLock, yearInputs);
-      upgradeBoq = upgradeBoq.concat(yearUpgrade);
       const upgraded = mergeDesignLock(design, resized.designLock, yearInputs);
+      const upgradeReason: UpgradeBoqSet['reason'] =
+        y === gridYear && y === loadYear ? 'both' : y === gridYear ? 'grid' : 'load';
+      if (yearUpgrade.length > 0) {
+        upgradeBoq.push({ year: y, reason: upgradeReason, items: yearUpgrade });
+      }
 
       if (yearUpgrade.length > 0) {
         const esc = Math.pow(1 + escalation, y);
@@ -487,10 +507,9 @@ function runModePath(
           capexEvents.push({ year: y, name: `${u.item} (Upgrade)`, cost, kind: 'upgrade' });
         });
 
-        // If battery modules added, treat pack as partially renewed: reset cycles for simplicity when modules increase
         if (upgraded.batteryModules > batteryModulesInstalled) {
-          batteryCyclesCum = 0;
-          batteryYearsSinceInstall = 0;
+          const added = upgraded.batteryModules - batteryModulesInstalled;
+          batteryLots.push({ modules: added, cyclesCum: 0, yearsSinceInstall: 0 });
           batteryModulesInstalled = upgraded.batteryModules;
         }
         if (upgraded.selectedDGKva > dgKvaInstalled) {
@@ -551,28 +570,36 @@ function runModePath(
 
     const cyclesAdded = cyclesPerDay * 365;
     const hoursAdded = hoursPerDay * 365;
-    batteryCyclesCum += cyclesAdded;
     dgHoursCum += hoursAdded;
-    batteryYearsSinceInstall += 1;
     dgYearsSinceInstall += 1;
 
     let batteryReplaced = false;
     let dgReplaced = false;
 
-    // Battery wear / calendar replacement
-    if (
-      batteryModulesInstalled > 0 &&
-      (batteryCyclesCum >= availableCycles || batteryYearsSinceInstall >= maxBatYears)
-    ) {
-      const esc = Math.pow(1 + escalation, y);
-      const cost = batteryModulesInstalled * batteryUnitCost * esc;
-      cashFlows[y].capex += cost;
-      cashFlows[y].details.capexItems.push({ name: 'Battery Modules (Replacement)', cost });
-      capexEvents.push({ year: y, name: 'Battery Modules (Replacement)', cost, kind: 'replacement' });
-      batteryCyclesCum = 0;
-      batteryYearsSinceInstall = 0;
-      batteryReplaced = true;
-    }
+    const escWear = Math.pow(1 + escalation, y);
+    batteryLots.forEach(lot => {
+      lot.cyclesCum += cyclesAdded;
+      lot.yearsSinceInstall += 1;
+      if (lot.modules > 0 && (lot.cyclesCum >= availableCycles || lot.yearsSinceInstall >= maxBatYears)) {
+        const cost = lot.modules * batteryUnitCost * escWear;
+        cashFlows[y].capex += cost;
+        cashFlows[y].details.capexItems.push({
+          name: `Battery Modules (Replacement, ${lot.modules} add-on lot)`,
+          cost
+        });
+        capexEvents.push({
+          year: y,
+          name: `Battery Modules (Replacement, ${lot.modules} modules)`,
+          cost,
+          kind: 'replacement'
+        });
+        lot.cyclesCum = 0;
+        lot.yearsSinceInstall = 0;
+        batteryReplaced = true;
+      }
+    });
+    const batteryCyclesCum = batteryLots.reduce((m, lot) => Math.max(m, lot.cyclesCum), 0);
+    const batteryYearsSinceInstall = batteryLots.reduce((m, lot) => Math.max(m, lot.yearsSinceInstall), 0);
 
     // DG wear / calendar replacement (only if a genset is actually installed)
     if (
