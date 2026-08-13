@@ -11,7 +11,7 @@ import {
   BarChart,
   Bar
 } from 'recharts';
-import { AlertTriangle, Activity, GitCompare, TrendingUp, FolderOpen, Info } from 'lucide-react';
+import { AlertTriangle, Activity, GitCompare, TrendingUp, FolderOpen, Info, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from './ui';
 import { SiteInputs } from '../types';
 import {
@@ -67,6 +67,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
   const [loadChangeYear, setLoadChangeYear] = useState(3);
   const [loadDeltaKw, setLoadDeltaKw] = useState(0);
   const [runSweep, setRunSweep] = useState(false);
+  const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
   // Keep selection valid when project list changes
   useEffect(() => {
@@ -509,6 +510,196 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             </div>
           )}
 
+          {/* Financial KPIs + cash flow (same metrics as Costs → Financials) */}
+          {simResult && (
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)] space-y-4">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)]">Financials over tenure</h3>
+              <div className={`grid grid-cols-1 ${mode === 'compare' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-3`}>
+                <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
+                  <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-2">Baseline</div>
+                  <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Breakeven MRR</div>
+                  <div className="text-[length:var(--text-title-3-size)] font-semibold font-[family-name:var(--font-numeric)] text-[var(--tint)]">
+                    {currency}{fmt(simResult.baseline.breakevenMRR)}
+                  </div>
+                  <div className="mt-2 space-y-1 text-[length:var(--text-caption-1-size)] font-[family-name:var(--font-numeric)]">
+                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">Initial CAPEX</span><span className="text-[var(--label)]">{currency}{fmt(simResult.baseline.initialCapex)}</span></div>
+                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">NPV (outflow)</span><span className="text-[var(--label)]">{currency}{fmt(simResult.baseline.npv)}</span></div>
+                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">LCOE</span><span className="text-[var(--label)]">{currency}{simResult.baseline.lcoe.toFixed(4)}/kWh</span></div>
+                  </div>
+                </div>
+                {(mode === 'A' || mode === 'compare') && comparePathA && (
+                  <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
+                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--system-orange)] mb-2">Mode A</div>
+                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Breakeven MRR</div>
+                    <div className="text-[length:var(--text-title-3-size)] font-semibold font-[family-name:var(--font-numeric)] text-[var(--system-orange)]">
+                      {currency}{fmt(comparePathA.breakevenMRR)}
+                    </div>
+                    <div className="mt-2 space-y-1 text-[length:var(--text-caption-1-size)] font-[family-name:var(--font-numeric)]">
+                      <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">Initial CAPEX</span><span className="text-[var(--label)]">{currency}{fmt(comparePathA.initialCapex)}</span></div>
+                      <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">NPV (operator)</span><span className="text-[var(--label)]">{currency}{fmt(comparePathA.npvOperator)}</span></div>
+                      <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">LCOE</span><span className="text-[var(--label)]">{currency}{comparePathA.lcoe.toFixed(4)}/kWh</span></div>
+                    </div>
+                  </div>
+                )}
+                {(mode === 'B' || mode === 'compare') && comparePathB && (
+                  <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
+                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--system-green)] mb-2">Mode B</div>
+                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Breakeven MRR</div>
+                    <div className="text-[length:var(--text-title-3-size)] font-semibold font-[family-name:var(--font-numeric)] text-[var(--system-green)]">
+                      {currency}{fmt(comparePathB.breakevenMRR)}
+                    </div>
+                    <div className="mt-2 space-y-1 text-[length:var(--text-caption-1-size)] font-[family-name:var(--font-numeric)]">
+                      <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">Initial CAPEX</span><span className="text-[var(--label)]">{currency}{fmt(comparePathB.initialCapex)}</span></div>
+                      <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">NPV (operator)</span><span className="text-[var(--label)]">{currency}{fmt(comparePathB.npvOperator)}</span></div>
+                      <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">LCOE</span><span className="text-[var(--label)]">{currency}{comparePathB.lcoe.toFixed(4)}/kWh</span></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] pt-2">Cash flow projection (outflows)</h3>
+              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">
+                Add-on kit is tagged by lot (Y0, Y3…). Each lot replaces on its own cycle or calendar life.
+              </p>
+              <div className="overflow-x-auto">
+                {mode === 'compare' && comparePathA && comparePathB ? (
+                  <table className="w-full text-[length:var(--text-footnote-size)] min-w-[640px]">
+                    <thead>
+                      <tr className="text-[var(--label-secondary)] shadow-[inset_0_-0.5px_0_var(--separator)]">
+                        <th className="text-left py-3 pr-2 font-semibold">Year</th>
+                        <th className="text-right py-3 px-2 font-semibold">Baseline</th>
+                        <th className="text-right py-3 px-2 font-semibold text-[var(--system-orange)]">Mode A</th>
+                        <th className="text-right py-3 px-2 font-semibold text-[var(--system-green)]">Mode B</th>
+                        <th className="w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {simResult.baseline.cashFlows.map((bcf) => {
+                        const a = comparePathA.cashFlows[bcf.year];
+                        const b = comparePathB.cashFlows[bcf.year];
+                        return (
+                          <React.Fragment key={bcf.year}>
+                            <tr className="shadow-[inset_0_-0.5px_0_var(--separator)]">
+                              <td className="py-3 font-medium text-[var(--label-secondary)]">T={bcf.year}</td>
+                              <td className="py-3 text-right font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(bcf.totalOutflow)}</td>
+                              <td className="py-3 text-right font-[family-name:var(--font-numeric)] text-[var(--system-orange)]">{currency}{fmt(a?.totalOutflow)}</td>
+                              <td className="py-3 text-right font-[family-name:var(--font-numeric)] text-[var(--system-green)]">{currency}{fmt(b?.totalOutflow)}</td>
+                              <td className="py-3 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedYear(expandedYear === bcf.year ? null : bcf.year)}
+                                  className="p-1 rounded-[var(--radius-control)] hover:bg-[var(--fill-tertiary)]"
+                                >
+                                  {expandedYear === bcf.year ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                </button>
+                              </td>
+                            </tr>
+                            {expandedYear === bcf.year && (
+                              <tr>
+                                <td colSpan={5} className="p-3">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {[
+                                      { title: 'Baseline', cf: bcf },
+                                      { title: 'Mode A', cf: a },
+                                      { title: 'Mode B', cf: b }
+                                    ].map(col => col.cf && (
+                                      <div key={col.title}>
+                                        <div className="font-semibold text-[var(--label)] mb-1">{col.title}</div>
+                                        <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-1">
+                                          CAPEX {currency}{fmt(col.cf.capex)} · OPEX {currency}{fmt(col.cf.opex)} · Fuel {currency}{fmt(col.cf.fuel)}
+                                        </div>
+                                        {(col.cf.details?.capexItems || []).map((item, i) => (
+                                          <div key={`c-${i}`} className="flex justify-between text-[length:var(--text-caption-1-size)] gap-2">
+                                            <span className="text-[var(--label-secondary)]">{item.name}</span>
+                                            <span className="font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(item.cost)}</span>
+                                          </div>
+                                        ))}
+                                        {(col.cf.details?.opexItems || []).map((item, i) => (
+                                          <div key={`o-${i}`} className="flex justify-between text-[length:var(--text-caption-1-size)] gap-2">
+                                            <span className="text-[var(--label-secondary)]">{item.name}</span>
+                                            <span className="font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(item.cost)}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="w-full text-[length:var(--text-footnote-size)] min-w-[600px]">
+                    <thead>
+                      <tr className="text-[var(--label-secondary)] shadow-[inset_0_-0.5px_0_var(--separator)]">
+                        <th className="text-left py-3 font-semibold">Year</th>
+                        <th className="text-right py-3 font-semibold">CAPEX</th>
+                        <th className="text-right py-3 font-semibold">OPEX</th>
+                        <th className="text-right py-3 font-semibold">Fuel</th>
+                        <th className="text-right py-3 font-semibold text-[var(--tint)]">Net outflow</th>
+                        <th className="w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(activePath?.cashFlows || []).map((cf) => (
+                        <React.Fragment key={cf.year}>
+                          <tr className="shadow-[inset_0_-0.5px_0_var(--separator)]">
+                            <td className="py-3 font-medium text-[var(--label-secondary)]">T={cf.year}</td>
+                            <td className="py-3 text-right font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(cf.capex)}</td>
+                            <td className="py-3 text-right font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(cf.opex)}</td>
+                            <td className="py-3 text-right font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(cf.fuel)}</td>
+                            <td className="py-3 text-right font-[family-name:var(--font-numeric)] font-semibold text-[var(--tint)]">{currency}{fmt(cf.totalOutflow)}</td>
+                            <td className="py-3 text-right">
+                              <button
+                                type="button"
+                                onClick={() => setExpandedYear(expandedYear === cf.year ? null : cf.year)}
+                                className="p-1 rounded-[var(--radius-control)] hover:bg-[var(--fill-tertiary)]"
+                              >
+                                {expandedYear === cf.year ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                              </button>
+                            </td>
+                          </tr>
+                          {expandedYear === cf.year && (
+                            <tr>
+                              <td colSpan={6} className="p-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div>
+                                    <div className="font-semibold text-[var(--label)] mb-1">CAPEX</div>
+                                    {(cf.details?.capexItems || []).length === 0 && (
+                                      <div className="text-[var(--label-tertiary)]">None this year</div>
+                                    )}
+                                    {(cf.details?.capexItems || []).map((item, i) => (
+                                      <div key={i} className="flex justify-between text-[length:var(--text-caption-1-size)] gap-2">
+                                        <span className="text-[var(--label-secondary)]">{item.name}</span>
+                                        <span className="font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(item.cost)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <div>
+                                    <div className="font-semibold text-[var(--label)] mb-1">OPEX and fuel</div>
+                                    {(cf.details?.opexItems || []).map((item, i) => (
+                                      <div key={i} className="flex justify-between text-[length:var(--text-caption-1-size)] gap-2">
+                                        <span className="text-[var(--label-secondary)]">{item.name}</span>
+                                        <span className="font-[family-name:var(--font-numeric)] text-[var(--label)]">{currency}{fmt(item.cost)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Cashflow chart */}
           <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
             <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-3 flex items-center gap-2">
@@ -591,7 +782,11 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       <td className="text-right font-mono text-sky-300">{fmt(row.dgHoursCumulative, 0)}</td>
                       <td className="text-right font-mono text-gray-500">{fmt(row.dgMaxHours, 0)}</td>
                       <td className="text-center text-[10px]">
-                        {row.batteryReplaced && <span className="text-[var(--system-orange)] mr-1">BAT-R</span>}
+                        {row.batteryReplaced && (
+                          <span className="text-[var(--system-orange)] mr-1">
+                            BAT-R{(row.batteryLotsReplaced || []).length ? ` ${row.batteryLotsReplaced.join(',')}` : ''}
+                          </span>
+                        )}
                         {row.dgReplaced && <span className="text-sky-400">DG-R</span>}
                         {!row.batteryReplaced && !row.dgReplaced && <span className="text-gray-600">—</span>}
                       </td>
@@ -656,7 +851,11 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       </td>
                       <td className="text-right font-mono">{row.dgRunningHoursPerDay.toFixed(2)}</td>
                       <td className="text-center text-[10px]">
-                        {row.batteryReplaced && <span className="text-[var(--system-orange)] mr-1">BAT-R</span>}
+                        {row.batteryReplaced && (
+                          <span className="text-[var(--system-orange)] mr-1">
+                            BAT-R{(row.batteryLotsReplaced || []).length ? ` ${row.batteryLotsReplaced.join(',')}` : ''}
+                          </span>
+                        )}
                         {row.dgReplaced && <span className="text-sky-400">DG-R</span>}
                         {!row.batteryReplaced && !row.dgReplaced && '—'}
                       </td>

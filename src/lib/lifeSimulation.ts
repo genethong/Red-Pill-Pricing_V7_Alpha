@@ -48,6 +48,7 @@ export interface WearYearRow {
   batteryAvailableCycles: number;
   batteryYearsSinceInstall: number;
   batteryReplaced: boolean;
+  batteryLotsReplaced: string[];
   dgHoursAdded: number;
   dgHoursCumulative: number;
   dgMaxHours: number;
@@ -459,7 +460,7 @@ function runModePath(
   const assets: AssetState[] = baseline.boq
     .filter(b => b.quantity > 0 && !isWearTrackedBattery(b.item) && !isWearTrackedDg(b.item))
     .map(b => ({
-      item: b.item,
+      item: `${b.item} (lot Y0)`,
       quantity: b.quantity,
       unitCost: b.unitCost || getUnitCost(baseInputs, b.item),
       installYear: 0,
@@ -468,9 +469,9 @@ function runModePath(
 
   // Wear state — battery lots keep their own age (add-on modules do not reset the old bank)
   let design = { ...baseline.designLock };
-  type BatteryLot = { modules: number; cyclesCum: number; yearsSinceInstall: number };
+  type BatteryLot = { id: string; modules: number; cyclesCum: number; yearsSinceInstall: number };
   const batteryLots: BatteryLot[] = design.batteryModules > 0
-    ? [{ modules: design.batteryModules, cyclesCum: 0, yearsSinceInstall: 0 }]
+    ? [{ id: 'Y0', modules: design.batteryModules, cyclesCum: 0, yearsSinceInstall: 0 }]
     : [];
   let dgHoursCum = 0;
   let dgYearsSinceInstall = 0;
@@ -502,26 +503,27 @@ function runModePath(
         const esc = Math.pow(1 + escalation, y);
         yearUpgrade.forEach(u => {
           const cost = u.total * esc;
+          const tagged = `${u.item} (add-on Y${y})`;
           cashFlows[y].capex += cost;
-          cashFlows[y].details.capexItems.push({ name: `${u.item} (Upgrade)`, cost });
-          capexEvents.push({ year: y, name: `${u.item} (Upgrade)`, cost, kind: 'upgrade' });
+          cashFlows[y].details.capexItems.push({ name: tagged, cost });
+          capexEvents.push({ year: y, name: tagged, cost, kind: 'upgrade' });
         });
 
         if (upgraded.batteryModules > batteryModulesInstalled) {
           const added = upgraded.batteryModules - batteryModulesInstalled;
-          batteryLots.push({ modules: added, cyclesCum: 0, yearsSinceInstall: 0 });
+          batteryLots.push({ id: `Y${y}`, modules: added, cyclesCum: 0, yearsSinceInstall: 0 });
           batteryModulesInstalled = upgraded.batteryModules;
         }
         if (upgraded.selectedDGKva > dgKvaInstalled) {
+          // Larger / first genset is a new machine. Hours start at 0 for that unit only.
           dgHoursCum = 0;
           dgYearsSinceInstall = 0;
           dgKvaInstalled = upgraded.selectedDGKva;
           dgUnitCost = getUnitCost(yearInputs, `Diesel Generator ${dgKvaInstalled}kVA`);
         }
-        // Core upgrade — add as asset if new core size
         if (upgraded.coreCapacity > design.coreCapacity) {
           assets.push({
-            item: `Rectifier Core ${upgraded.coreCapacity}kW`,
+            item: `Rectifier Core ${upgraded.coreCapacity}kW (lot Y${y})`,
             quantity: 1,
             unitCost: getUnitCost(yearInputs, `Rectifier Core ${upgraded.coreCapacity}kW`),
             installYear: y,
@@ -531,7 +533,7 @@ function runModePath(
         if (upgraded.rectifierModules > design.rectifierModules) {
           const add = upgraded.rectifierModules - design.rectifierModules;
           assets.push({
-            item: 'Rectifier Modules',
+            item: `Rectifier Modules (lot Y${y})`,
             quantity: add,
             unitCost: getUnitCost(yearInputs, 'Rectifier Modules'),
             installYear: y,
@@ -541,11 +543,31 @@ function runModePath(
         if (upgraded.batteryCabinetQty > design.batteryCabinetQty) {
           const add = upgraded.batteryCabinetQty - design.batteryCabinetQty;
           assets.push({
-            item: 'Battery Cabinet',
+            item: `Battery Cabinet (lot Y${y})`,
             quantity: add,
             unitCost: getUnitCost(yearInputs, 'Battery Cabinet'),
             installYear: y,
             calendarLife: yearInputs.cabinet.maxUsefulLife || 10
+          });
+        }
+        if ((upgraded.solarPanelQuantity || 0) > (design.solarPanelQuantity || 0)) {
+          const add = (upgraded.solarPanelQuantity || 0) - (design.solarPanelQuantity || 0);
+          assets.push({
+            item: `Solar Panels (lot Y${y})`,
+            quantity: add,
+            unitCost: getUnitCost(yearInputs, 'Solar Panels'),
+            installYear: y,
+            calendarLife: yearInputs.solar.panelStructureMaxUsefulLife || 25
+          });
+        }
+        if ((upgraded.solarChargerModuleQuantity || 0) > (design.solarChargerModuleQuantity || 0)) {
+          const add = (upgraded.solarChargerModuleQuantity || 0) - (design.solarChargerModuleQuantity || 0);
+          assets.push({
+            item: `Solar Charger Modules (lot Y${y})`,
+            quantity: add,
+            unitCost: getUnitCost(yearInputs, 'Solar Charger Modules'),
+            installYear: y,
+            calendarLife: yearInputs.solar.rectifierMaxUsefulLife || 7
           });
         }
       }
@@ -574,6 +596,7 @@ function runModePath(
     dgYearsSinceInstall += 1;
 
     let batteryReplaced = false;
+    const batteryLotsReplaced: string[] = [];
     let dgReplaced = false;
 
     const escWear = Math.pow(1 + escalation, y);
@@ -584,18 +607,19 @@ function runModePath(
         const cost = lot.modules * batteryUnitCost * escWear;
         cashFlows[y].capex += cost;
         cashFlows[y].details.capexItems.push({
-          name: `Battery Modules (Replacement, ${lot.modules} add-on lot)`,
+          name: `Battery Modules lot ${lot.id} (${lot.modules} modules, replacement)`,
           cost
         });
         capexEvents.push({
           year: y,
-          name: `Battery Modules (Replacement, ${lot.modules} modules)`,
+          name: `Battery Modules lot ${lot.id} (${lot.modules} modules, replacement)`,
           cost,
           kind: 'replacement'
         });
         lot.cyclesCum = 0;
         lot.yearsSinceInstall = 0;
         batteryReplaced = true;
+        batteryLotsReplaced.push(lot.id);
       }
     });
     const batteryCyclesCum = batteryLots.reduce((m, lot) => Math.max(m, lot.cyclesCum), 0);
@@ -629,8 +653,8 @@ function runModePath(
         const esc = Math.pow(1 + escalation, y);
         const cost = asset.quantity * asset.unitCost * esc;
         cashFlows[y].capex += cost;
-        cashFlows[y].details.capexItems.push({ name: `${asset.item} (Replacement)`, cost });
-        capexEvents.push({ year: y, name: `${asset.item} (Replacement)`, cost, kind: 'replacement' });
+        cashFlows[y].details.capexItems.push({ name: `${asset.item} replacement`, cost });
+        capexEvents.push({ year: y, name: `${asset.item} replacement`, cost, kind: 'replacement' });
         asset.installYear = y;
       }
     });
@@ -699,6 +723,7 @@ function runModePath(
       batteryAvailableCycles: availableCycles,
       batteryYearsSinceInstall,
       batteryReplaced,
+      batteryLotsReplaced,
       dgHoursAdded: hoursAdded,
       dgHoursCumulative: dgHoursCum,
       dgMaxHours: maxDgHours,
