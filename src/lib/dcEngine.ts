@@ -260,6 +260,9 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
     totalRunningLoadWithFans = totalRunningLoad + (totalCabinetQty * (simInputs.cabinet.fanPowerConsumption || 0) / 1000);
   }
 
+  // Ops follow installed kit: a locked 0 kVA design cannot run a genset even if inputs.dg.enabled.
+  const dgInstalled = !!(simInputs.dg.enabled && selectedDGKva > 0);
+
   const batteryAgeingFactor = (simInputs.battery.ageing || 0) / 100;
   const batteryDoDFactor = (simInputs.battery.dod || 0) / 100;
   const usableBatteryCapacityAH = adjustedBatteryCapacityAH * batteryDoDFactor * batteryAgeingFactor;
@@ -355,7 +358,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
           }
           isDgRunning = false;
         } else {
-          if (!simInputs.dg.enabled || simInputs.dg.operationMethod === 'CDC') {
+          if (!dgInstalled || simInputs.dg.operationMethod === 'CDC') {
             const energyInBattery = batteryCapacityKWh > 0 ? (currentSoc - SOC_MIN) * batteryCapacityKWh : 0;
             if (solarNow >= loadNow) {
               const chargeFromSolar = batteryCapacityKWh > 0 ? Math.min(solarNow - loadNow, (1.0 - currentSoc) * batteryCapacityKWh) : 0;
@@ -374,7 +377,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
               }
               totalBatteryDischargeKWh += fromBattery;
               isDgRunning = false;
-            } else if (simInputs.dg.enabled) {
+            } else if (dgInstalled) {
               if (!isDgRunning) totalDgStarts++;
               isDgRunning = true;
               totalDgHours++;
@@ -449,13 +452,13 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       for (let j = 0; j < dailyOutages; j++) {
         const maxDischargeTime = (dischargeRate > 0 && currentSoC > dodLimit) ? (currentSoC - dodLimit) / dischargeRate : 0;
         const bTime = Math.max(0, Math.min(maxDischargeTime, outageDuration));
-        const dTime = simInputs.dg.enabled
+        const dTime = dgInstalled
           ? (simInputs.dg.operationMethod === 'Non-CDC' ? outageDuration : Math.max(0, outageDuration - bTime))
           : 0;
         currentSoC = Math.max(dodLimit, currentSoC - bTime * dischargeRate);
         totalDgHours += dTime;
         totalBatteryHours += bTime;
-        if (simInputs.dg.enabled && simInputs.dg.operationMethod === 'CDC' && dTime > 0) {
+        if (dgInstalled && simInputs.dg.operationMethod === 'CDC' && dTime > 0) {
           currentSoC = Math.min(1.0, currentSoC + dTime * chargeRate);
         }
         currentSoC = Math.min(1.0, currentSoC + gridInterval * chargeRate);
@@ -463,7 +466,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       dgRunningHoursPerDay = totalDgHours;
       cdcPerDay = dailyOutages;
     } else {
-      if (!simInputs.dg.enabled) {
+      if (!dgInstalled) {
         dgRunningHoursPerDay = 0;
         cdcPerDay = autonomyAtDoD > 0 ? 24 / autonomyAtDoD : 0;
       } else if (simInputs.dg.operationMethod === 'Non-CDC') {
@@ -483,7 +486,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
     const batteryDischargeDailyKWh = totalBatteryHours * totalRunningLoadWithFans;
     let dgChargingEnergy = 0;
     let gridChargingEnergy = 0;
-    if (simInputs.dg.enabled && simInputs.dg.operationMethod === 'CDC') {
+    if (dgInstalled && simInputs.dg.operationMethod === 'CDC') {
       dgChargingEnergy = Math.min(batteryDischargeDailyKWh, dgRunningHoursPerDay * batteryChargingLoadKW);
       gridChargingEnergy = Math.max(0, batteryDischargeDailyKWh - dgChargingEnergy);
     } else {
@@ -502,7 +505,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       : totalRunningLoadWithFans;
     dgFuelRate = getFuelRate(powerDuringDG);
     dgDailyFuel = dgDailyEnergyGeneration * dgFuelRate;
-    batteryCyclesPerDay = (simInputs.dg.enabled && simInputs.dg.operationMethod === 'Non-CDC') ? 0 : cdcPerDay;
+    batteryCyclesPerDay = (dgInstalled && simInputs.dg.operationMethod === 'Non-CDC') ? 0 : cdcPerDay;
     dailyEnergyAC = (simInputs.rectifier.efficiency || 100) > 0
       ? dailyGridEnergy / (simInputs.rectifier.efficiency! / 100)
       : 0;
@@ -627,7 +630,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
     const gridElectricityCostFull = (dailyEnergyAC * 365 * (opexConfig.gridTariffPerKWh || 0)) * esc;
 
     let dgMaintenanceCost = 0;
-    if (simInputs.dg.enabled) {
+    if (dgInstalled) {
       const annualHours = dgRunningHoursPerDay * 365;
       dgMaintenanceCost += ((simInputs.dg.periodicMaintenanceHours || 1) > 0
         ? annualHours / simInputs.dg.periodicMaintenanceHours! * (opexConfig.dgPM || 0)
@@ -659,7 +662,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
     if (!simInputs.financials.gridElectricityPassthrough) {
       cashFlows[y].details.opexItems.push({ name: 'Grid Electricity', cost: gridElectricityCost });
     }
-    if (simInputs.dg.enabled) {
+    if (dgInstalled) {
       cashFlows[y].details.opexItems.push({ name: 'DG Maintenance', cost: dgMaintenanceCost });
     }
     if (!simInputs.financials.dgFuelPassthrough) {
@@ -712,7 +715,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
     });
   }
 
-  if (simInputs.dg.enabled) {
+  if (dgInstalled) {
     const annualHours = dgRunningHoursPerDay * 365;
     const pmCost = (simInputs.dg.periodicMaintenanceHours || 1) > 0
       ? annualHours / simInputs.dg.periodicMaintenanceHours! * (opexConfig.dgPM || 0)

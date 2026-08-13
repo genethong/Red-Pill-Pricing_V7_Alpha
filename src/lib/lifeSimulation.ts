@@ -13,9 +13,9 @@ export interface EnvironmentChange {
   /** Operating year when new regime starts (1..tenure). */
   changeYear: number;
   /**
-   * Full post-change site config (from a saved My Project).
-   * After changeYear, grid / system / load come from this project.
-   * Financials & costs stay from baseline for consistent commercial compare.
+   * Saved My Project used as the post-change shock.
+   * Mode A: grid + load only; Year-0 plant stays (incl. whether a genset exists).
+   * Mode B: full config (grid, load, DG/solar design intent) for re-size; financials/costs stay baseline.
    */
   changeProject?: SiteInputs | null;
   gridCondition?: GridCondition;
@@ -120,20 +120,37 @@ function scaleLoads(inputs: SiteInputs, loadScale: number | null | undefined): S
 }
 
 /**
- * Pre-change years: baseline project as-is.
- * Post-change years: use saved change project (config + grid + loads), keep baseline financials/costs/tenure.
- * Optional loadScale applies only after change.
+ * Overlay environment onto the operating site.
+ * Mode A: keep Year-0 plant (DG on/off, solar, charging rates) and apply only grid + load.
+ * Mode B: adopt the change project's full design intent (may add a genset) plus grid + load.
+ * Financials & costs stay on the baseline project. Optional loadScale is post-change only.
  */
-function applyEnvironment(base: SiteInputs, change: EnvironmentChange, active: boolean): SiteInputs {
+function applyEnvironment(
+  base: SiteInputs,
+  change: EnvironmentChange,
+  active: boolean,
+  mode: 'A' | 'B'
+): SiteInputs {
   if (!active) return cloneInputs(base);
 
   let next: SiteInputs;
 
   if (change.changeProject) {
-    next = cloneInputs(change.changeProject);
-    // Commercial model anchored to baseline project
-    next.financials = cloneInputs(base.financials);
-    next.costs = cloneInputs(base.costs);
+    const env = change.changeProject;
+    if (mode === 'A') {
+      next = cloneInputs(base);
+      next.gridCondition = env.gridCondition;
+      next.dailyOutages = env.dailyOutages;
+      next.outageDuration = env.outageDuration;
+      if (env.tenantLoads && env.tenantLoads.length > 0) {
+        next.tenantLoads = env.tenantLoads.map(t => ({ ...t }));
+        next.numTenants = env.numTenants ?? env.tenantLoads.length;
+      }
+    } else {
+      next = cloneInputs(env);
+      next.financials = cloneInputs(base.financials);
+      next.costs = cloneInputs(base.costs);
+    }
   } else {
     next = cloneInputs(base);
     if (change.gridCondition != null) next.gridCondition = change.gridCondition;
@@ -187,13 +204,17 @@ function getUnitCost(simInputs: SiteInputs, itemName: string): number {
 function buildRiskFlags(stats: EngineResult['rectifierStats'], inputs: SiteInputs, design: DesignLock): string[] {
   const flags: string[] = [];
   const outage = inputs.gridCondition === 'Off-grid' ? 24 : (inputs.outageDuration || 0);
+  const dgInstalled = inputs.dg.enabled && design.selectedDGKva > 0;
   if (stats.autonomyAtDoD > 0 && outage > stats.autonomyAtDoD + 0.05) {
     flags.push(`Battery autonomy (${stats.autonomyAtDoD.toFixed(2)} h) < outage duration (${outage} h)`);
+    if (!dgInstalled) {
+      flags.push('No genset installed — residual outage after battery is unserved');
+    }
   }
   if (stats.actualDoD >= (inputs.battery.dod || 80)) {
     flags.push(`Actual DoD reaches design limit (${stats.actualDoD}%)`);
   }
-  if (inputs.dg.enabled && design.selectedDGKva > 0 && stats.dgLoadRate > (inputs.dg.maxLoadRateOngrid || 80) + 1) {
+  if (dgInstalled && stats.dgLoadRate > (inputs.dg.maxLoadRateOngrid || 80) + 1) {
     flags.push(`DG load rate ${stats.dgLoadRate.toFixed(1)}% exceeds design max ${inputs.dg.maxLoadRateOngrid}%`);
   }
   if (stats.totalRectifierLoadKW > stats.totalRectifierCapacityKW + 0.01) {
@@ -353,7 +374,7 @@ function runModePath(
 
   for (let y = 1; y <= tenure; y++) {
     const changed = y >= changeYear;
-    const yearInputs = applyEnvironment(baseInputs, change, changed);
+    const yearInputs = applyEnvironment(baseInputs, change, changed, mode);
 
     // Mode B: re-size at change year and apply delta CAPEX
     if (mode === 'B' && y === changeYear) {
@@ -457,9 +478,8 @@ function runModePath(
       batteryReplaced = true;
     }
 
-    // DG wear / calendar replacement
+    // DG wear / calendar replacement (only if a genset is actually installed)
     if (
-      yearInputs.dg.enabled &&
       dgKvaInstalled > 0 &&
       (dgHoursCum >= maxDgHours || dgYearsSinceInstall >= maxDgYears)
     ) {
@@ -507,7 +527,7 @@ function runModePath(
     const gridElectricityCostFull = (rs.dailyEnergyAC * 365 * (opexConfig.gridTariffPerKWh || 0)) * esc;
 
     let dgMaintenanceCost = 0;
-    if (yearInputs.dg.enabled) {
+    if (dgKvaInstalled > 0) {
       const annualHours = hoursPerDay * 365;
       dgMaintenanceCost += ((yearInputs.dg.periodicMaintenanceHours || 1) > 0
         ? annualHours / yearInputs.dg.periodicMaintenanceHours! * (opexConfig.dgPM || 0)
@@ -540,7 +560,7 @@ function runModePath(
     if (!yearInputs.financials.gridElectricityPassthrough) {
       cashFlows[y].details.opexItems.push({ name: 'Grid Electricity', cost: gridElectricityCost });
     }
-    if (yearInputs.dg.enabled) {
+    if (dgKvaInstalled > 0) {
       cashFlows[y].details.opexItems.push({ name: 'DG Maintenance', cost: dgMaintenanceCost });
     }
     if (!yearInputs.financials.dgFuelPassthrough) {

@@ -45,7 +45,8 @@ function projectSummary(data: SiteInputs): string {
   const outages = data.gridCondition === 'Off-grid'
     ? '24h outage'
     : `${data.dailyOutages || 0}×${data.outageDuration || 0}h`;
-  return `${data.gridCondition || '?'} · ${outages} · ${load.toFixed(1)} kW load`;
+  const dg = data.dg?.enabled ? 'DG' : 'no DG';
+  return `${data.gridCondition || '?'} · ${outages} · ${load.toFixed(1)} kW load · ${dg}`;
 }
 
 interface Props {
@@ -146,8 +147,9 @@ export function LifeSimulationPanel({ projects }: Props) {
             <h2 className="text-lg font-semibold text-white">Life Simulation — Environment What-If</h2>
             <p className="text-xs text-gray-400 mt-1 max-w-3xl">
               Compare a <strong className="text-gray-300">baseline</strong> and a <strong className="text-gray-300">change</strong> scenario
-              from <strong className="text-red-400">MY PROJECT</strong>. Save two projects first (different grid/config as needed).
+              from <strong className="text-red-400">MY PROJECT</strong>. Save two projects first (different grid/load as needed).
               Here you only set <strong className="text-gray-300">change year</strong> and optional <strong className="text-gray-300">load change</strong>.
+              Mode A keeps the baseline plant (including no genset) and only changes grid/load; Mode B may add kit such as a genset.
             </p>
           </div>
         </div>
@@ -190,7 +192,7 @@ export function LifeSimulationPanel({ projects }: Props) {
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold flex items-center gap-1.5">
-                  <FolderOpen size={12} /> Change project (post-shock config & grid)
+                  <FolderOpen size={12} /> Change project (post-shock grid & load)
                 </label>
                 <select
                   value={changeId}
@@ -251,7 +253,7 @@ export function LifeSimulationPanel({ projects }: Props) {
                       className={`mt-1 ${selectClass}`}
                     />
                     <p className="text-[10px] text-gray-500 mt-1">
-                      Applied on top of the change project loads (e.g. 20 = +20%). Grid/config still from change project.
+                      Applied on top of the change project loads (e.g. 20 = +20%). Grid and load still from the change project.
                     </p>
                   </div>
                 )}
@@ -287,6 +289,13 @@ export function LifeSimulationPanel({ projects }: Props) {
                 </label>
               ))}
             </div>
+            <p className="text-[10px] text-gray-500 leading-relaxed">
+              {mode === 'B'
+                ? 'Mode B re-sizes at the change year to the change project’s design (e.g. add a genset) and operates that upgraded kit.'
+                : mode === 'compare'
+                  ? 'A keeps the Year-0 kit on the new grid/load. B may add kit (genset, battery, etc.) at the change year.'
+                  : 'Mode A keeps the Year-0 design (battery, rectifier, genset yes/no) and only applies the change project’s grid and load. Residual outage after battery is unserved if no genset was installed.'}
+            </p>
             <label className="flex items-center gap-2 text-sm text-gray-300 mt-3">
               <input
                 type="checkbox"
