@@ -53,7 +53,23 @@ export interface WearYearRow {
   dailyLoadEnergy: number;
   autonomyAtDoD: number;
   outageDuration: number;
+  dailyOutageHours: number;
+  dailyUnservedHours: number;
+  dcAvailabilityPct: number;
   riskFlags: string[];
+}
+
+export interface AvailabilitySummary {
+  baselinePct: number;
+  preChangePct: number;
+  postChangePct: number;
+  tenurePct: number;
+  baselineResidualHoursPerDay: number;
+  postResidualHoursPerDay: number;
+  postResidualHoursPerYear: number;
+  postOutageHoursPerDay: number;
+  /** Post-change availability minus baseline (negative = worse). */
+  deltaPostVsBaselinePct: number;
 }
 
 export interface CapexEvent {
@@ -77,6 +93,7 @@ export interface ModePathResult {
   initialCapex: number;
   totalCapex: number;
   totalOpexFuel: number;
+  availability: AvailabilitySummary;
 }
 
 export interface LifeSimResult {
@@ -207,9 +224,15 @@ function buildRiskFlags(stats: EngineResult['rectifierStats'], inputs: SiteInput
   const dgInstalled = inputs.dg.enabled && design.selectedDGKva > 0;
   if (stats.autonomyAtDoD > 0 && outage > stats.autonomyAtDoD + 0.05) {
     flags.push(`Battery autonomy (${stats.autonomyAtDoD.toFixed(2)} h) < outage duration (${outage} h)`);
-    if (!dgInstalled) {
-      flags.push('No genset installed — residual outage after battery is unserved');
-    }
+  }
+  if ((stats.dailyUnservedHours || 0) > 0.05) {
+    const residual = stats.dailyUnservedHours;
+    const avail = stats.dcAvailabilityPct.toFixed(2);
+    flags.push(
+      dgInstalled
+        ? `Residual unserved outage ${residual.toFixed(2)} h/day — DC availability ${avail}%`
+        : `No genset installed — residual outage after battery is unserved (${residual.toFixed(2)} h/day, DC availability ${avail}%)`
+    );
   }
   if (stats.actualDoD >= (inputs.battery.dod || 80)) {
     flags.push(`Actual DoD reaches design limit (${stats.actualDoD}%)`);
@@ -588,6 +611,9 @@ function runModePath(
       dailyLoadEnergy: rs.dailyLoadEnergy,
       autonomyAtDoD: rs.autonomyAtDoD,
       outageDuration: yearInputs.gridCondition === 'Off-grid' ? 24 : (yearInputs.outageDuration || 0),
+      dailyOutageHours: rs.dailyOutageHours,
+      dailyUnservedHours: rs.dailyUnservedHours,
+      dcAvailabilityPct: rs.dcAvailabilityPct,
       riskFlags: flags
     });
   }
@@ -608,6 +634,19 @@ function runModePath(
   const totalCapex = cashFlows.reduce((a, c) => a + c.capex, 0);
   const totalOpexFuel = cashFlows.reduce((a, c) => a + c.opex + c.fuel, 0);
 
+  const baselineAvail = baseline.rectifierStats.dcAvailabilityPct ?? 100;
+  const baselineResidual = baseline.rectifierStats.dailyUnservedHours ?? 0;
+  const preRows = wearTable.filter(r => r.regime === 'baseline');
+  const postRows = wearTable.filter(r => r.regime === 'changed');
+  const avgPct = (rows: WearYearRow[]) =>
+    rows.length > 0 ? rows.reduce((a, r) => a + r.dcAvailabilityPct, 0) / rows.length : baselineAvail;
+  const avgUnserved = (rows: WearYearRow[]) =>
+    rows.length > 0 ? rows.reduce((a, r) => a + r.dailyUnservedHours, 0) / rows.length : 0;
+  const avgOutage = (rows: WearYearRow[]) =>
+    rows.length > 0 ? rows.reduce((a, r) => a + r.dailyOutageHours, 0) / rows.length : 0;
+  const postChangePct = avgPct(postRows.length > 0 ? postRows : wearTable);
+  const postResidualHoursPerDay = avgUnserved(postRows.length > 0 ? postRows : wearTable);
+
   return {
     mode,
     cashFlows,
@@ -621,7 +660,18 @@ function runModePath(
     lcoe,
     initialCapex: cashFlows[0].capex,
     totalCapex,
-    totalOpexFuel
+    totalOpexFuel,
+    availability: {
+      baselinePct: baselineAvail,
+      preChangePct: avgPct(preRows.length > 0 ? preRows : wearTable),
+      postChangePct,
+      tenurePct: avgPct(wearTable),
+      baselineResidualHoursPerDay: baselineResidual,
+      postResidualHoursPerDay,
+      postResidualHoursPerYear: postResidualHoursPerDay * 365,
+      postOutageHoursPerDay: avgOutage(postRows.length > 0 ? postRows : wearTable),
+      deltaPostVsBaselinePct: postChangePct - baselineAvail
+    }
   };
 }
 

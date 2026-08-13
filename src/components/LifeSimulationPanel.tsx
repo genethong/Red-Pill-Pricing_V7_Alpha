@@ -40,6 +40,8 @@ const getCurrencySymbol = (currency: string) => {
 const fmt = (n: number | undefined, digits = 0) =>
   (n ?? 0).toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: digits });
 
+const signedPp = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(2)} pp`;
+
 function projectSummary(data: SiteInputs): string {
   const load = (data.tenantLoads || []).reduce((a, t) => a + (t.runningLoad || t.averageLoad || 0), 0);
   const outages = data.gridCondition === 'Off-grid'
@@ -346,6 +348,92 @@ export function LifeSimulationPanel({ projects }: Props) {
             )
           )}
 
+          {/* DC availability */}
+          {(comparePathA?.availability || comparePathB?.availability || activePath?.availability) && (
+            <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-white mb-1">DC availability</h3>
+              <p className="text-[10px] text-gray-500 mb-3 max-w-3xl">
+                Time-based: (24 − unserved hours) / 24. Residual outage is grid-down time the installed plant
+                cannot cover (battery, then solar). A genset counts as serving residual only if it is in the Year-0
+                design (Mode A) or added at the change year (Mode B).
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs min-w-[640px]">
+                  <thead>
+                    <tr className="text-gray-500 border-b border-white/10">
+                      <th className="text-left py-2 pr-3">Metric</th>
+                      <th className="text-right py-2 pr-3">Baseline design</th>
+                      {(mode === 'A' || mode === 'compare') && <th className="text-right py-2 pr-3 text-amber-400">Mode A post-change</th>}
+                      {(mode === 'B' || mode === 'compare') && <th className="text-right py-2 pr-3 text-emerald-400">Mode B post-change</th>}
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-300">
+                    <tr className="border-b border-white/5">
+                      <td className="py-1.5">DC availability</td>
+                      <td className="text-right font-mono">{(simResult.baseline.rectifierStats.dcAvailabilityPct ?? 100).toFixed(2)}%</td>
+                      {(mode === 'A' || mode === 'compare') && comparePathA && (
+                        <td className="text-right font-mono text-amber-300">{comparePathA.availability.postChangePct.toFixed(2)}%</td>
+                      )}
+                      {(mode === 'B' || mode === 'compare') && comparePathB && (
+                        <td className="text-right font-mono text-emerald-300">{comparePathB.availability.postChangePct.toFixed(2)}%</td>
+                      )}
+                    </tr>
+                    <tr className="border-b border-white/5">
+                      <td className="py-1.5">Δ availability vs baseline</td>
+                      <td className="text-right font-mono text-gray-600">—</td>
+                      {(mode === 'A' || mode === 'compare') && comparePathA && (
+                        <td className={`text-right font-mono ${comparePathA.availability.deltaPostVsBaselinePct < -0.01 ? 'text-red-400' : 'text-gray-300'}`}>
+                          {signedPp(comparePathA.availability.deltaPostVsBaselinePct)}
+                        </td>
+                      )}
+                      {(mode === 'B' || mode === 'compare') && comparePathB && (
+                        <td className={`text-right font-mono ${comparePathB.availability.deltaPostVsBaselinePct < -0.01 ? 'text-red-400' : 'text-gray-300'}`}>
+                          {signedPp(comparePathB.availability.deltaPostVsBaselinePct)}
+                        </td>
+                      )}
+                    </tr>
+                    <tr className="border-b border-white/5">
+                      <td className="py-1.5">Grid outage</td>
+                      <td className="text-right font-mono">{(simResult.baseline.rectifierStats.dailyOutageHours ?? 0).toFixed(2)} h/day</td>
+                      {(mode === 'A' || mode === 'compare') && comparePathA && (
+                        <td className="text-right font-mono">{comparePathA.availability.postOutageHoursPerDay.toFixed(2)} h/day</td>
+                      )}
+                      {(mode === 'B' || mode === 'compare') && comparePathB && (
+                        <td className="text-right font-mono">{comparePathB.availability.postOutageHoursPerDay.toFixed(2)} h/day</td>
+                      )}
+                    </tr>
+                    <tr className="border-b border-white/5">
+                      <td className="py-1.5">Residual unserved outage</td>
+                      <td className="text-right font-mono">{(simResult.baseline.rectifierStats.dailyUnservedHours ?? 0).toFixed(2)} h/day</td>
+                      {(mode === 'A' || mode === 'compare') && comparePathA && (
+                        <td className={`text-right font-mono ${comparePathA.availability.postResidualHoursPerDay > 0.01 ? 'text-red-400' : 'text-gray-300'}`}>
+                          {comparePathA.availability.postResidualHoursPerDay.toFixed(2)} h/day
+                          <span className="text-gray-500 ml-1">({fmt(comparePathA.availability.postResidualHoursPerYear, 0)} h/y)</span>
+                        </td>
+                      )}
+                      {(mode === 'B' || mode === 'compare') && comparePathB && (
+                        <td className={`text-right font-mono ${comparePathB.availability.postResidualHoursPerDay > 0.01 ? 'text-red-400' : 'text-gray-300'}`}>
+                          {comparePathB.availability.postResidualHoursPerDay.toFixed(2)} h/day
+                          <span className="text-gray-500 ml-1">({fmt(comparePathB.availability.postResidualHoursPerYear, 0)} h/y)</span>
+                        </td>
+                      )}
+                    </tr>
+                    <tr>
+                      <td className="py-1.5">Tenure-average availability</td>
+                      <td className="text-right font-mono text-gray-500">same every year if no shock</td>
+                      {(mode === 'A' || mode === 'compare') && comparePathA && (
+                        <td className="text-right font-mono">{comparePathA.availability.tenurePct.toFixed(2)}%</td>
+                      )}
+                      {(mode === 'B' || mode === 'compare') && comparePathB && (
+                        <td className="text-right font-mono">{comparePathB.availability.tenurePct.toFixed(2)}%</td>
+                      )}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* Risk flags */}
           {(comparePathA?.riskFlags?.length || comparePathB?.riskFlags?.length || activePath?.riskFlags?.length) ? (
             <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
@@ -453,6 +541,8 @@ export function LifeSimulationPanel({ projects }: Props) {
                     <th className="text-right py-2 pr-2">Cyc cum</th>
                     <th className="text-right py-2 pr-2">Cyc max</th>
                     <th className="text-right py-2 pr-2">Bat life y</th>
+                    <th className="text-right py-2 pr-2">Avail%</th>
+                    <th className="text-right py-2 pr-2">Unsrv h/d</th>
                     <th className="text-right py-2 pr-2">DG h/day</th>
                     <th className="text-right py-2 pr-2">DG h +</th>
                     <th className="text-right py-2 pr-2">DG h cum</th>
@@ -474,6 +564,12 @@ export function LifeSimulationPanel({ projects }: Props) {
                       <td className="text-right font-mono text-amber-300">{fmt(row.batteryCyclesCumulative, 0)}</td>
                       <td className="text-right font-mono text-gray-500">{fmt(row.batteryAvailableCycles, 0)}</td>
                       <td className="text-right font-mono">{row.batteryYearsSinceInstall}</td>
+                      <td className={`text-right font-mono ${row.dcAvailabilityPct < 99.99 ? 'text-amber-300' : 'text-emerald-400'}`}>
+                        {row.dcAvailabilityPct.toFixed(2)}
+                      </td>
+                      <td className={`text-right font-mono ${row.dailyUnservedHours > 0.01 ? 'text-red-400' : 'text-gray-500'}`}>
+                        {row.dailyUnservedHours.toFixed(2)}
+                      </td>
                       <td className="text-right font-mono">{row.dgRunningHoursPerDay.toFixed(2)}</td>
                       <td className="text-right font-mono">{fmt(row.dgHoursAdded, 0)}</td>
                       <td className="text-right font-mono text-sky-300">{fmt(row.dgHoursCumulative, 0)}</td>
@@ -523,6 +619,8 @@ export function LifeSimulationPanel({ projects }: Props) {
                     <th className="text-right py-2">Cyc cum</th>
                     <th className="text-right py-2">DG h cum</th>
                     <th className="text-right py-2">DoD%</th>
+                    <th className="text-right py-2">Avail%</th>
+                    <th className="text-right py-2">Unsrv h/d</th>
                     <th className="text-right py-2">DG h/day</th>
                     <th className="text-center py-2">Events</th>
                   </tr>
@@ -534,6 +632,12 @@ export function LifeSimulationPanel({ projects }: Props) {
                       <td className="text-right font-mono text-amber-300">{fmt(row.batteryCyclesCumulative, 0)}</td>
                       <td className="text-right font-mono text-sky-300">{fmt(row.dgHoursCumulative, 0)}</td>
                       <td className="text-right font-mono">{row.actualDoD}</td>
+                      <td className={`text-right font-mono ${row.dcAvailabilityPct < 99.99 ? 'text-amber-300' : 'text-emerald-400'}`}>
+                        {row.dcAvailabilityPct.toFixed(2)}
+                      </td>
+                      <td className={`text-right font-mono ${row.dailyUnservedHours > 0.01 ? 'text-red-400' : 'text-gray-500'}`}>
+                        {row.dailyUnservedHours.toFixed(2)}
+                      </td>
                       <td className="text-right font-mono">{row.dgRunningHoursPerDay.toFixed(2)}</td>
                       <td className="text-center text-[10px]">
                         {row.batteryReplaced && <span className="text-amber-400 mr-1">BAT-R</span>}

@@ -103,6 +103,12 @@ export interface EngineResult {
     batteryChargingLoadKW: number;
     totalRunningLoadWithFans: number;
     autonomyAtDoD: number;
+    /** Grid-down hours in the daily profile (capped at 24). */
+    dailyOutageHours: number;
+    /** Hours the DC load is not served (outage beyond battery / solar; 0 if a genset is installed). */
+    dailyUnservedHours: number;
+    /** Time-based DC availability = (24 − unserved) / 24 × 100. */
+    dcAvailabilityPct: number;
   };
 }
 
@@ -295,6 +301,8 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
   let dailyEnergyAC = 0;
   let dailyEnergyTotal = 0;
   let isMonteCarlo = false;
+  let dailyOutageHours = Math.min(24, Math.max(0, dailyOutages * outageDuration));
+  let dailyUnservedHours = 0;
 
   const getFuelRate = (kw: number) => {
     if (selectedDGKva <= 0) return 0;
@@ -319,6 +327,8 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
     let totalDgHours = 0;
     let totalDgStarts = 0;
     let totalBatteryDischargeKWh = 0;
+    let totalUnservedHours = 0;
+    let totalOutageHours = 0;
 
     const totalDailyOutage = Math.min(24, dailyOutages * outageDuration);
     const gridInterval = (24 - totalDailyOutage) / Math.max(1, dailyOutages);
@@ -358,6 +368,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
           }
           isDgRunning = false;
         } else {
+          totalOutageHours++;
           if (!dgInstalled || simInputs.dg.operationMethod === 'CDC') {
             const energyInBattery = batteryCapacityKWh > 0 ? (currentSoc - SOC_MIN) * batteryCapacityKWh : 0;
             if (solarNow >= loadNow) {
@@ -394,10 +405,12 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
               }
               totalFuel += dgPower * getFuelRate(dgPower);
             } else {
+              const served = solarNow + energyInBattery;
               totalBatteryDischargeKWh += energyInBattery;
               currentSoc = SOC_MIN;
               totalSolarEnergyUsed += solarNow;
-              totalEnergySupplied += solarNow + energyInBattery;
+              totalEnergySupplied += served;
+              if (loadNow > 0) totalUnservedHours += Math.max(0, loadNow - served) / loadNow;
               isDgRunning = false;
             }
           } else {
@@ -436,6 +449,8 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       ? dailyGridEnergy / (simInputs.rectifier.efficiency! / 100)
       : 0;
     dailyEnergyTotal = (dailyGridEnergy + dgDailyEnergyGeneration) / ((simInputs.rectifier.efficiency || 100) / 100) + dailySolarEnergy;
+    dailyOutageHours = totalOutageHours / N_SAMPLES;
+    dailyUnservedHours = totalUnservedHours / N_SAMPLES;
   } else {
     // Deterministic Logic
     const totalDailyOutageDuration = Math.min(24, dailyOutages * outageDuration);
@@ -455,6 +470,8 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
         const dTime = dgInstalled
           ? (simInputs.dg.operationMethod === 'Non-CDC' ? outageDuration : Math.max(0, outageDuration - bTime))
           : 0;
+        const servedOutage = bTime + dTime;
+        dailyUnservedHours += Math.max(0, outageDuration - servedOutage);
         currentSoC = Math.max(dodLimit, currentSoC - bTime * dischargeRate);
         totalDgHours += dTime;
         totalBatteryHours += bTime;
@@ -469,6 +486,7 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       if (!dgInstalled) {
         dgRunningHoursPerDay = 0;
         cdcPerDay = autonomyAtDoD > 0 ? 24 / autonomyAtDoD : 0;
+        dailyUnservedHours = Math.max(0, 24 - autonomyAtDoD);
       } else if (simInputs.dg.operationMethod === 'Non-CDC') {
         dgRunningHoursPerDay = 24;
         cdcPerDay = 0;
@@ -511,6 +529,10 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       : 0;
     dailyEnergyTotal = (dailyGridEnergy + dgDailyEnergyGeneration) / ((simInputs.rectifier.efficiency || 100) / 100);
   }
+
+  dailyUnservedHours = Math.max(0, Math.min(24, dailyUnservedHours));
+  dailyOutageHours = Math.max(0, Math.min(24, dailyOutageHours));
+  const dcAvailabilityPct = ((24 - dailyUnservedHours) / 24) * 100;
 
   const batteryLifeYears = batteryCyclesPerDay > 0
     ? Math.floor(batteryCycles / batteryCyclesPerDay / 365)
@@ -821,7 +843,10 @@ export function calculateAllStats(simInputs: SiteInputs, options?: CalculateOpti
       dgLifeYears,
       batteryChargingLoadKW,
       totalRunningLoadWithFans,
-      autonomyAtDoD
+      autonomyAtDoD,
+      dailyOutageHours,
+      dailyUnservedHours,
+      dcAvailabilityPct
     }
   };
 }

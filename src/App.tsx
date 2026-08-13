@@ -552,6 +552,12 @@ export default function App() {
     rows.push(['Available Cycles (Li-ion)', ...models.map(m => m.rectifierStats.batteryCycles?.toLocaleString())]);
     rows.push(['Battery Usage per Hour (%)', ...models.map(m => `${(m.rectifierStats.batteryUsagePerHourAH * 100)?.toFixed(2)}%`)]);
 
+    rows.push(['DC AVAILABILITY', ...models.map(() => '')]);
+    rows.push(['DC Availability (%)', ...models.map(m => `${(m.rectifierStats.dcAvailabilityPct ?? 100).toFixed(2)}%`)]);
+    rows.push(['Grid Outage (h/day)', ...models.map(m => (m.rectifierStats.dailyOutageHours ?? 0).toFixed(2))]);
+    rows.push(['Residual Unserved Outage (h/day)', ...models.map(m => (m.rectifierStats.dailyUnservedHours ?? 0).toFixed(2))]);
+    rows.push(['Residual Unserved Outage (h/year)', ...models.map(m => ((m.rectifierStats.dailyUnservedHours ?? 0) * 365).toFixed(0))]);
+
     // DG Metrics
     if (inputs.dg.enabled) {
       rows.push(['DG OPERATION', ...models.map(() => '')]);
@@ -3112,6 +3118,22 @@ export default function App() {
                             <span className="text-sm font-bold text-white">{rectifierStats.requiredDGKva?.toFixed(2)} kVA</span>
                             </div>
                           )}
+                          <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                            <span className="text-sm text-gray-400">DC Availability</span>
+                            <span className={`text-sm font-bold ${(rectifierStats.dcAvailabilityPct ?? 100) < 99.99 ? 'text-amber-400' : 'text-green-500'}`}>
+                              {(rectifierStats.dcAvailabilityPct ?? 100).toFixed(2)}%
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-400">Grid Outage</span>
+                            <span className="text-sm font-bold text-white">{(rectifierStats.dailyOutageHours ?? 0).toFixed(2)} h/day</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-400">Residual Unserved</span>
+                            <span className={`text-sm font-bold ${(rectifierStats.dailyUnservedHours ?? 0) > 0.01 ? 'text-red-500' : 'text-white'}`}>
+                              {(rectifierStats.dailyUnservedHours ?? 0).toFixed(2)} h/day
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -3256,6 +3278,32 @@ export default function App() {
                           <tr className="hover:bg-white/5 transition-colors group">
                             <td className="p-2 text-[10px] md:text-xs text-gray-400 sticky left-0 bg-[#121212] group-hover:bg-[#1a1a1a] transition-colors z-10 border-r border-white/5 whitespace-normal break-words leading-tight">Battery Usage per Hour (%)</td>
                             {modellingResults.map((res, idx) => <td key={idx} className="p-3 text-center text-[10px] md:text-xs font-mono border-l border-white/5">{(res.rectifierStats.batteryUsagePerHourAH * 100)?.toFixed(2)}%</td>)}
+                          </tr>
+
+                          <tr className="bg-white/5">
+                            <td colSpan={modellingResults.length + 1} className="p-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-2 sticky left-0 bg-[#121212] z-10 whitespace-normal">
+                              DC Availability
+                            </td>
+                          </tr>
+                          <tr className="hover:bg-white/5 transition-colors group">
+                            <td className="p-2 text-[10px] md:text-xs text-gray-400 sticky left-0 bg-[#121212] group-hover:bg-[#1a1a1a] transition-colors z-10 border-r border-white/5 whitespace-normal break-words leading-tight">DC Availability (%)</td>
+                            {modellingResults.map((res, idx) => (
+                              <td key={idx} className={`p-3 text-center text-[10px] md:text-xs font-mono border-l border-white/5 ${(res.rectifierStats.dcAvailabilityPct ?? 100) < 99.99 ? 'text-amber-400' : 'text-green-400'}`}>
+                                {(res.rectifierStats.dcAvailabilityPct ?? 100).toFixed(2)}%
+                              </td>
+                            ))}
+                          </tr>
+                          <tr className="hover:bg-white/5 transition-colors group">
+                            <td className="p-2 text-[10px] md:text-xs text-gray-400 sticky left-0 bg-[#121212] group-hover:bg-[#1a1a1a] transition-colors z-10 border-r border-white/5 whitespace-normal break-words leading-tight">Grid Outage (h/day)</td>
+                            {modellingResults.map((res, idx) => <td key={idx} className="p-3 text-center text-[10px] md:text-xs font-mono border-l border-white/5">{(res.rectifierStats.dailyOutageHours ?? 0).toFixed(2)}</td>)}
+                          </tr>
+                          <tr className="hover:bg-white/5 transition-colors group">
+                            <td className="p-2 text-[10px] md:text-xs text-gray-400 sticky left-0 bg-[#121212] group-hover:bg-[#1a1a1a] transition-colors z-10 border-r border-white/5 whitespace-normal break-words leading-tight">Residual Unserved (h/day)</td>
+                            {modellingResults.map((res, idx) => (
+                              <td key={idx} className={`p-3 text-center text-[10px] md:text-xs font-mono border-l border-white/5 ${(res.rectifierStats.dailyUnservedHours ?? 0) > 0.01 ? 'text-red-400' : ''}`}>
+                                {(res.rectifierStats.dailyUnservedHours ?? 0).toFixed(2)}
+                              </td>
+                            ))}
                           </tr>
 
                           {/* DG Metrics */}
