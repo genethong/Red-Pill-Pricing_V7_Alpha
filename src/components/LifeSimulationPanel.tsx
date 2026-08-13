@@ -126,10 +126,10 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
 
   const cashChartData = useMemo(() => {
     if (!simResult) return [];
-    const years = simResult.baseline.cashFlows.map(c => c.year);
+    const years = simResult.noShock.cashFlows.map(c => c.year);
     return years.map(y => {
       const row: Record<string, number> = { year: y };
-      row.baseline = simResult.baseline.cashFlows[y]?.totalOutflow || 0;
+      row.baseline = simResult.noShock.cashFlows[y]?.totalOutflow || 0;
       if (comparePathA) row.modeA = comparePathA.cashFlows[y]?.totalOutflow || 0;
       if (comparePathB) row.modeB = comparePathB.cashFlows[y]?.totalOutflow || 0;
       if (mode === 'A' && activePath) row.scenario = activePath.cashFlows[y]?.totalOutflow || 0;
@@ -360,6 +360,9 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
               </div>
             )
           )}
+          <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] -mt-1">
+            Extra CAPEX is new spend only (replacements and add-on kit) versus keeping the baseline grid for the whole tenure. Year-0 spend is the same; it is not reversed.
+          </p>
 
           {/* DC availability */}
           {(comparePathA?.availability || comparePathB?.availability || activePath?.availability) && (
@@ -522,15 +525,15 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
               <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)]">Financials over tenure</h3>
               <div className={`grid grid-cols-1 ${mode === 'compare' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-3`}>
                 <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
-                  <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-2">Baseline</div>
+                  <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-2">Baseline (grid never changes)</div>
                   <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Breakeven MRR</div>
                   <div className="text-[length:var(--text-title-3-size)] font-semibold font-[family-name:var(--font-numeric)] text-[var(--tint)]">
-                    {currency}{fmt(simResult.baseline.breakevenMRR)}
+                    {currency}{fmt(simResult.noShock.breakevenMRR)}
                   </div>
                   <div className="mt-2 space-y-1 text-[length:var(--text-caption-1-size)] font-[family-name:var(--font-numeric)]">
-                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">Initial CAPEX</span><span className="text-[var(--label)]">{currency}{fmt(simResult.baseline.initialCapex)}</span></div>
-                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">NPV (outflow)</span><span className="text-[var(--label)]">{currency}{fmt(simResult.baseline.npv)}</span></div>
-                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">LCOE</span><span className="text-[var(--label)]">{currency}{simResult.baseline.lcoe.toFixed(4)}/kWh</span></div>
+                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">Initial CAPEX</span><span className="text-[var(--label)]">{currency}{fmt(simResult.noShock.initialCapex)}</span></div>
+                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">NPV (operator)</span><span className="text-[var(--label)]">{currency}{fmt(simResult.noShock.npvOperator)}</span></div>
+                    <div className="flex justify-between"><span className="text-[var(--label-tertiary)]">LCOE</span><span className="text-[var(--label)]">{currency}{simResult.noShock.lcoe.toFixed(4)}/kWh</span></div>
                   </div>
                 </div>
                 {(mode === 'A' || mode === 'compare') && comparePathA && (
@@ -580,7 +583,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {simResult.baseline.cashFlows.map((bcf) => {
+                      {simResult.noShock.cashFlows.map((bcf) => {
                         const a = comparePathA.cashFlows[bcf.year];
                         const b = comparePathB.cashFlows[bcf.year];
                         return (
@@ -980,7 +983,7 @@ function DeltaCard({
           <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.npvOperator)}</div>
         </div>
         <div>
-          <div className="text-[var(--label-tertiary)]">Δ Total CAPEX</div>
+          <div className="text-[var(--label-tertiary)]">Extra CAPEX vs keep-this-grid</div>
           <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.totalCapex)}</div>
         </div>
         <div>

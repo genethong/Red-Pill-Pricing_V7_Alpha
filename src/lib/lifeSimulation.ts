@@ -29,6 +29,8 @@ export interface EnvironmentChange {
   tenantLoads?: TenantLoad[];
   /** Extra kW on total average load from the load-change year (peak/running scale with it). */
   loadDeltaKw?: number | null;
+  /** If true, grid/load never change (same wear engine as Mode A, for apples-to-apples deltas). */
+  noShock?: boolean;
   /** @deprecated Prefer loadDeltaKw. Scale factor on post-load-change regime, e.g. 1.3 = +30%. */
   loadScale?: number | null;
 }
@@ -120,6 +122,8 @@ export interface ModePathResult {
 
 export interface LifeSimResult {
   baseline: EngineResult;
+  /** Same wear/lot engine as Mode A, but grid and load never change. Deltas are vs this, not vs the Costs-tab calendar model. */
+  noShock: ModePathResult;
   modeA?: ModePathResult;
   modeB?: ModePathResult;
   deltaA?: DeltaSummary;
@@ -202,6 +206,9 @@ function clampYear(y: number | undefined, tenure: number, fallback: number): num
 }
 
 export function resolveChangeYears(change: EnvironmentChange, tenure: number): { gridYear: number; loadYear: number } {
+  if (change.noShock) {
+    return { gridYear: tenure + 1, loadYear: tenure + 1 };
+  }
   const fallback = clampYear(change.changeYear, tenure, 1);
   return {
     gridYear: clampYear(change.gridChangeYear, tenure, fallback),
@@ -812,23 +819,19 @@ export function runLifeSimulation(baseInputs: SiteInputs, config: LifeSimConfig)
   const inputs = cloneInputs(baseInputs);
   const mcSamples = inputs.solar.enabled ? 200 : 1000;
   const baseline = calculateAllStats(inputs, { monteCarloSamples: mcSamples });
-  const wacc = (inputs.financials.wacc || 0) / 100;
-  const baselineNpvOp = npvOf(baseline.cashFlows, wacc, 'totalOutflow');
-  const baselineNpvSys = npvOf(baseline.cashFlows, wacc, 'totalSystemOutflow');
-  const baselineTotalCapex = baseline.cashFlows.reduce((a, c) => a + c.capex, 0);
-  const baselineTotalOpexFuel = baseline.cashFlows.reduce((a, c) => a + c.opex + c.fuel, 0);
+  const noShock = runModePath(inputs, baseline, { changeYear: 1, noShock: true }, 'A');
 
-  const result: LifeSimResult = { baseline };
+  const result: LifeSimResult = { baseline, noShock };
 
   const buildDelta = (path: ModePathResult): DeltaSummary => ({
-    npvOperator: path.npvOperator - baselineNpvOp,
-    npvSystem: path.npvSystem - baselineNpvSys,
-    breakevenMRR: path.breakevenMRR - baseline.breakevenMRR,
-    lcoe: path.lcoe - baseline.lcoe,
-    totalCapex: path.totalCapex - baselineTotalCapex,
-    totalOpexFuel: path.totalOpexFuel - baselineTotalOpexFuel,
+    npvOperator: path.npvOperator - noShock.npvOperator,
+    npvSystem: path.npvSystem - noShock.npvSystem,
+    breakevenMRR: path.breakevenMRR - noShock.breakevenMRR,
+    lcoe: path.lcoe - noShock.lcoe,
+    totalCapex: path.totalCapex - noShock.totalCapex,
+    totalOpexFuel: path.totalOpexFuel - noShock.totalOpexFuel,
     yearly: path.cashFlows.map((cf, i) => {
-      const b = baseline.cashFlows[i] || { capex: 0, opex: 0, fuel: 0, totalOutflow: 0 };
+      const b = noShock.cashFlows[i] || { capex: 0, opex: 0, fuel: 0, totalOutflow: 0 };
       return {
         year: cf.year,
         capex: cf.capex - (b.capex || 0),
