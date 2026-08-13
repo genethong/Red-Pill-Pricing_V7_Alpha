@@ -363,7 +363,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                     <tr className="text-gray-500 border-b border-white/10">
                       <th className="text-left py-2 pr-3">Metric</th>
                       <th className="text-right py-2 pr-3">Baseline design</th>
-                      {(mode === 'A' || mode === 'compare') && <th className="text-right py-2 pr-3 text-amber-400">Mode A post-change</th>}
+                      {(mode === 'A' || mode === 'compare') && <th className="text-right py-2 pr-3 text-[var(--system-orange)]">Mode A post-change</th>}
                       {(mode === 'B' || mode === 'compare') && <th className="text-right py-2 pr-3 text-emerald-400">Mode B post-change</th>}
                     </tr>
                   </thead>
@@ -372,7 +372,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       <td className="py-1.5">DC availability</td>
                       <td className="text-right font-mono">{(simResult.baseline.rectifierStats.dcAvailabilityPct ?? 100).toFixed(2)}%</td>
                       {(mode === 'A' || mode === 'compare') && comparePathA && (
-                        <td className="text-right font-mono text-amber-300">{comparePathA.availability.postChangePct.toFixed(2)}%</td>
+                        <td className="text-right font-mono text-[var(--system-orange)]">{comparePathA.availability.postChangePct.toFixed(2)}%</td>
                       )}
                       {(mode === 'B' || mode === 'compare') && comparePathB && (
                         <td className="text-right font-mono text-emerald-300">{comparePathB.availability.postChangePct.toFixed(2)}%</td>
@@ -444,7 +444,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                 {mode === 'compare' ? (
                   <>
                     {comparePathA?.riskFlags.map((f, i) => (
-                      <li key={`a-${i}`}><span className="text-amber-500 font-mono">A:</span> {f}</li>
+                      <li key={`a-${i}`}><span className="text-[var(--system-orange)] font-mono">A:</span> {f}</li>
                     ))}
                     {comparePathB?.riskFlags.map((f, i) => (
                       <li key={`b-${i}`}><span className="text-emerald-500 font-mono">B:</span> {f}</li>
@@ -561,10 +561,10 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       <td className="text-right font-mono text-red-400">{row.actualDoD}</td>
                       <td className="text-right font-mono">{row.batteryCyclesPerDay.toFixed(2)}</td>
                       <td className="text-right font-mono">{fmt(row.batteryCyclesAdded, 0)}</td>
-                      <td className="text-right font-mono text-amber-300">{fmt(row.batteryCyclesCumulative, 0)}</td>
+                      <td className="text-right font-mono text-[var(--system-orange)]">{fmt(row.batteryCyclesCumulative, 0)}</td>
                       <td className="text-right font-mono text-gray-500">{fmt(row.batteryAvailableCycles, 0)}</td>
                       <td className="text-right font-mono">{row.batteryYearsSinceInstall}</td>
-                      <td className={`text-right font-mono ${row.dcAvailabilityPct < 99.99 ? 'text-amber-300' : 'text-emerald-400'}`}>
+                      <td className={`text-right font-mono ${row.dcAvailabilityPct < 99.99 ? 'text-[var(--system-orange)]' : 'text-emerald-400'}`}>
                         {row.dcAvailabilityPct.toFixed(2)}
                       </td>
                       <td className={`text-right font-mono ${row.dailyUnservedHours > 0.01 ? 'text-red-400' : 'text-gray-500'}`}>
@@ -575,7 +575,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       <td className="text-right font-mono text-sky-300">{fmt(row.dgHoursCumulative, 0)}</td>
                       <td className="text-right font-mono text-gray-500">{fmt(row.dgMaxHours, 0)}</td>
                       <td className="text-center text-[10px]">
-                        {row.batteryReplaced && <span className="text-amber-400 mr-1">BAT-R</span>}
+                        {row.batteryReplaced && <span className="text-[var(--system-orange)] mr-1">BAT-R</span>}
                         {row.dgReplaced && <span className="text-sky-400">DG-R</span>}
                         {!row.batteryReplaced && !row.dgReplaced && <span className="text-gray-600">—</span>}
                       </td>
@@ -598,7 +598,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       <span className="text-gray-500 font-mono mr-2">Y{e.year}</span>
                       <span className={
                         e.kind === 'upgrade' ? 'text-emerald-400' :
-                        e.kind === 'replacement' ? 'text-amber-400' : 'text-gray-400'
+                        e.kind === 'replacement' ? 'text-[var(--system-orange)]' : 'text-gray-400'
                       }>[{e.kind}]</span>{' '}
                       {e.name}
                     </span>
@@ -629,10 +629,10 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                   {comparePathB.wearTable.map(row => (
                     <tr key={row.year} className={`border-b border-white/5 ${row.regime === 'changed' ? 'bg-emerald-500/5' : ''}`}>
                       <td className="py-1 font-mono">{row.year}</td>
-                      <td className="text-right font-mono text-amber-300">{fmt(row.batteryCyclesCumulative, 0)}</td>
+                      <td className="text-right font-mono text-[var(--system-orange)]">{fmt(row.batteryCyclesCumulative, 0)}</td>
                       <td className="text-right font-mono text-sky-300">{fmt(row.dgHoursCumulative, 0)}</td>
                       <td className="text-right font-mono">{row.actualDoD}</td>
-                      <td className={`text-right font-mono ${row.dcAvailabilityPct < 99.99 ? 'text-amber-300' : 'text-emerald-400'}`}>
+                      <td className={`text-right font-mono ${row.dcAvailabilityPct < 99.99 ? 'text-[var(--system-orange)]' : 'text-emerald-400'}`}>
                         {row.dcAvailabilityPct.toFixed(2)}
                       </td>
                       <td className={`text-right font-mono ${row.dailyUnservedHours > 0.01 ? 'text-red-400' : 'text-gray-500'}`}>
@@ -640,7 +640,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       </td>
                       <td className="text-right font-mono">{row.dgRunningHoursPerDay.toFixed(2)}</td>
                       <td className="text-center text-[10px]">
-                        {row.batteryReplaced && <span className="text-amber-400 mr-1">BAT-R</span>}
+                        {row.batteryReplaced && <span className="text-[var(--system-orange)] mr-1">BAT-R</span>}
                         {row.dgReplaced && <span className="text-sky-400">DG-R</span>}
                         {!row.batteryReplaced && !row.dgReplaced && '—'}
                       </td>
