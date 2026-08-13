@@ -2335,7 +2335,7 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-[#121212] border border-white/5 rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-300 backdrop-blur-sm"
+              className="step-card bg-[var(--bg-elevated)] rounded-[var(--radius-card)] p-[var(--space-6)] md:p-[var(--space-8)] shadow-[0_0_0_0.5px_var(--separator)]"
             >
               {activeSection === 'grid' && (
                 <div className="space-y-6">
@@ -2719,28 +2719,28 @@ export default function App() {
                       <Sun className="w-5 h-5 text-red-500" />
                       5. Solar PV Details
                     </h2>
-                    <div className="flex bg-black/40 border border-white/10 rounded-full p-1 relative items-center select-none">
+                    <div className="inline-flex items-center p-[3px] rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] shadow-[0_0_0_0.5px_var(--separator)] select-none">
                       <button
                         onClick={() => setInputs({...inputs, solar: {...inputs.solar, enabled: false}})}
                         className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                          "px-[var(--space-3)] h-7 rounded-[var(--radius-capsule)] text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] cursor-pointer",
                           !inputs.solar.enabled 
-                            ? "bg-[#E50914] text-white shadow-md shadow-red-500/10" 
-                            : "text-gray-500 hover:text-gray-300"
+                            ? "bg-[var(--bg-elevated)] text-[var(--label)] shadow-[0_1px_2px_rgba(0,0,0,0.12)]" 
+                            : "text-[var(--label-secondary)] hover:text-[var(--label)]"
                         )}
                       >
-                        Disabled
+                        Off
                       </button>
                       <button
                         onClick={() => setInputs({...inputs, solar: {...inputs.solar, enabled: true}})}
                         className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                          "px-[var(--space-3)] h-7 rounded-[var(--radius-capsule)] text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] cursor-pointer",
                           inputs.solar.enabled 
-                            ? "bg-[#E50914] text-white shadow-md shadow-red-500/10" 
-                            : "text-gray-500 hover:text-gray-300"
+                            ? "bg-[var(--bg-elevated)] text-[var(--label)] shadow-[0_1px_2px_rgba(0,0,0,0.12)]" 
+                            : "text-[var(--label-secondary)] hover:text-[var(--label)]"
                         )}
                       >
-                        Enabled
+                        On
                       </button>
                     </div>
                   </div>
@@ -2819,28 +2819,28 @@ export default function App() {
                       <Zap className="w-5 h-5 text-red-500" />
                       6. Diesel Generator Details
                     </h2>
-                    <div className="flex bg-black/40 border border-white/10 rounded-full p-1 relative items-center select-none">
+                    <div className="inline-flex items-center p-[3px] rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] shadow-[0_0_0_0.5px_var(--separator)] select-none">
                       <button
                         onClick={() => setInputs({...inputs, dg: {...inputs.dg, enabled: false}})}
                         className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                          "px-[var(--space-3)] h-7 rounded-[var(--radius-capsule)] text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] cursor-pointer",
                           !inputs.dg.enabled 
-                            ? "bg-[#E50914] text-white shadow-md shadow-red-500/10" 
-                            : "text-gray-500 hover:text-gray-300"
+                            ? "bg-[var(--bg-elevated)] text-[var(--label)] shadow-[0_1px_2px_rgba(0,0,0,0.12)]" 
+                            : "text-[var(--label-secondary)] hover:text-[var(--label)]"
                         )}
                       >
-                        Disabled
+                        Off
                       </button>
                       <button
                         onClick={() => setInputs({...inputs, dg: {...inputs.dg, enabled: true}})}
                         className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
+                          "px-[var(--space-3)] h-7 rounded-[var(--radius-capsule)] text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] cursor-pointer",
                           inputs.dg.enabled 
-                            ? "bg-[#E50914] text-white shadow-md shadow-red-500/10" 
-                            : "text-gray-500 hover:text-gray-300"
+                            ? "bg-[var(--bg-elevated)] text-[var(--label)] shadow-[0_1px_2px_rgba(0,0,0,0.12)]" 
+                            : "text-[var(--label-secondary)] hover:text-[var(--label)]"
                         )}
                       >
-                        Enabled
+                        On
                       </button>
                     </div>
                   </div>
@@ -6058,32 +6058,26 @@ export default function App() {
 
               {/* Navigation Buttons */}
               {activeSection !== 'comparison' && activeSection !== 'optimization' && (
-                <div className="pt-8 md:pt-12 flex items-center justify-between border-t border-white/5 mt-8">
-                  <button
+                <div className="pt-[var(--space-8)] mt-[var(--space-8)] flex items-center justify-between shadow-[inset_0_0.5px_0_var(--separator)]">
+                  <Button
+                    variant="gray"
                     onClick={handlePrevStep}
                     disabled={currentStep === 1}
-                    className={cn(
-                      "px-4 py-2.5 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-display font-semibold uppercase tracking-wider disabled:pointer-events-none disabled:opacity-0 transition-all duration-300 flex items-center gap-2 cursor-pointer",
-                      isDarkMode
-                        ? "bg-white/5 hover:bg-white/10 text-white border border-white/10"
-                        : "bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300"
-                    )}
+                    className={cn(currentStep === 1 && "opacity-0")}
                   >
                     <ChevronRight className="w-4 h-4 rotate-180" />
-                    <span className="hidden sm:inline">Previous Step</span>
+                    <span className="hidden sm:inline">Previous</span>
                     <span className="sm:hidden">Prev</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="filled"
                     onClick={handleNextStep}
                     disabled={currentStep === STEPS.length}
-                    className={cn(
-                      "px-6 py-2.5 md:px-8 md:py-3 bg-[#E50914] hover:bg-[#F40F1D] active:bg-[#B2070F] text-white rounded-xl text-xs md:text-sm font-display font-bold uppercase tracking-wider shadow-lg hover:shadow-red-600/20 transition-all duration-300 flex items-center gap-2 cursor-pointer",
-                      currentStep === STEPS.length && "hidden"
-                    )}
+                    className={cn(currentStep === STEPS.length && "hidden")}
                   >
-                    <span>{currentStep === 6 ? (window.innerWidth < 640 ? 'Report' : 'Generate Final Report') : currentStep === 7 ? (window.innerWidth < 640 ? 'Life Sim' : 'Life Simulation') : (window.innerWidth < 640 ? 'Next' : 'Next Step')}</span>
+                    <span>{currentStep === 6 ? (window.innerWidth < 640 ? 'Report' : 'Generate final report') : currentStep === 7 ? (window.innerWidth < 640 ? 'Life Sim' : 'Life simulation') : (window.innerWidth < 640 ? 'Next' : 'Next')}</span>
                     <ChevronRight className="w-4 h-4" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </motion.div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { cn } from '../lib/utils';
 
 interface NumericInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: number | string | null | undefined;
@@ -135,20 +136,26 @@ export const NumericInput: React.FC<NumericInputProps> = ({
     }
   };
 
-  // Extract ring, border, background, and width classes to apply to container
-  // Keep text alignment and specific font properties on the input
-  const containerClasses = className
-    .replace(/\b(px-\S+|py-\S+|p-\S+|text-right|text-left|text-center)\b/g, '')
-    .trim();
-
-  // Extract padding classes to keep standard inputs matching exactly
-  const paddingClasses = className.match(/\b(px-\S+|py-\S+|p-\S+)\b/g)?.join(' ') || 'px-3 py-2';
-  const textAlignmentClass = className.match(/\b(text-right|text-left|text-center)\b/g)?.join(' ') || 'text-right';
+  const layoutClass = className
+    .split(/\s+/)
+    .filter((c) => /^(w-|min-w-|max-w-|flex-)/.test(c))
+    .join(' ');
+  const textAlignmentClass = className.match(/\b(text-right|text-left|text-center)\b/)?.[0] || 'text-right';
 
   return (
-    <div className={`relative flex items-center bg-black/40 border border-white/10 rounded-lg focus-within:ring-2 focus-within:ring-red-500 overflow-hidden ${containerClasses}`}>
+    <div
+      className={cn(
+        'relative flex items-center overflow-hidden',
+        'h-[var(--control-height)] min-h-[var(--control-height)]',
+        'rounded-[var(--radius-control)] bg-[var(--fill-tertiary)]',
+        'shadow-[0_0_0_0.5px_var(--separator)]',
+        'focus-within:shadow-[0_0_0_2px_var(--tint-soft),0_0_0_0.5px_var(--tint)]',
+        disabled && 'opacity-40',
+        layoutClass
+      )}
+    >
       {prefix && (
-        <span className="pl-3 text-gray-500 text-xs shrink-0 select-none font-bold">
+        <span className="pl-[var(--space-3)] shrink-0 select-none font-[family-name:var(--font-text)] text-[length:var(--text-footnote-size)] text-[var(--label-tertiary)]">
           {prefix}
         </span>
       )}
@@ -166,10 +173,17 @@ export const NumericInput: React.FC<NumericInputProps> = ({
         }}
         onBlur={handleBlur}
         placeholder={placeholder}
-        className={`w-full bg-transparent outline-none border-0 focus:ring-0 focus-within:ring-0 text-sm ${paddingClasses} ${textAlignmentClass}`}
+        className={cn(
+          'ui-numeric-input w-full h-full bg-transparent outline-none border-0 focus:ring-0',
+          'px-[var(--space-3)] py-0',
+          'font-[family-name:var(--font-numeric)]',
+          'text-[length:var(--text-body-size)] leading-[var(--text-body-line)] tracking-[var(--text-body-tracking)]',
+          'text-[var(--label)] placeholder:text-[var(--label-tertiary)]',
+          textAlignmentClass
+        )}
       />
       {suffix && (
-        <span className="pr-3 text-gray-500 text-xs shrink-0 select-none">
+        <span className="pr-[var(--space-3)] shrink-0 select-none font-[family-name:var(--font-text)] text-[length:var(--text-footnote-size)] text-[var(--label-tertiary)]">
           {suffix}
         </span>
       )}

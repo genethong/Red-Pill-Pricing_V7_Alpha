@@ -804,4 +804,60 @@ input[type="number"] {
   --shadow-sheet: 0 20px 60px rgba(0, 0, 0, 0.55);
 }
 
+/* Step card form chrome (Phase 4). Does not restyle tables or charts. */
+.step-card h2 {
+  font-family: var(--font-title);
+  font-size: var(--text-title-3-size);
+  line-height: var(--text-title-3-line);
+  letter-spacing: var(--text-title-3-tracking);
+  font-weight: var(--text-title-3-weight);
+  color: var(--label) !important;
+}
+
+.step-card h2 svg {
+  color: var(--tint) !important;
+}
+
+.step-card label {
+  font-family: var(--font-text);
+  font-size: var(--text-footnote-size);
+  line-height: var(--text-footnote-line);
+  letter-spacing: var(--text-footnote-tracking);
+  font-weight: 400;
+  text-transform: none;
+  color: var(--label-secondary) !important;
+}
+
+.step-card input[type="text"]:not(.ui-numeric-input),
+.step-card input[type="number"],
+.step-card select {
+  background-color: var(--fill-tertiary) !important;
+  border-color: transparent !important;
+  color: var(--label) !important;
+  border-radius: var(--radius-control) !important;
+  min-height: var(--control-height);
+  box-shadow: 0 0 0 0.5px var(--separator);
+  font-family: var(--font-text);
+  font-size: var(--text-body-size);
+}
+
+.step-card input[type="text"]:not(.ui-numeric-input):focus,
+.step-card input[type="number"]:focus,
+.step-card select:focus {
+  border-color: transparent !important;
+  box-shadow: 0 0 0 2px var(--tint-soft), 0 0 0 0.5px var(--tint) !important;
+}
+
+.step-card option {
+  background-color: var(--bg-elevated) !important;
+  color: var(--label) !important;
+}
+
+.step-card input[type="checkbox"] {
+  accent-color: var(--tint);
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
 
