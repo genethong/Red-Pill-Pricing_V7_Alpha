@@ -62,7 +62,7 @@ export const Field: React.FC<FieldProps> = ({
             aria-invalid={error ? true : undefined}
             aria-describedby={hintId}
             className={cn(
-              'w-full min-w-0 bg-transparent outline-none border-0',
+              'ui-field-input w-full min-w-0 bg-transparent outline-none border-0',
               'h-full px-[var(--space-3)]',
               'font-[family-name:var(--font-text)]',
               'text-[length:var(--text-body-size)] leading-[var(--text-body-line)] tracking-[var(--text-body-tracking)]',

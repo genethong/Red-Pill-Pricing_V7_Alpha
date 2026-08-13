@@ -931,6 +931,14 @@ input[type="number"] {
   color: var(--label) !important;
 }
 
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
 .sheet-backdrop {
   position: fixed;
   inset: 0;
@@ -938,24 +946,51 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.36);
   backdrop-filter: blur(8px);
+}
+
+.light-theme .sheet-backdrop {
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .sheet {
   width: 100%;
   color: var(--label);
+  background: var(--bg-elevated);
   border-radius: var(--radius-sheet);
   padding: var(--space-6);
-  background: var(--material-thick-fill);
-  backdrop-filter: blur(var(--material-blur-thick)) saturate(var(--material-saturate));
-  box-shadow: var(--glass-highlight), var(--shadow-sheet);
+  box-shadow: 0 0 0 0.5px var(--separator), var(--shadow-sheet);
 }
 
-.sheet input[type="text"],
-.sheet input[type="number"],
-.sheet select {
+.light-theme .sheet,
+.dark .sheet {
+  background: var(--bg-elevated) !important;
+  color: var(--label) !important;
+}
+
+.light-theme .sheet h2,
+.dark .sheet h2,
+.sheet h2 {
+  color: var(--label) !important;
+}
+
+.light-theme .sheet p,
+.sheet p {
+  color: inherit;
+}
+
+.light-theme .sheet input[type="text"]:not(.ui-field-input),
+.light-theme .sheet input[type="number"]:not(.ui-field-input),
+.light-theme .sheet select:not(.ui-field-input),
+.dark .sheet input[type="text"]:not(.ui-field-input),
+.dark .sheet input[type="number"]:not(.ui-field-input),
+.dark .sheet select:not(.ui-field-input),
+.sheet input[type="text"]:not(.ui-field-input),
+.sheet input[type="number"]:not(.ui-field-input),
+.sheet select:not(.ui-field-input) {
   background-color: var(--fill-tertiary) !important;
+  background-image: none !important;
   border-color: transparent !important;
   color: var(--label) !important;
   border-radius: var(--radius-control) !important;
@@ -963,13 +998,29 @@ input[type="number"] {
   box-shadow: 0 0 0 0.5px var(--separator);
 }
 
-.sheet input[type="text"]:focus,
-.sheet input[type="number"]:focus,
-.sheet select:focus {
+.light-theme .sheet input[type="text"]:not(.ui-field-input):focus,
+.light-theme .sheet select:not(.ui-field-input):focus,
+.dark .sheet input[type="text"]:not(.ui-field-input):focus,
+.dark .sheet select:not(.ui-field-input):focus,
+.sheet input[type="text"]:not(.ui-field-input):focus,
+.sheet select:not(.ui-field-input):focus {
   border-color: transparent !important;
   box-shadow: 0 0 0 2px var(--tint-soft), 0 0 0 0.5px var(--tint) !important;
 }
 
+.light-theme .sheet .ui-field-input,
+.dark .sheet .ui-field-input,
+.sheet .ui-field-input {
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  min-height: 0;
+  color: var(--label) !important;
+}
+
+.light-theme .sheet option,
+.dark .sheet option,
 .sheet option {
   background-color: var(--bg-elevated) !important;
   color: var(--label) !important;

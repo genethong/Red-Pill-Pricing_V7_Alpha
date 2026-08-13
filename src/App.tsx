@@ -6108,7 +6108,7 @@ export default function App() {
 
               <div className="flex flex-col gap-[var(--space-5)]">
                 <Field label="Template">
-                  <div className="relative">
+                  <div className="relative flex items-center overflow-hidden h-[var(--control-height)] min-h-[var(--control-height)] rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] shadow-[0_0_0_0.5px_var(--separator)] focus-within:shadow-[0_0_0_2px_var(--tint-soft),0_0_0_0.5px_var(--tint)]">
                     <select
                       value={selectedTemplate}
                       onChange={(e) => {
@@ -6120,7 +6120,7 @@ export default function App() {
                           setNewProjectName(val);
                         }
                       }}
-                      className="w-full appearance-none cursor-pointer px-[var(--space-4)] pr-10"
+                      className="ui-field-input w-full h-full appearance-none cursor-pointer bg-transparent border-0 outline-none px-[var(--space-3)] pr-10 text-[length:var(--text-body-size)] text-[var(--label)]"
                     >
                       <option value="" disabled>Choose a template…</option>
                       {systemTemplates.map(t => (
