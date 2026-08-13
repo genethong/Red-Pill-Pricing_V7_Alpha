@@ -827,6 +827,33 @@ input[type="number"] {
   color: var(--tint) !important;
 }
 
+.step-card .uppercase {
+  text-transform: none !important;
+  letter-spacing: var(--text-caption-1-tracking) !important;
+}
+
+.step-card .font-black,
+.step-card .font-extrabold {
+  font-weight: 600 !important;
+}
+
+.step-card span.text-white,
+.step-card p.text-white,
+.step-card td.text-white,
+.step-card th.text-white,
+.step-card h2.text-white,
+.step-card h3.text-white,
+.step-card h4.text-white {
+  color: var(--label) !important;
+}
+
+.step-card .text-gray-300,
+.step-card .text-gray-400,
+.step-card .text-gray-500,
+.step-card .text-gray-600 {
+  color: var(--label-secondary) !important;
+}
+
 .step-card label {
   font-family: var(--font-text);
   font-size: var(--text-footnote-size);

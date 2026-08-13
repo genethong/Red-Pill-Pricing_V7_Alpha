@@ -571,7 +571,7 @@ export default function App() {
     rows.push(['Battery Autonomy (at DoD) (h)', ...models.map(m => m.rectifierStats.batteryRunningHourPerCycle?.toFixed(2))]);
     rows.push(['Battery Cycles per Day', ...models.map(m => {
       let val = m.rectifierStats.batteryCyclesPerDay?.toFixed(3);
-      if (m.rectifierStats.isMonteCarlo) val += ' (MONTE CARLO)';
+      if (m.rectifierStats.isMonteCarlo) val += ' (Monte Carlo)';
       return val;
     })]);
     rows.push(['Available Cycles (Li-ion)', ...models.map(m => m.rectifierStats.batteryCycles?.toLocaleString())]);
@@ -588,7 +588,7 @@ export default function App() {
       rows.push(['DG OPERATION', ...models.map(() => '')]);
       rows.push(['DG Running Hours/Day (h)', ...models.map(m => {
         let val = m.rectifierStats.dgRunningHoursPerDay?.toFixed(2);
-        if (m.rectifierStats.isMonteCarlo) val += ' (MONTE CARLO)';
+        if (m.rectifierStats.isMonteCarlo) val += ' (Monte Carlo)';
         return val;
       })]);
       rows.push(['Daily Fuel Consumption (L)', ...models.map(m => m.rectifierStats.dgDailyFuel?.toFixed(2))]);
@@ -2398,99 +2398,64 @@ export default function App() {
                     </div>
 
                     {/* Right: Interactive Visualization Card */}
-                    <div className={cn(
-                      "border rounded-2xl p-5 space-y-4 flex flex-col justify-between transition-all duration-300",
-                      isDarkMode 
-                        ? "bg-black/30 border-white/5" 
-                        : "bg-white border-black/[0.08] shadow-sm"
-                    )}>
-                      {/* Summary Metrics */}
-                      <div 
-                        className={cn(
-                          "grid grid-cols-2 gap-4 rounded-xl",
-                          isDarkMode ? "bg-transparent" : "bg-white p-1"
-                        )}
-                      >
-                        <div className={cn(
-                          "space-y-1 border rounded-xl p-3 text-center sm:text-left transition-all duration-300",
-                          isDarkMode 
-                            ? "bg-white/[0.02] border-white/5" 
-                            : "bg-gray-50/80 border-gray-100 shadow-sm"
-                        )}>
-                          <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Total Grid Availability</span>
-                          <div className="flex items-baseline gap-1 justify-center sm:justify-start">
-                            <span className="text-xl font-extrabold text-green-500 font-mono">
+                    <div className="rounded-[var(--radius-element)] p-5 space-y-4 flex flex-col justify-between bg-[var(--fill-quaternary)] shadow-[0_0_0_0.5px_var(--separator)]">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1 rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
+                          <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Grid availability</span>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-[length:var(--text-title-3-size)] font-semibold text-[var(--system-green)] font-[family-name:var(--font-numeric)]">
                               {totalGridAvailabilityHours.toFixed(1)}
                             </span>
-                            <span className="text-xs text-gray-400">Hrs/Day</span>
+                            <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">h/day</span>
                           </div>
                         </div>
-                        <div className={cn(
-                          "space-y-1 border rounded-xl p-3 text-center sm:text-left transition-all duration-300",
-                          isDarkMode 
-                            ? "bg-white/[0.02] border-white/5" 
-                            : "bg-gray-50/80 border-gray-100 shadow-sm"
-                        )}>
-                          <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Total Outage Hours</span>
-                          <div className="flex items-baseline gap-1 justify-center sm:justify-start">
-                            <span className="text-xl font-extrabold text-[#E50914] font-mono">
+                        <div className="space-y-1 rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
+                          <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Outage hours</span>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-[length:var(--text-title-3-size)] font-semibold text-[var(--tint)] font-[family-name:var(--font-numeric)]">
                               {totalOutageHours.toFixed(1)}
                             </span>
-                            <span className="text-xs text-gray-400">Hrs/Day</span>
+                            <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">h/day</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Interactive Event Timeline */}
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                          <span>24H Event Timeline Bar</span>
-                          <span className="text-[9px] font-mono lowercase text-gray-500">starts with grid (alternate)</span>
+                        <div className="flex items-center justify-between text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">
+                          <span>24-hour timeline</span>
+                          <span className="font-[family-name:var(--font-numeric)] text-[var(--label-tertiary)]">starts with grid</span>
                         </div>
                         
-                        {/* Horizontal Timeline Bar */}
-                        <div className={cn(
-                          "w-full h-8 border rounded-xl overflow-hidden flex select-none relative group transition-all duration-300",
-                          isDarkMode 
-                            ? "bg-black/60 border-white/10" 
-                            : "bg-gray-100 border-gray-200"
-                        )}>
+                        <div className="w-full h-8 rounded-[var(--radius-control)] overflow-hidden flex select-none relative bg-[var(--fill-tertiary)]">
                           {gridSegments.map((seg, sIdx) => (
                             <div 
                               key={sIdx}
                               style={{ 
                                 width: `${seg.widthPct}%`,
-                                backgroundColor: seg.type === 'grid' ? '#5bffc0' : '#ff5353'
+                                backgroundColor: seg.type === 'grid' ? 'var(--system-green)' : 'var(--tint)'
                               }}
-                              className="h-full relative flex items-center justify-center text-[10px] font-black uppercase tracking-wider transition-all duration-300 border-r border-black/25 last:border-r-0 group/seg cursor-pointer hover:opacity-90"
+                              className="h-full relative flex items-center justify-center border-r border-black/20 last:border-r-0 group/seg cursor-pointer hover:opacity-90"
                             >
                               {seg.widthPct > 8 && (
-                                <span className={cn(
-                                  "truncate px-1 text-[9px] font-black",
-                                  seg.type === 'grid' ? "text-emerald-950" : "text-red-950"
-                                )}>
-                                  {seg.type === 'grid' ? 'GRID' : 'OUT'}
+                                <span className="truncate px-1 text-[length:var(--text-caption-2-size)] font-semibold text-black/70">
+                                  {seg.type === 'grid' ? 'Grid' : 'Out'}
                                 </span>
                               )}
-                              
-                              {/* Precision Tooltip on hover */}
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/seg:block bg-[#161616] border border-white/10 px-3 py-1.5 rounded-lg text-[10px] text-white whitespace-nowrap shadow-xl z-50 pointer-events-none">
-                                <div className="font-bold flex items-center gap-1.5 mb-0.5">
-                                  <span className={cn("w-1.5 h-1.5 rounded-full", seg.type === 'grid' ? "bg-green-500" : "bg-red-500")} />
-                                  {seg.type === 'grid' ? 'Grid Connected' : 'Power Outage'}
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/seg:block px-3 py-1.5 rounded-[var(--radius-element)] text-[length:var(--text-caption-1-size)] text-[var(--label)] whitespace-nowrap z-50 pointer-events-none bg-[var(--material-thick-fill)] backdrop-blur-[var(--material-blur-thick)] shadow-[var(--shadow-menu)]">
+                                <div className="font-semibold flex items-center gap-1.5 mb-0.5">
+                                  <span className={cn("w-1.5 h-1.5 rounded-full", seg.type === 'grid' ? "bg-[var(--system-green)]" : "bg-[var(--tint)]")} />
+                                  {seg.type === 'grid' ? 'Grid connected' : 'Outage'}
                                 </div>
-                                <div className="text-gray-400 font-mono font-medium">Duration: {seg.duration.toFixed(2)} Hrs</div>
-                                <div className="text-gray-500 font-mono text-[9px] mt-0.5">{seg.timeRange}</div>
+                                <div className="text-[var(--label-secondary)] font-[family-name:var(--font-numeric)]">{seg.duration.toFixed(2)} h · {seg.timeRange}</div>
                               </div>
                             </div>
                           ))}
                         </div>
                         
-                        {/* Timeline Labels */}
-                        <div className="flex justify-between items-center text-[9px] text-gray-500 font-mono font-bold">
-                          <span>00:00 (12AM)</span>
-                          <span>12:00 (12PM)</span>
-                          <span>24:00 (12AM)</span>
+                        <div className="flex justify-between items-center text-[length:var(--text-caption-2-size)] text-[var(--label-tertiary)] font-[family-name:var(--font-numeric)]">
+                          <span>00:00</span>
+                          <span>12:00</span>
+                          <span>24:00</span>
                         </div>
                       </div>
                     </div>
@@ -2512,7 +2477,7 @@ export default function App() {
                       <React.Fragment key={idx}>
                         <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-4 relative">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-red-500 uppercase tracking-widest">Tenant {idx + 1}</span>
+                            <span className="text-[length:var(--text-footnote-size)] font-semibold text-[var(--tint)]">Tenant {idx + 1}</span>
                             {inputs.tenantLoads.length > 1 && (
                               <button
                                 type="button"
@@ -2567,10 +2532,10 @@ export default function App() {
                                 const nextCount = inputs.tenantLoads.length + 1;
                                 handleNumTenantsChange(nextCount);
                               }}
-                              className="px-3 py-1.5 bg-red-600/80 hover:bg-[#E50914] text-white text-[10px] font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center gap-1 hover:shadow-lg hover:shadow-red-600/10"
+                              className="px-3 h-8 bg-[var(--tint)] text-[var(--on-tint)] text-[length:var(--text-footnote-size)] font-medium rounded-[var(--radius-control)] cursor-pointer flex items-center gap-1"
                             >
                               <Plus className="w-3 h-3" />
-                              Add Tenant
+                              Add tenant
                             </button>
                           </div>
                         )}
@@ -3057,14 +3022,14 @@ export default function App() {
                     <div className="flex flex-wrap items-center gap-2 md:gap-3">
                       <button
                         onClick={handleExportOperationXLS}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap"
+                        className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                       >
                         <Save className="w-3.5 h-3.5 text-green-500" />
                         Export XLS
                       </button>
                       <button
                         onClick={handleExportOperationPDF}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap"
+                        className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                       >
                         <Download className="w-3.5 h-3.5 text-red-500" />
                         Export PDF
@@ -3076,7 +3041,7 @@ export default function App() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* Existing single model view */}
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 space-y-4">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Battery Health Metrics</h3>
+                        <h3 className="text-sm font-semibold text-[var(--label)]">Battery health</h3>
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-400">DC Running Current</span>
@@ -3098,7 +3063,7 @@ export default function App() {
                             <span className="text-sm text-gray-400">Battery Cycles per Day</span>
                             <span className="text-sm font-bold text-blue-400">
                               {rectifierStats.batteryCyclesPerDay?.toFixed(3)}
-                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(MONTE CARLO)</span>}
+                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(Monte Carlo)</span>}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
@@ -3109,7 +3074,7 @@ export default function App() {
                       </div>
 
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 space-y-4">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">System Capacity</h3>
+                        <h3 className="text-sm font-semibold text-[var(--label)]">System capacity</h3>
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-400">Total Rectifier Load</span>
@@ -3141,20 +3106,20 @@ export default function App() {
                       </div>
 
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 space-y-4">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">DG Operational Metrics</h3>
+                        <h3 className="text-sm font-semibold text-[var(--label)]">Generator</h3>
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-400">CDC per Day</span>
                             <span className="text-sm font-bold text-white">
                               {rectifierStats.cdcPerDay?.toFixed(2)}
-                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(MONTE CARLO)</span>}
+                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(Monte Carlo)</span>}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-400">DG Running Hours/Day</span>
                             <span className="text-sm font-bold text-white">
                               {rectifierStats.dgRunningHoursPerDay?.toFixed(2)} h
-                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(MONTE CARLO)</span>}
+                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(Monte Carlo)</span>}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
@@ -3165,7 +3130,7 @@ export default function App() {
                             <span className="text-sm text-gray-400">Fuel Rate</span>
                             <span className="text-sm font-bold text-white">
                               {rectifierStats.dgFuelRate?.toFixed(3)} L/kWh
-                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(MONTE CARLO)</span>}
+                              {rectifierStats.isMonteCarlo && <span className="ml-1 text-[10px] text-red-500 font-bold">(Monte Carlo)</span>}
                             </span>
                           </div>
                           <div className="flex justify-between items-center pt-2 border-t border-white/5">
@@ -3177,7 +3142,7 @@ export default function App() {
 
                       {/* Daily Energy Mix & Computed kWh Card */}
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 space-y-4 col-span-1 md:col-span-3">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">DAILY ENERGY MIX & COMPUTED KWH (ESTIMATION ONLY)</h3>
+                        <h3 className="text-sm font-semibold text-[var(--label)]">Daily energy mix (estimate)</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                           <div className="bg-white/5 border border-white/10 rounded-xl p-4">
                             <span className="text-xs text-gray-400 block mb-1">Grid Contribution</span>
@@ -3270,7 +3235,7 @@ export default function App() {
                             {modellingResults.map((res, idx) => (
                               <td key={idx} className="p-3 text-center text-[10px] md:text-xs font-mono border-l border-white/5 text-blue-400">
                                 {res.rectifierStats.batteryCyclesPerDay?.toFixed(3)}
-                                {res.rectifierStats.isMonteCarlo && <div className="text-[8px] text-red-500 font-bold">MONTE CARLO</div>}
+                                {res.rectifierStats.isMonteCarlo && <div className="text-[8px] text-red-500 font-bold">Monte Carlo</div>}
                               </td>
                             ))}
                           </tr>
@@ -3322,7 +3287,7 @@ export default function App() {
                                 {modellingResults.map((res, idx) => (
                                   <td key={idx} className="p-3 text-center text-[10px] md:text-xs font-mono border-l border-white/5">
                                     {res.rectifierStats.dgRunningHoursPerDay?.toFixed(2)}
-                                    {res.rectifierStats.isMonteCarlo && <div className="text-[8px] text-red-500 font-bold">MONTE CARLO</div>}
+                                    {res.rectifierStats.isMonteCarlo && <div className="text-[8px] text-red-500 font-bold">Monte Carlo</div>}
                                   </td>
                                 ))}
                               </tr>
@@ -3481,14 +3446,14 @@ export default function App() {
                         <>
                           <button
                             onClick={handleExportBOQXLS}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap"
+                            className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                           >
                             <Save className="w-3.5 h-3.5 text-green-500" />
                             Export XLS
                           </button>
                           <button
                             onClick={handleExportBOQPDF}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap"
+                            className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                           >
                             <Download className="w-3.5 h-3.5 text-red-500" />
                             Export PDF
@@ -3622,21 +3587,21 @@ export default function App() {
 
                     <div className="space-y-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-[var(--label)] flex items-center gap-2">
                           <TrendingUp className="w-4 h-4 text-red-500" />
                           Annual Operating Expenses (Year 1)
                         </h3>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={handleExportOpexXLS}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap"
+                            className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                           >
                             <Save className="w-3.5 h-3.5 text-green-500" />
                             Export XLS
                           </button>
                           <button
                             onClick={handleExportOpexPDF}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap"
+                            className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                           >
                             <Download className="w-3.5 h-3.5 text-red-500" />
                             Export PDF
@@ -3726,7 +3691,7 @@ export default function App() {
                     return (
                       <>
                         <div className="space-y-4">
-                          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Material Unit CAPEX</h3>
+                          <h3 className="text-sm font-semibold text-[var(--label)] pb-2 shadow-[inset_0_-0.5px_0_var(--separator)]">Material unit CAPEX</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {Object.keys(inputs.costs.materials)
                               .sort((a: string, b: string) => {
@@ -3759,7 +3724,7 @@ export default function App() {
 
                         {/* Installation Section */}
                         <div className="space-y-4">
-                          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Installation & Services</h3>
+                          <h3 className="text-sm font-semibold text-[var(--label)] pb-2 shadow-[inset_0_-0.5px_0_var(--separator)]">Installation and services</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-3">
                               <div className="flex items-center justify-between">
@@ -3866,7 +3831,7 @@ export default function App() {
 
                         {/* OPEX Section */}
                         <div className="space-y-4">
-                          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Operating Expenses (OPEX)</h3>
+                          <h3 className="text-sm font-semibold text-[var(--label)] pb-2 shadow-[inset_0_-0.5px_0_var(--separator)]">Operating expenses</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-4 bg-white/5 rounded-xl border border-white/5 flex items-center justify-between">
                               <span className="text-sm font-medium text-gray-300">Annual Preventive Maint.</span>
@@ -3972,7 +3937,7 @@ export default function App() {
                     <div className="flex items-center gap-4">
                       <button
                         onClick={handleExportFinancialModelXLS}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] md:text-xs font-bold text-gray-300 hover:text-white transition-all whitespace-nowrap shadow-md"
+                        className="flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                       >
                         <Save className="w-3.5 h-3.5 text-green-500" />
                         Export XLS
@@ -3989,7 +3954,7 @@ export default function App() {
                     <div className="bg-red-600/10 border border-red-600/20 rounded-2xl p-4 md:p-8 space-y-4 mx-4 md:mx-0">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="space-y-1">
-                          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Compare & Select Model</h3>
+                          <h3 className="text-sm font-semibold text-[var(--label)]">Compare models</h3>
                           <p className="text-xs text-gray-400">Toggle designs to compare overlaid cash flow projections and update metrics.</p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2 bg-black/40 p-1.5 rounded-xl border border-white/10">
@@ -4053,7 +4018,7 @@ export default function App() {
 
                   {/* Removed OPEX vs Fuel Cost Trend chart as requested */}
                   <div className="space-y-6">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-[var(--label)] flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-red-500" />
                       Cash Flow Projection
                     </h3>
@@ -4116,7 +4081,7 @@ export default function App() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
-                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Financial Parameters</h3>
+                      <h3 className="text-sm font-semibold text-[var(--label)]">Financial parameters</h3>
                       <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-2">
                           <label className="text-xs font-medium text-gray-400">Currency</label>
@@ -4257,7 +4222,7 @@ export default function App() {
                   </div>
 
                   <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 overflow-x-auto">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">
+                    <h3 className="text-sm font-semibold text-[var(--label)] mb-6">
                       Cash Flow Projection (Outflows) {selectedModelIndices.length > 1 ? "- Comparative View" : ""}
                     </h3>
                     
@@ -4481,7 +4446,7 @@ export default function App() {
 
                   {/* Energy Analysis Section */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Energy Analysis (Daily)</h3>
+                    <h3 className="text-sm font-semibold text-[var(--label)] border-b border-white/10 pb-2">Energy Analysis (Daily)</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">DC System Consumption</p>
@@ -4524,7 +4489,7 @@ export default function App() {
 
                   {/* CAPEX Breakdown */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Itemized CAPEX</h3>
+                    <h3 className="text-sm font-semibold text-[var(--label)] border-b border-white/10 pb-2">Itemized CAPEX</h3>
                     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                       <table className="w-full text-left text-xs">
                         <thead>
@@ -4574,7 +4539,7 @@ export default function App() {
 
                   {/* OPEX Breakdown */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2">Itemized Annual OPEX (Year 1)</h3>
+                    <h3 className="text-sm font-semibold text-[var(--label)] border-b border-white/10 pb-2">Itemized Annual OPEX (Year 1)</h3>
                     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                       <table className="w-full text-left text-xs">
                         <thead>
@@ -4741,7 +4706,7 @@ export default function App() {
                   {modellingResults && (
                     <div className="space-y-4 pt-4 border-t border-white/10">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Sensitivity Results: Breakeven MRR</h3>
+                        <h3 className="text-sm font-semibold text-[var(--label)]">Sensitivity Results: Breakeven MRR</h3>
                       </div>
                       <div className={cn(
                         "border rounded-2xl overflow-x-auto",
@@ -4815,14 +4780,14 @@ export default function App() {
                     <div className="flex flex-wrap items-center gap-2 md:gap-3 no-print">
                       <button 
                         onClick={handleExportReportXLS}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl text-xs md:text-sm font-bold border border-white/10 transition-all whitespace-nowrap"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 h-9 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                       >
                         <Save className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
                         Export XLS
                       </button>
                       <button 
                         onClick={triggerExportReportPDF}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-3 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white rounded-xl text-xs md:text-sm font-bold border border-white/10 transition-all whitespace-nowrap"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 h-9 rounded-[var(--radius-control)] bg-[var(--fill-tertiary)] text-[length:var(--text-footnote-size)] font-medium text-[var(--label)] hover:bg-[var(--fill-secondary)] whitespace-nowrap"
                       >
                         <Download className="w-3 h-3 md:w-4 md:h-4 text-red-500" />
                         Export PDF
@@ -4832,7 +4797,7 @@ export default function App() {
 
                   {modellingResults && (
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 no-print">
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Model to View:</span>
+                      <span className="text-[length:var(--text-footnote-size)] font-medium text-[var(--label-secondary)]">Model</span>
                       <div className="flex flex-wrap gap-2">
                         {modellingResults.map((res, idx) => {
                           const loadText = `${res.totalAverageLoad?.toFixed(1)} kW`;
@@ -4995,7 +4960,7 @@ export default function App() {
 
                   <div className="grid grid-cols-1 gap-8">
                     <div className="space-y-6">
-                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-[var(--label)] flex items-center gap-2">
                         <LayoutDashboard className="w-4 h-4 text-red-500" />
                         Technical Overview
                       </h3>
@@ -5070,7 +5035,7 @@ export default function App() {
                   </div>
 
                   <div className="space-y-6">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-[var(--label)] flex items-center gap-2">
                       <ListChecks className="w-4 h-4 text-red-500" />
                       Detailed Bill of Quantities
                     </h3>
@@ -5178,7 +5143,7 @@ export default function App() {
                   </div>
 
                   <div className="space-y-6">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-[var(--label)] flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-red-500" />
                       Annual Operating Expenses (Year 1)
                     </h3>
