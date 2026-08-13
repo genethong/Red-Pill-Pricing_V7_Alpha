@@ -86,6 +86,7 @@ import { NumericInput } from './components/NumericInput';
 import { Button } from './components/ui';
 import { calculateAllStats } from './lib/dcEngine';
 import { LifeSimulationPanel } from './components/LifeSimulationPanel';
+import { CHART_SERIES, chartAxis, chartGrid, chartTooltipLabelStyle, chartTooltipStyle } from './lib/chartTheme';
 
 const getCurrencySymbol = (currency: string) => {
   switch (currency) {
@@ -272,11 +273,11 @@ const CostTooltip = ({ content, children }: { content: string; children: React.R
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          className="absolute z-[100] bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-black/90 border border-white/20 rounded-lg shadow-2xl backdrop-blur-md min-w-[200px] pointer-events-none"
+          className="absolute z-[100] bottom-full left-1/2 -translate-x-1/2 mb-2 px-[var(--space-3)] py-[var(--space-2)] min-w-[200px] pointer-events-none rounded-[var(--radius-element)] bg-[var(--material-thick-fill)] backdrop-blur-[var(--material-blur-thick)] shadow-[var(--glass-highlight),var(--shadow-menu)]"
         >
-          <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-1">Cost Derivation</p>
-          <p className="text-xs text-white whitespace-pre-line leading-relaxed">{content}</p>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-black/90" />
+          <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] font-semibold text-[var(--tint)] mb-1">Cost derivation</p>
+          <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label)] whitespace-pre-line">{content}</p>
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-[var(--bg-elevated)]" />
         </motion.div>
       )}
     </div>
@@ -4004,10 +4005,10 @@ export default function App() {
                                   }
                                 }}
                                 className={cn(
-                                  "px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all flex items-center gap-2 border border-transparent cursor-pointer",
+                                  "px-3 py-1.5 md:px-4 md:py-2 rounded-[var(--radius-control)] text-[length:var(--text-footnote-size)] font-medium transition-colors flex items-center gap-2 cursor-pointer",
                                   isSelected 
-                                    ? "bg-red-600 text-white shadow-lg shadow-red-600/20" 
-                                    : "text-gray-500 hover:text-gray-300 bg-white/5 border-white/5"
+                                    ? "bg-[var(--tint-soft)] text-[var(--tint)]" 
+                                    : "text-[var(--label-secondary)] hover:text-[var(--label)] bg-[var(--fill-tertiary)]"
                                 )}
                               >
                                 <span 
@@ -4024,7 +4025,7 @@ export default function App() {
                                 />
                                 <div className="flex flex-col items-start leading-none text-left">
                                   <span>{res.name}</span>
-                                  <span className={cn("text-[8px] font-normal font-mono mt-0.5", isSelected ? "text-red-200" : "text-gray-500")}>
+                                  <span className={cn("text-[length:var(--text-caption-2-size)] font-normal font-[family-name:var(--font-numeric)] mt-0.5", isSelected ? "text-[var(--tint)]" : "text-[var(--label-tertiary)]")}>
                                     {res.totalAverageLoad?.toFixed(1)} kW{res.actualSolarCapacity && res.actualSolarCapacity > 0 ? ` / ${res.actualSolarCapacity?.toFixed(1)} kWp` : ''}
                                   </span>
                                 </div>
@@ -4045,22 +4046,22 @@ export default function App() {
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 h-[250px] md:h-[300px] flex items-center justify-center">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={combinedCashFlows}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                          <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} vertical={false} />
                           <XAxis 
                             dataKey="year" 
-                            stroke="#666" 
-                            fontSize={10} 
+                            stroke={chartAxis} 
+                            fontSize={11} 
                             tickFormatter={(val) => `Yr ${val}`}
                           />
                           <YAxis 
-                            stroke="#666" 
-                            fontSize={10} 
+                            stroke={chartAxis} 
+                            fontSize={11} 
                             tickFormatter={(val) => `${(val / 1000).toLocaleString(undefined, { maximumFractionDigits: 0 })}k`}
                           />
                           <Tooltip 
-                            contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
-                            labelStyle={{ color: '#aaa', fontWeight: 'bold', fontSize: '11px', margin: '0 0 5px 0' }}
-                            itemStyle={{ fontSize: '11px', padding: '1px 0' }}
+                            contentStyle={chartTooltipStyle}
+                            labelStyle={chartTooltipLabelStyle}
+                            itemStyle={{ fontSize: '11px', padding: '1px 0', color: 'var(--label)' }}
                             labelFormatter={(yearValue) => {
                               const yr = Number(yearValue);
                               if (yr === 0) return "Initial (Year 0)";
@@ -4080,8 +4081,7 @@ export default function App() {
                           {selectedModelIndices.map((idx, sIdx) => {
                             const model = modellingResults[idx];
                             if (!model) return null;
-                            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-                            const selectedColor = colors[sIdx % colors.length];
+                            const selectedColor = CHART_SERIES[sIdx % CHART_SERIES.length];
                             return (
                               <Area 
                                 key={idx}

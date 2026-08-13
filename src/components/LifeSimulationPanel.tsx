@@ -18,6 +18,7 @@ import {
   runLifeSimulation,
   sweepChangeYear
 } from '../lib/lifeSimulation';
+import { chartAxis, chartGrid, chartTooltipStyle } from '../lib/chartTheme';
 
 /** Saved entry from MY PROJECT (user templates / projects). */
 export type LifeSimProjectRef = {
@@ -136,32 +137,32 @@ export function LifeSimulationPanel({ projects }: Props) {
   const wearPath = mode === 'compare' ? comparePathA : activePath;
 
   const selectClass =
-    'w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-red-500/50';
+    'w-full h-[var(--control-height)] bg-[var(--fill-tertiary)] rounded-[var(--radius-control)] px-[var(--space-3)] text-[var(--label)] text-[length:var(--text-body-size)] outline-none shadow-[0_0_0_0.5px_var(--separator)] focus:shadow-[0_0_0_2px_var(--tint-soft),0_0_0_0.5px_var(--tint)] disabled:opacity-40';
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-5">
+      <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-[var(--space-5)] shadow-[0_0_0_0.5px_var(--separator)]">
         <div className="flex items-start gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-red-500/10 text-red-400">
+          <div className="p-2 rounded-[var(--radius-control)] bg-[var(--tint-soft)] text-[var(--tint)]">
             <Activity size={20} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Life Simulation — Environment What-If</h2>
-            <p className="text-xs text-gray-400 mt-1 max-w-3xl">
-              Compare a <strong className="text-gray-300">baseline</strong> and a <strong className="text-gray-300">change</strong> scenario
-              from <strong className="text-red-400">MY PROJECT</strong>. Save two projects first (different grid/load as needed).
-              Here you only set <strong className="text-gray-300">change year</strong> and optional <strong className="text-gray-300">load change</strong>.
+            <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">Life simulation</h2>
+            <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)] mt-1 max-w-3xl">
+              Compare a <strong className="text-[var(--label)] font-medium">baseline</strong> and a <strong className="text-[var(--label)] font-medium">change</strong> scenario
+              from <strong className="text-[var(--label)] font-medium">My projects</strong>. Save two projects first (different grid/load as needed).
+              Here you only set <strong className="text-[var(--label)] font-medium">change year</strong> and optional <strong className="text-[var(--label)] font-medium">load change</strong>.
               Mode A keeps the baseline plant (including no genset) and only changes grid/load; Mode B may add kit such as a genset.
             </p>
           </div>
         </div>
 
         {projects.length < 2 && (
-          <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-200/90">
-            <Info size={16} className="shrink-0 mt-0.5 text-amber-400" />
+          <div className="mb-4 flex items-start gap-2 rounded-[var(--radius-element)] bg-[color-mix(in_srgb,var(--system-orange)_12%,transparent)] p-3 text-[length:var(--text-footnote-size)] text-[var(--system-orange)]">
+            <Info size={16} className="shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-amber-300">Save at least two projects under MY PROJECT</p>
-              <p className="mt-1 text-amber-200/70">
+              <p className="font-semibold">Save at least two projects under My projects</p>
+              <p className="mt-1 opacity-80">
                 1) Configure baseline site (grid, load, power system, costs) → Save project.<br />
                 2) Configure the post-change scenario (e.g. worse grid) → Save as a second project.<br />
                 3) Return here, pick both, set change year (± load), then review Mode A / B.
@@ -175,7 +176,7 @@ export function LifeSimulationPanel({ projects }: Props) {
           <div className="space-y-3 lg:col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold flex items-center gap-1.5">
+                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] flex items-center gap-1.5">
                   <FolderOpen size={12} /> Baseline project (Year 0 design & grid)
                 </label>
                 <select
@@ -189,11 +190,11 @@ export function LifeSimulationPanel({ projects }: Props) {
                   ))}
                 </select>
                 {baselineProject && (
-                  <p className="text-[10px] text-gray-500 mt-1 font-mono">{projectSummary(baselineProject.data)}</p>
+                  <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1 font-[family-name:var(--font-numeric)]">{projectSummary(baselineProject.data)}</p>
                 )}
               </div>
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold flex items-center gap-1.5">
+                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] flex items-center gap-1.5">
                   <FolderOpen size={12} /> Change project (post-shock grid & load)
                 </label>
                 <select
@@ -207,18 +208,18 @@ export function LifeSimulationPanel({ projects }: Props) {
                   ))}
                 </select>
                 {changeProject && (
-                  <p className="text-[10px] text-gray-500 mt-1 font-mono">{projectSummary(changeProject.data)}</p>
+                  <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1 font-[family-name:var(--font-numeric)]">{projectSummary(changeProject.data)}</p>
                 )}
               </div>
             </div>
 
             {baselineId && changeId && baselineId === changeId && (
-              <p className="text-xs text-red-400">Baseline and change must be two different saved projects.</p>
+              <p className="text-[length:var(--text-footnote-size)] text-[var(--system-red)]">Baseline and change must be two different saved projects.</p>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Change year</label>
+                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Change year</label>
                 <input
                   type="number"
                   min={1}
@@ -228,24 +229,24 @@ export function LifeSimulationPanel({ projects }: Props) {
                   className={`mt-1 ${selectClass}`}
                   disabled={!canRun}
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
                   Tenure from baseline: {tenure} years · Shock applies from this year onward
                 </p>
               </div>
               <div>
-                <label className="flex items-center gap-2 text-sm text-gray-300 mt-5">
+                <label className="flex items-center gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-5">
                   <input
                     type="checkbox"
                     checked={enableLoadChange}
                     onChange={e => setEnableLoadChange(e.target.checked)}
-                    className="accent-red-500"
+                    className="accent-[var(--tint)]"
                     disabled={!canRun}
                   />
                   Additional load change on post-shock years
                 </label>
                 {enableLoadChange && (
                   <div className="mt-2">
-                    <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                    <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">
                       Load change (%)
                     </label>
                     <input
@@ -254,7 +255,7 @@ export function LifeSimulationPanel({ projects }: Props) {
                       onChange={e => setLoadScalePct(parseFloat(e.target.value) || 0)}
                       className={`mt-1 ${selectClass}`}
                     />
-                    <p className="text-[10px] text-gray-500 mt-1">
+                    <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
                       Applied on top of the change project loads (e.g. 20 = +20%). Grid and load still from the change project.
                     </p>
                   </div>
@@ -265,8 +266,8 @@ export function LifeSimulationPanel({ projects }: Props) {
 
           {/* Mode */}
           <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Commercial response</label>
-            <div className="flex flex-col gap-2">
+            <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Commercial response</label>
+            <div className="flex flex-col gap-1">
               {([
                 { id: 'A' as const, label: 'Mode A — Operate as designed' },
                 { id: 'B' as const, label: 'Mode B — Adaptive re-investment' },
@@ -274,10 +275,10 @@ export function LifeSimulationPanel({ projects }: Props) {
               ]).map(opt => (
                 <label
                   key={opt.id}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-sm ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-[var(--radius-control)] cursor-pointer text-[length:var(--text-subhead-size)] ${
                     mode === opt.id
-                      ? 'border-red-500/50 bg-red-500/10 text-white'
-                      : 'border-white/10 text-gray-400 hover:border-white/20'
+                      ? 'bg-[var(--tint-soft)] text-[var(--tint)]'
+                      : 'text-[var(--label-secondary)] hover:bg-[var(--fill-quaternary)]'
                   }`}
                 >
                   <input
@@ -285,31 +286,31 @@ export function LifeSimulationPanel({ projects }: Props) {
                     name="lifeMode"
                     checked={mode === opt.id}
                     onChange={() => setMode(opt.id)}
-                    className="accent-red-500"
+                    className="accent-[var(--tint)]"
                   />
                   {opt.label}
                 </label>
               ))}
             </div>
-            <p className="text-[10px] text-gray-500 leading-relaxed">
+            <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] leading-relaxed">
               {mode === 'B'
                 ? 'Mode B re-sizes at the change year to the change project’s design (e.g. add a genset) and operates that upgraded kit.'
                 : mode === 'compare'
                   ? 'A keeps the Year-0 kit on the new grid/load. B may add kit (genset, battery, etc.) at the change year.'
                   : 'Mode A keeps the Year-0 design (battery, rectifier, genset yes/no) and only applies the change project’s grid and load. Residual outage after battery is unserved if no genset was installed.'}
             </p>
-            <label className="flex items-center gap-2 text-sm text-gray-300 mt-3">
+            <label className="flex items-center gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-3">
               <input
                 type="checkbox"
                 checked={runSweep}
                 onChange={e => setRunSweep(e.target.checked)}
-                className="accent-red-500"
+                className="accent-[var(--tint)]"
                 disabled={!canRun}
               />
               Change-year sweep ({mode === 'B' ? 'Mode B' : 'Mode A'})
             </label>
             {simResult && (
-              <div className="text-[10px] text-gray-500 border border-white/5 rounded-lg p-2 bg-black/20 mt-2">
+              <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] rounded-[var(--radius-control)] p-2 bg-[var(--fill-tertiary)] mt-2">
                 Baseline design: {simResult.baseline.rectifierStats.batteryModules} bat ·{' '}
                 {simResult.baseline.rectifierStats.rectifierModules} rect ·{' '}
                 {simResult.baseline.rectifierStats.requiredDGKva || 0} kVA DG ·{' '}
@@ -321,7 +322,7 @@ export function LifeSimulationPanel({ projects }: Props) {
       </div>
 
       {!canRun && (
-        <div className="text-center text-sm text-gray-500 py-12 border border-dashed border-white/10 rounded-xl">
+        <div className="text-center text-[length:var(--text-subhead-size)] text-[var(--label-tertiary)] py-12 rounded-[var(--radius-element)] shadow-[0_0_0_0.5px_var(--separator)]">
           Select two different saved projects from MY PROJECT to run life simulation.
         </div>
       )}
@@ -350,9 +351,9 @@ export function LifeSimulationPanel({ projects }: Props) {
 
           {/* DC availability */}
           {(comparePathA?.availability || comparePathB?.availability || activePath?.availability) && (
-            <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-white mb-1">DC availability</h3>
-              <p className="text-[10px] text-gray-500 mb-3 max-w-3xl">
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-1">DC availability</h3>
+              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-3 max-w-3xl">
                 Time-based: (24 − unserved hours) / 24. Residual outage is grid-down time the installed plant
                 cannot cover (battery, then solar). A genset counts as serving residual only if it is in the Year-0
                 design (Mode A) or added at the change year (Mode B).
@@ -436,11 +437,11 @@ export function LifeSimulationPanel({ projects }: Props) {
 
           {/* Risk flags */}
           {(comparePathA?.riskFlags?.length || comparePathB?.riskFlags?.length || activePath?.riskFlags?.length) ? (
-            <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-amber-400 text-sm font-semibold mb-2">
+            <div className="bg-[color-mix(in_srgb,var(--system-orange)_12%,transparent)] rounded-[var(--radius-element)] p-4">
+              <div className="flex items-center gap-2 text-[var(--system-orange)] text-[length:var(--text-subhead-size)] font-semibold mb-2">
                 <AlertTriangle size={16} /> Design / ops risk flags
               </div>
-              <ul className="text-xs text-amber-200/80 space-y-1 list-disc pl-5">
+              <ul className="text-[length:var(--text-footnote-size)] text-[var(--label)] space-y-1 list-disc pl-5">
                 {mode === 'compare' ? (
                   <>
                     {comparePathA?.riskFlags.map((f, i) => (
@@ -459,8 +460,8 @@ export function LifeSimulationPanel({ projects }: Props) {
 
           {/* Mode B upgrade */}
           {(mode === 'B' || mode === 'compare') && comparePathB && comparePathB.upgradeBoq.length > 0 && (
-            <div className="bg-[#1a1a1a] border border-emerald-500/20 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-emerald-400 mb-2 flex items-center gap-2">
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--system-green)] mb-2 flex items-center gap-2">
                 <TrendingUp size={16} /> Mode B upgrade BoQ at year {changeYear}
               </h3>
               <div className="overflow-x-auto">
@@ -488,33 +489,33 @@ export function LifeSimulationPanel({ projects }: Props) {
             </div>
           )}
           {(mode === 'B' || mode === 'compare') && comparePathB && comparePathB.upgradeBoq.length === 0 && (
-            <div className="text-xs text-gray-500 bg-[#1a1a1a] border border-white/10 rounded-xl p-3">
+            <div className="text-[length:var(--text-footnote-size)] text-[var(--label-tertiary)] bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-3 shadow-[0_0_0_0.5px_var(--separator)]">
               Mode B: no capacity upgrade required for this shock (baseline design still adequate under change project).
             </div>
           )}
 
           {/* Cashflow chart */}
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-              <GitCompare size={16} className="text-red-400" /> Annual total outflow
+          <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+            <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-3 flex items-center gap-2">
+              <GitCompare size={16} className="text-[var(--tint)]" /> Annual total outflow
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={cashChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="year" stroke="#666" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#666" tick={{ fontSize: 11 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+                  <XAxis dataKey="year" stroke={chartAxis} tick={{ fontSize: 11 }} />
+                  <YAxis stroke={chartAxis} tick={{ fontSize: 11 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    contentStyle={{ background: '#111', border: '1px solid #333', fontSize: 12 }}
+                    contentStyle={chartTooltipStyle}
                     formatter={(v) => `${currency}${fmt(Number(v))}`}
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="baseline" name="Baseline project" stroke="#6b7280" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="baseline" name="Baseline project" stroke="var(--label-tertiary)" strokeWidth={2} dot={false} />
                   {(mode === 'A' || mode === 'compare') && (
-                    <Line type="monotone" dataKey={mode === 'compare' ? 'modeA' : 'scenario'} name="Mode A" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey={mode === 'compare' ? 'modeA' : 'scenario'} name="Mode A" stroke="var(--system-orange)" strokeWidth={2} dot={false} />
                   )}
                   {(mode === 'B' || mode === 'compare') && (
-                    <Line type="monotone" dataKey={mode === 'compare' ? 'modeB' : 'scenario'} name="Mode B" stroke="#10b981" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey={mode === 'compare' ? 'modeB' : 'scenario'} name="Mode B" stroke="var(--system-green)" strokeWidth={2} dot={false} />
                   )}
                 </LineChart>
               </ResponsiveContainer>
@@ -523,11 +524,11 @@ export function LifeSimulationPanel({ projects }: Props) {
 
           {/* Wear table */}
           {wearPath && (
-            <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4 overflow-x-auto">
-              <h3 className="text-sm font-semibold text-white mb-1">
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 overflow-x-auto shadow-[0_0_0_0.5px_var(--separator)]">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-1">
                 Wear ledger {mode === 'compare' ? '(Mode A)' : mode === 'B' ? '(Mode B)' : '(Mode A)'}
               </h3>
-              <p className="text-[10px] text-gray-500 mb-3">
+              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-3">
                 Cumulative battery cycles and DG hours. Highlighted rows = post-change regime (change project).
               </p>
               <table className="w-full text-[11px] min-w-[900px]">
@@ -587,13 +588,13 @@ export function LifeSimulationPanel({ projects }: Props) {
           )}
 
           {wearPath && wearPath.capexEvents.length > 0 && (
-            <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-white mb-2">
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-2">
                 CAPEX events ({mode === 'compare' ? 'Mode A' : mode === 'B' ? 'Mode B' : 'Mode A'})
               </h3>
-              <div className="max-h-48 overflow-y-auto text-xs space-y-1">
+              <div className="max-h-48 overflow-y-auto text-[length:var(--text-footnote-size)] space-y-1">
                 {wearPath.capexEvents.map((e, i) => (
-                  <div key={i} className="flex justify-between gap-4 text-gray-300 border-b border-white/5 py-1">
+                  <div key={i} className="flex justify-between gap-4 text-[var(--label)] shadow-[inset_0_-0.5px_0_var(--separator)] py-1">
                     <span>
                       <span className="text-gray-500 font-mono mr-2">Y{e.year}</span>
                       <span className={
@@ -610,8 +611,8 @@ export function LifeSimulationPanel({ projects }: Props) {
           )}
 
           {mode === 'compare' && comparePathB && (
-            <div className="bg-[#1a1a1a] border border-emerald-500/15 rounded-xl p-4 overflow-x-auto">
-              <h3 className="text-sm font-semibold text-emerald-400 mb-2">Wear ledger (Mode B)</h3>
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 overflow-x-auto shadow-[0_0_0_0.5px_var(--separator)]">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--system-green)] mb-2">Wear ledger (Mode B)</h3>
               <table className="w-full text-[11px] min-w-[700px]">
                 <thead>
                   <tr className="text-gray-500 border-b border-white/10">
@@ -652,21 +653,21 @@ export function LifeSimulationPanel({ projects }: Props) {
           )}
 
           {runSweep && sweep.length > 0 && (
-            <div className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-3">
                 Δ NPV operator vs change year ({mode === 'B' ? 'Mode B' : 'Mode A'})
               </h3>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={sweep}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                    <XAxis dataKey="changeYear" stroke="#666" tick={{ fontSize: 11 }} />
-                    <YAxis stroke="#666" tick={{ fontSize: 11 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
+                    <XAxis dataKey="changeYear" stroke={chartAxis} tick={{ fontSize: 11 }} />
+                    <YAxis stroke={chartAxis} tick={{ fontSize: 11 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
                     <Tooltip
-                      contentStyle={{ background: '#111', border: '1px solid #333', fontSize: 12 }}
+                      contentStyle={chartTooltipStyle}
                       formatter={(v) => `${currency}${fmt(Number(v))}`}
                     />
-                    <Bar dataKey="deltaNpvOperator" name="Δ NPV operator" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="deltaNpvOperator" name="Δ NPV operator" fill="var(--tint)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -694,33 +695,30 @@ function DeltaCard({
   };
   accent: 'amber' | 'emerald' | 'sky';
 }) {
-  const border =
-    accent === 'amber' ? 'border-amber-500/30' :
-    accent === 'emerald' ? 'border-emerald-500/30' : 'border-sky-500/30';
   const titleColor =
-    accent === 'amber' ? 'text-amber-400' :
-    accent === 'emerald' ? 'text-emerald-400' : 'text-sky-400';
+    accent === 'amber' ? 'text-[var(--system-orange)]' :
+    accent === 'emerald' ? 'text-[var(--system-green)]' : 'text-[var(--system-blue)]';
   const signed = (n: number) => `${n >= 0 ? '+' : ''}${currency}${fmt(n)}`;
 
   return (
-    <div className={`bg-[#1a1a1a] border ${border} rounded-xl p-4`}>
-      <div className={`text-xs font-semibold ${titleColor} mb-3`}>{title}</div>
-      <div className="grid grid-cols-2 gap-2 text-xs">
+    <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
+      <div className={`text-[length:var(--text-footnote-size)] font-semibold ${titleColor} mb-3`}>{title}</div>
+      <div className="grid grid-cols-2 gap-2 text-[length:var(--text-footnote-size)]">
         <div>
-          <div className="text-gray-500">Δ NPV (operator)</div>
-          <div className="font-mono text-white text-sm">{signed(delta.npvOperator)}</div>
+          <div className="text-[var(--label-tertiary)]">Δ NPV (operator)</div>
+          <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.npvOperator)}</div>
         </div>
         <div>
-          <div className="text-gray-500">Δ Total CAPEX</div>
-          <div className="font-mono text-white text-sm">{signed(delta.totalCapex)}</div>
+          <div className="text-[var(--label-tertiary)]">Δ Total CAPEX</div>
+          <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.totalCapex)}</div>
         </div>
         <div>
-          <div className="text-gray-500">Δ OPEX + Fuel</div>
-          <div className="font-mono text-white text-sm">{signed(delta.totalOpexFuel)}</div>
+          <div className="text-[var(--label-tertiary)]">Δ OPEX + Fuel</div>
+          <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.totalOpexFuel)}</div>
         </div>
         <div>
-          <div className="text-gray-500">Δ Breakeven MRR</div>
-          <div className="font-mono text-white text-sm">{signed(delta.breakevenMRR)}</div>
+          <div className="text-[var(--label-tertiary)]">Δ Breakeven MRR</div>
+          <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.breakevenMRR)}</div>
         </div>
       </div>
     </div>

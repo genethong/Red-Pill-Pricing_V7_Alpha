@@ -762,6 +762,15 @@ input[type="number"] {
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 180ms;
   --duration-normal: 280ms;
+
+  --chart-1: var(--tint);
+  --chart-2: var(--system-blue);
+  --chart-3: var(--system-green);
+  --chart-4: var(--system-orange);
+  --chart-5: #AF52DE;
+  --chart-6: #FF375F;
+  --chart-grid: var(--separator);
+  --chart-axis: var(--label-tertiary);
 }
 
 .dark {
@@ -858,6 +867,68 @@ input[type="number"] {
   width: 16px;
   height: 16px;
   border-radius: 4px;
+}
+
+.step-card table,
+.admin-panel table {
+  font-family: var(--font-text);
+  font-size: var(--text-footnote-size);
+  color: var(--label);
+}
+
+.step-card thead th,
+.admin-panel thead th {
+  font-size: var(--text-caption-1-size) !important;
+  font-weight: 600 !important;
+  letter-spacing: var(--text-caption-1-tracking) !important;
+  text-transform: none !important;
+  border-color: var(--separator) !important;
+}
+
+.step-card tbody td,
+.admin-panel tbody td {
+  border-color: var(--separator) !important;
+}
+
+.step-card .bg-\[\#121212\],
+.step-card .sticky.left-0.bg-\[\#121212\] {
+  background-color: var(--bg-elevated) !important;
+}
+
+.step-card .group:hover .group-hover\:bg-\[\#1a1a1a\] {
+  background-color: var(--fill-quaternary) !important;
+}
+
+.step-card .bg-white\/5 {
+  background-color: var(--fill-quaternary) !important;
+}
+
+.step-card .border-white\/10,
+.step-card .border-white\/5,
+.step-card .border-l.border-white\/10,
+.step-card .border-l.border-white\/5,
+.step-card .border-b.border-white\/10,
+.step-card .border-r.border-white\/5 {
+  border-color: var(--separator) !important;
+}
+
+.step-card .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--separator) !important;
+}
+
+.step-card h3 {
+  font-family: var(--font-text);
+  font-size: var(--text-subhead-size);
+  line-height: var(--text-subhead-line);
+  letter-spacing: var(--text-subhead-tracking);
+  font-weight: 600;
+  color: var(--label) !important;
+  text-transform: none;
+}
+
+.admin-panel option {
+  background-color: var(--bg-elevated) !important;
+  color: var(--label) !important;
 }
 
 
