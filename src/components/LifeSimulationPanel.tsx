@@ -17,7 +17,8 @@ import { SiteInputs } from '../types';
 import {
   LifeSimMode,
   runLifeSimulation,
-  sweepChangeYear
+  sweepChangeYear,
+  totalAverageLoadKw
 } from '../lib/lifeSimulation';
 import { chartAxis, chartGrid, chartTooltipStyle } from '../lib/chartTheme';
 
@@ -63,8 +64,8 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
   const [changeId, setChangeId] = useState<string>('');
   const [mode, setMode] = useState<LifeSimMode>('compare');
   const [changeYear, setChangeYear] = useState(3);
-  const [enableLoadChange, setEnableLoadChange] = useState(false);
-  const [loadScalePct, setLoadScalePct] = useState(0);
+  const [loadChangeYear, setLoadChangeYear] = useState(3);
+  const [loadDeltaKw, setLoadDeltaKw] = useState(0);
   const [runSweep, setRunSweep] = useState(false);
 
   // Keep selection valid when project list changes
@@ -84,7 +85,8 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
 
   useEffect(() => {
     if (changeYear > tenure) setChangeYear(Math.min(3, tenure));
-  }, [tenure, changeYear]);
+    if (loadChangeYear > tenure) setLoadChangeYear(Math.min(3, tenure));
+  }, [tenure, changeYear, loadChangeYear]);
 
   const canRun = !!(baselineInputs && changeInputs && baselineId !== changeId);
 
@@ -94,13 +96,13 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
       mode,
       change: {
         changeYear,
+        gridChangeYear: changeYear,
+        loadChangeYear,
         changeProject: changeInputs,
-        ...(enableLoadChange && loadScalePct !== 0
-          ? { loadScale: 1 + loadScalePct / 100 }
-          : {})
+        ...(loadDeltaKw !== 0 ? { loadDeltaKw } : {})
       }
     });
-  }, [canRun, baselineInputs, changeInputs, mode, changeYear, enableLoadChange, loadScalePct]);
+  }, [canRun, baselineInputs, changeInputs, mode, changeYear, loadChangeYear, loadDeltaKw]);
 
   const sweep = useMemo(() => {
     if (!runSweep || !canRun || !baselineInputs || !changeInputs) return [];
@@ -109,13 +111,12 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
       baselineInputs,
       {
         changeProject: changeInputs,
-        ...(enableLoadChange && loadScalePct !== 0
-          ? { loadScale: 1 + loadScalePct / 100 }
-          : {})
+        loadChangeYear,
+        ...(loadDeltaKw !== 0 ? { loadDeltaKw } : {})
       },
       m
     );
-  }, [runSweep, canRun, baselineInputs, changeInputs, mode, enableLoadChange, loadScalePct]);
+  }, [runSweep, canRun, baselineInputs, changeInputs, mode, loadChangeYear, loadDeltaKw]);
 
   const activePath = mode === 'B' ? simResult?.modeB : simResult?.modeA;
   const comparePathA = simResult?.modeA;
@@ -151,7 +152,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">Life simulation</h2>
             <p className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-medium text-[var(--label-secondary)] mt-1 max-w-3xl">
               Pick a <strong className="text-[var(--label)] font-medium">baseline</strong> and a <strong className="text-[var(--label)] font-medium">change</strong> from Projects.
-              Set the <strong className="text-[var(--label)] font-medium">change year</strong> (and optional load). Mode A keeps this plant. Mode B may add kit at the change.
+              Grid and load can change in different years. Extra load is in kW. Mode A keeps this plant. Mode B may add kit at each change.
             </p>
           </div>
         </div>
@@ -194,7 +195,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
               </div>
               <div>
                 <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] flex items-center gap-1.5">
-                  <FolderOpen size={12} /> Change (grid and load after the shock)
+                  <FolderOpen size={12} /> Change (new grid; its loads start at the load year)
                 </label>
                 <select
                   value={changeId}
@@ -216,9 +217,9 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
               <p className="text-[length:var(--text-footnote-size)] text-[var(--system-red)]">Pick two different projects.</p>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
               <div>
-                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Change year</label>
+                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Grid change year</label>
                 <input
                   type="number"
                   min={1}
@@ -229,36 +230,41 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                   disabled={!canRun}
                 />
                 <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
-                  Baseline tenure: {tenure} years. The shock applies from this year on.
+                  Change project’s grid from this year. Tenure {tenure} y.
                 </p>
               </div>
               <div>
-                <label className="flex items-center gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-5">
-                  <input
-                    type="checkbox"
-                    checked={enableLoadChange}
-                    onChange={e => setEnableLoadChange(e.target.checked)}
-                    className="accent-[var(--tint)]"
-                    disabled={!canRun}
-                  />
-                  Extra load change after the shock
-                </label>
-                {enableLoadChange && (
-                  <div className="mt-2">
-                    <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">
-                      Load change (%)
-                    </label>
-                    <input
-                      type="number"
-                      value={loadScalePct}
-                      onChange={e => setLoadScalePct(parseFloat(e.target.value) || 0)}
-                      className={`mt-1 ${selectClass}`}
-                    />
-                    <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
-                      Added to the change project’s loads (20 means +20%). Grid still comes from the change project.
-                    </p>
-                  </div>
-                )}
+                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Load change year</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={tenure}
+                  value={loadChangeYear}
+                  onChange={(e) => setLoadChangeYear(Math.min(tenure, Math.max(1, parseInt(e.target.value || '1', 10))))}
+                  className={`mt-1 ${selectClass}`}
+                  disabled={!canRun}
+                />
+                <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
+                  Change project’s loads + extra kW from this year.
+                </p>
+              </div>
+              <div>
+                <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Extra load (kW)</label>
+                <input
+                  type="number"
+                  step={0.1}
+                  value={loadDeltaKw}
+                  onChange={e => setLoadDeltaKw(parseFloat(e.target.value) || 0)}
+                  className={`mt-1 ${selectClass}`}
+                  disabled={!canRun}
+                />
+                <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mt-1">
+                  {(() => {
+                    const changeKw = changeInputs ? totalAverageLoadKw(changeInputs) : (baselineInputs ? totalAverageLoadKw(baselineInputs) : 0);
+                    const after = Math.max(0, changeKw + loadDeltaKw);
+                    return `Average load ${changeKw.toFixed(1)} kW + ${loadDeltaKw >= 0 ? '+' : ''}${loadDeltaKw} = ${after.toFixed(1)} kW. Peak and running scale with it.`;
+                  })()}
+                </p>
               </div>
             </div>
           </div>
@@ -269,7 +275,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             <div className="flex flex-col gap-1">
               {([
                 { id: 'A' as const, label: 'Mode A — Keep this plant' },
-                { id: 'B' as const, label: 'Mode B — Resize at the change' },
+                { id: 'B' as const, label: 'Mode B — Resize at each change' },
                 { id: 'compare' as const, label: 'Compare A and B' }
               ]).map(opt => (
                 <label
@@ -293,10 +299,10 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             </div>
             <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] leading-relaxed">
               {mode === 'B'
-                ? 'Mode B rebuilds the plant at the change year to match the change project (for example adding a genset).'
+                ? 'Mode B may add kit at the grid year and again at the load year if those years differ.'
                 : mode === 'compare'
-                  ? 'A keeps year-0 kit on the new grid and load. B may add kit at the change year.'
-                  : 'Mode A keeps the year-0 plant and only applies the change project’s grid and load. Hours the battery cannot cover stay unserved if there is no genset.'}
+                  ? 'A keeps year-0 kit. B may add kit when grid or load changes.'
+                  : 'Mode A keeps the year-0 plant. Grid and load follow the years you set. Hours the battery cannot cover stay unserved if there is no genset.'}
             </p>
             <label className="flex items-center gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-3">
               <input
@@ -306,7 +312,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                 className="accent-[var(--tint)]"
                 disabled={!canRun}
               />
-              Change-year sweep ({mode === 'B' ? 'Mode B' : 'Mode A'})
+              Sweep grid change year ({mode === 'B' ? 'Mode B' : 'Mode A'})
             </label>
             {simResult && (
               <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] rounded-[var(--radius-control)] p-2 bg-[var(--fill-tertiary)] mt-2">
@@ -353,9 +359,8 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
               <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-1">DC availability</h3>
               <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-3 max-w-3xl">
-                Time-based: (24 − unserved hours) / 24. Residual outage is grid-down time the installed plant
-                cannot cover (battery, then solar). A genset counts as serving residual only if it is in the Year-0
-                design (Mode A) or added at the change year (Mode B).
+                Time-based: (24 − unserved hours) / 24. Residual outage is grid-down time the plant cannot cover.
+                Mode A never adds a genset. Mode B may add one when grid or load changes.
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs min-w-[640px]">
@@ -528,7 +533,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                 Wear ledger {mode === 'compare' ? '(Mode A)' : mode === 'B' ? '(Mode B)' : '(Mode A)'}
               </h3>
               <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-3">
-                Cumulative battery cycles and DG hours. Highlighted rows = post-change regime (change project).
+                Highlighted rows = after the first shock. Regime shows grid, load, or both.
               </p>
               <table className="w-full text-[11px] min-w-[900px]">
                 <thead>
@@ -557,7 +562,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       className={`border-b border-white/5 ${row.regime === 'changed' ? 'bg-red-500/5' : ''}`}
                     >
                       <td className="py-1.5 font-mono text-white">{row.year}</td>
-                      <td className="text-gray-400">{row.regime}</td>
+                      <td className="text-gray-400">{row.regimeDetail === 'both' ? 'grid+load' : row.regimeDetail}</td>
                       <td className="text-right font-mono text-red-400">{row.actualDoD}</td>
                       <td className="text-right font-mono">{row.batteryCyclesPerDay.toFixed(2)}</td>
                       <td className="text-right font-mono">{fmt(row.batteryCyclesAdded, 0)}</td>
@@ -654,7 +659,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
           {runSweep && sweep.length > 0 && (
             <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
               <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-3">
-                Δ NPV operator vs change year ({mode === 'B' ? 'Mode B' : 'Mode A'})
+                Δ NPV vs grid change year (load year {loadChangeYear} fixed)
               </h3>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">

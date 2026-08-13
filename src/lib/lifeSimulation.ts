@@ -10,10 +10,14 @@ import {
 export type LifeSimMode = 'A' | 'B' | 'compare';
 
 export interface EnvironmentChange {
-  /** Operating year when new regime starts (1..tenure). */
+  /** Grid-change year (1..tenure). Also the default if loadChangeYear is omitted. */
   changeYear: number;
+  /** Year the change project's grid (outages) starts. Defaults to changeYear. */
+  gridChangeYear?: number;
+  /** Year the change project's loads and optional kW delta start. Defaults to changeYear. */
+  loadChangeYear?: number;
   /**
-   * Saved My Project used as the post-change shock.
+   * Saved project used as the post-change shock.
    * Mode A: grid + load only; Year-0 plant stays (incl. whether a genset exists).
    * Mode B: full config (grid, load, DG/solar design intent) for re-size; financials/costs stay baseline.
    */
@@ -23,7 +27,9 @@ export interface EnvironmentChange {
   outageDuration?: number | null;
   /** Absolute tenant loads after change (if set, replaces all tenants). */
   tenantLoads?: TenantLoad[];
-  /** Scale load on the active (post-change) regime. e.g. 1.3 = +30%. */
+  /** Extra kW on total average load from the load-change year (peak/running scale with it). */
+  loadDeltaKw?: number | null;
+  /** @deprecated Prefer loadDeltaKw. Scale factor on post-load-change regime, e.g. 1.3 = +30%. */
   loadScale?: number | null;
 }
 
@@ -35,6 +41,8 @@ export interface LifeSimConfig {
 export interface WearYearRow {
   year: number;
   regime: 'baseline' | 'changed';
+  /** baseline | grid | load | both */
+  regimeDetail: 'baseline' | 'grid' | 'load' | 'both';
   batteryCyclesAdded: number;
   batteryCyclesCumulative: number;
   batteryAvailableCycles: number;
@@ -136,50 +144,112 @@ function scaleLoads(inputs: SiteInputs, loadScale: number | null | undefined): S
   return next;
 }
 
+export function totalAverageLoadKw(inputs: SiteInputs): number {
+  return (inputs.tenantLoads || []).reduce((s, t) => s + (t.averageLoad || 0), 0);
+}
+
+/** Add delta kW to total average load; peak and running scale with the same factor. */
+function applyLoadDeltaKw(inputs: SiteInputs, deltaKw: number | null | undefined): SiteInputs {
+  if (deltaKw == null || deltaKw === 0) return inputs;
+  const next = cloneInputs(inputs);
+  const loads = next.tenantLoads || [];
+  const totalAvg = loads.reduce((s, t) => s + (t.averageLoad || 0), 0);
+  if (loads.length === 0) {
+    const kw = Math.max(0, deltaKw);
+    next.tenantLoads = [{ peakLoad: kw, averageLoad: kw, runningLoad: kw }];
+    next.numTenants = 1;
+    return next;
+  }
+  if (totalAvg <= 0) {
+    const share = 1 / loads.length;
+    next.tenantLoads = loads.map(t => ({
+      peakLoad: Math.max(0, (t.peakLoad || 0) + deltaKw * share),
+      averageLoad: Math.max(0, (t.averageLoad || 0) + deltaKw * share),
+      runningLoad: Math.max(0, (t.runningLoad || 0) + deltaKw * share)
+    }));
+    return next;
+  }
+  const factor = (totalAvg + deltaKw) / totalAvg;
+  if (factor <= 0) {
+    next.tenantLoads = loads.map(() => ({ peakLoad: 0, averageLoad: 0, runningLoad: 0 }));
+    return next;
+  }
+  next.tenantLoads = loads.map(t => ({
+    peakLoad: (t.peakLoad || 0) * factor,
+    averageLoad: (t.averageLoad || 0) * factor,
+    runningLoad: (t.runningLoad || 0) * factor
+  }));
+  return next;
+}
+
+function clampYear(y: number | undefined, tenure: number, fallback: number): number {
+  const v = y == null || !Number.isFinite(y) ? fallback : y;
+  return Math.min(Math.max(1, Math.round(v)), tenure);
+}
+
+export function resolveChangeYears(change: EnvironmentChange, tenure: number): { gridYear: number; loadYear: number } {
+  const fallback = clampYear(change.changeYear, tenure, 1);
+  return {
+    gridYear: clampYear(change.gridChangeYear, tenure, fallback),
+    loadYear: clampYear(change.loadChangeYear, tenure, fallback)
+  };
+}
+
 /**
- * Overlay environment onto the operating site.
- * Mode A: keep Year-0 plant (DG on/off, solar, charging rates) and apply only grid + load.
- * Mode B: adopt the change project's full design intent (may add a genset) plus grid + load.
- * Financials & costs stay on the baseline project. Optional loadScale is post-change only.
+ * Overlay environment for a given operating year.
+ * Grid (outages) and load (change-project tenants + kW delta) can start in different years.
+ * Mode A: Year-0 plant stays. Mode B: change-project plant is the resize intent; lock is applied later.
  */
 function applyEnvironment(
   base: SiteInputs,
   change: EnvironmentChange,
-  active: boolean,
-  mode: 'A' | 'B'
+  year: number,
+  mode: 'A' | 'B',
+  tenure: number
 ): SiteInputs {
-  if (!active) return cloneInputs(base);
+  const { gridYear, loadYear } = resolveChangeYears(change, tenure);
+  const applyGrid = year >= gridYear;
+  const applyLoad = year >= loadYear;
+  if (!applyGrid && !applyLoad) return cloneInputs(base);
 
-  let next: SiteInputs;
+  let next = cloneInputs(base);
+  const env = change.changeProject;
 
-  if (change.changeProject) {
-    const env = change.changeProject;
-    if (mode === 'A') {
-      next = cloneInputs(base);
+  if (applyGrid) {
+    if (env) {
       next.gridCondition = env.gridCondition;
       next.dailyOutages = env.dailyOutages;
       next.outageDuration = env.outageDuration;
-      if (env.tenantLoads && env.tenantLoads.length > 0) {
-        next.tenantLoads = env.tenantLoads.map(t => ({ ...t }));
-        next.numTenants = env.numTenants ?? env.tenantLoads.length;
-      }
     } else {
-      next = cloneInputs(env);
-      next.financials = cloneInputs(base.financials);
-      next.costs = cloneInputs(base.costs);
-    }
-  } else {
-    next = cloneInputs(base);
-    if (change.gridCondition != null) next.gridCondition = change.gridCondition;
-    if (change.dailyOutages != null) next.dailyOutages = change.dailyOutages;
-    if (change.outageDuration != null) next.outageDuration = change.outageDuration;
-    if (change.tenantLoads && change.tenantLoads.length > 0) {
-      next.tenantLoads = change.tenantLoads.map(t => ({ ...t }));
-      next.numTenants = change.tenantLoads.length;
+      if (change.gridCondition != null) next.gridCondition = change.gridCondition;
+      if (change.dailyOutages != null) next.dailyOutages = change.dailyOutages;
+      if (change.outageDuration != null) next.outageDuration = change.outageDuration;
     }
   }
 
-  next = scaleLoads(next, change.loadScale);
+  if (applyLoad) {
+    if (env?.tenantLoads && env.tenantLoads.length > 0) {
+      next.tenantLoads = env.tenantLoads.map(t => ({ ...t }));
+      next.numTenants = env.numTenants ?? env.tenantLoads.length;
+    } else if (change.tenantLoads && change.tenantLoads.length > 0) {
+      next.tenantLoads = change.tenantLoads.map(t => ({ ...t }));
+      next.numTenants = change.tenantLoads.length;
+    }
+    next = applyLoadDeltaKw(next, change.loadDeltaKw);
+    next = scaleLoads(next, change.loadScale);
+  }
+
+  if (mode === 'B' && env && (applyGrid || applyLoad)) {
+    next.dg = cloneInputs(env).dg;
+    next.solar = cloneInputs(env).solar;
+    next.battery = cloneInputs(env).battery;
+    next.rectifier = cloneInputs(env).rectifier;
+    next.cabinet = cloneInputs(env).cabinet;
+    next.monitoring = cloneInputs(env).monitoring;
+    next.acdb = cloneInputs(env).acdb;
+    next.financials = cloneInputs(base.financials);
+    next.costs = cloneInputs(base.costs);
+  }
 
   if (next.gridCondition === 'Off-grid') {
     next.dailyOutages = 1;
@@ -345,7 +415,7 @@ function runModePath(
   const wacc = (baseInputs.financials.wacc || 0) / 100;
   const taxRate = (baseInputs.financials.taxRate || 0) / 100;
   const escalation = (baseInputs.financials.escalation || 0) / 100;
-  const changeYear = Math.min(Math.max(1, change.changeYear || 1), tenure);
+  const { gridYear, loadYear } = resolveChangeYears(change, tenure);
 
   const cashFlows = emptyCashFlows(tenure);
   const wearTable: WearYearRow[] = [];
@@ -396,18 +466,21 @@ function runModePath(
   const mcSamples = baseInputs.solar.enabled ? 200 : 1000;
 
   for (let y = 1; y <= tenure; y++) {
-    const changed = y >= changeYear;
-    const yearInputs = applyEnvironment(baseInputs, change, changed, mode);
+    const applyGrid = y >= gridYear;
+    const applyLoad = y >= loadYear;
+    const changed = applyGrid || applyLoad;
+    const yearInputs = applyEnvironment(baseInputs, change, y, mode, tenure);
 
-    // Mode B: re-size at change year and apply delta CAPEX
-    if (mode === 'B' && y === changeYear) {
+    // Mode B: re-size at each shock year (grid and/or load)
+    if (mode === 'B' && (y === gridYear || y === loadYear)) {
       const resized = calculateAllStats(yearInputs, { monteCarloSamples: mcSamples });
-      upgradeBoq = computeDeltaBoq(design, resized.designLock, yearInputs);
+      const yearUpgrade = computeDeltaBoq(design, resized.designLock, yearInputs);
+      upgradeBoq = upgradeBoq.concat(yearUpgrade);
       const upgraded = mergeDesignLock(design, resized.designLock, yearInputs);
 
-      if (upgradeBoq.length > 0) {
+      if (yearUpgrade.length > 0) {
         const esc = Math.pow(1 + escalation, y);
-        upgradeBoq.forEach(u => {
+        yearUpgrade.forEach(u => {
           const cost = u.total * esc;
           cashFlows[y].capex += cost;
           cashFlows[y].details.capexItems.push({ name: `${u.item} (Upgrade)`, cost });
@@ -593,6 +666,7 @@ function runModePath(
     wearTable.push({
       year: y,
       regime: changed ? 'changed' : 'baseline',
+      regimeDetail: !applyGrid && !applyLoad ? 'baseline' : applyGrid && applyLoad ? 'both' : applyGrid ? 'grid' : 'load',
       batteryCyclesAdded: cyclesAdded,
       batteryCyclesCumulative: batteryCyclesCum,
       batteryAvailableCycles: availableCycles,
@@ -756,7 +830,7 @@ export function sweepChangeYear(
   for (let y = 1; y <= tenure; y++) {
     const sim = runLifeSimulation(baseInputs, {
       mode,
-      change: { ...changeTemplate, changeYear: y }
+      change: { ...changeTemplate, changeYear: y, gridChangeYear: y }
     });
     const delta = mode === 'A' ? sim.deltaA : sim.deltaB;
     if (delta) {
