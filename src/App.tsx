@@ -83,6 +83,7 @@ import {
 import { LoginScreen } from './components/LoginScreen';
 import { AdminPanel } from './components/AdminPanel';
 import { NumericInput } from './components/NumericInput';
+import { Button } from './components/ui';
 import { calculateAllStats } from './lib/dcEngine';
 import { LifeSimulationPanel } from './components/LifeSimulationPanel';
 
@@ -1872,36 +1873,59 @@ export default function App() {
     return <LoginScreen onLoginSuccess={setCurrentUser} />;
   }
 
+  const chromeNav = (active: boolean) => cn(
+    "w-full flex items-center gap-[var(--space-3)] px-[var(--space-3)] min-h-9 rounded-[var(--radius-control)] text-left cursor-pointer",
+    "font-[family-name:var(--font-text)] text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] tracking-[var(--text-subhead-tracking)]",
+    "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]",
+    active
+      ? "bg-[var(--tint-soft)] text-[var(--tint)] font-semibold"
+      : "text-[var(--label-secondary)] hover:bg-[var(--fill-quaternary)] hover:text-[var(--label)] font-normal"
+  );
+
+  const chromeSubnav = (active: boolean) => cn(
+    "w-full flex items-center gap-[var(--space-2)] px-[var(--space-3)] min-h-8 rounded-[var(--radius-control)] text-left cursor-pointer",
+    "font-[family-name:var(--font-text)] text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] tracking-[var(--text-footnote-tracking)]",
+    "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-standard)]",
+    active
+      ? "bg-[var(--tint-soft)] text-[var(--tint)] font-semibold"
+      : "text-[var(--label-tertiary)] hover:bg-[var(--fill-quaternary)] hover:text-[var(--label)]"
+  );
+
+  const chromeAction =
+    "w-full justify-start font-medium text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] tracking-[var(--text-subhead-tracking)]";
+
+  const chromeSectionLabel =
+    "block px-[var(--space-3)] mb-[var(--space-1)] font-[family-name:var(--font-text)] text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] tracking-[var(--text-caption-1-tracking)] text-[var(--label-tertiary)]";
+
   return (
     <div className={cn(
-      "min-h-screen font-sans selection:bg-red-600/30 flex-all transition-all duration-300",
-      isDarkMode ? "bg-[#050505] text-[#f5f5f5]" : "bg-[#FAFAFA] text-[#1A1A1A] light-theme"
+      "min-h-screen font-sans selection:bg-[var(--tint-soft)] flex-all transition-colors duration-[var(--duration-normal)] ease-[var(--ease-standard)] bg-[var(--bg)] text-[var(--label)]",
+      isDarkMode ? "dark" : "light-theme"
     )}>
       {/* Top Header Bar (Unified Mobile/Desktop) */}
-      <header className="fixed top-0 left-0 right-0 lg:left-72 h-16 bg-[#050505]/90 backdrop-blur-xl border-b border-white/5 z-40 flex items-center justify-between px-6 transition-all duration-300">
-        {/* Left: Mobile Sidebar Menu Icon or Desktop Breadcrumbs */}
-        <div className="flex items-center gap-3">
+      <header className="fixed top-0 left-0 right-0 lg:left-[var(--sidebar-width)] h-[var(--toolbar-height)] z-40 flex items-center justify-between px-[var(--space-5)] bg-[var(--material-regular-fill)] backdrop-blur-[var(--material-blur-regular)] backdrop-saturate-[var(--material-saturate-regular)] shadow-[var(--glass-highlight),0_0.5px_0_var(--separator)]">
+        <div className="flex items-center gap-[var(--space-3)] min-w-0">
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="lg:hidden p-2 hover:bg-white/5 rounded-lg transition-colors text-gray-400 hover:text-white"
+            className="lg:hidden flex items-center justify-center w-11 h-11 -ml-2 rounded-[var(--radius-control)] text-[var(--label-secondary)] hover:bg-[var(--fill-quaternary)] hover:text-[var(--label)]"
             id="mobile-sidebar-toggle"
           >
             <Menu className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-1.5 sm:gap-2.5 select-none font-sans">
-            <span className="text-[10px] font-display font-medium uppercase tracking-widest text-gray-500 hidden sm:inline">
+          <div className="flex items-center gap-[var(--space-2)] min-w-0 select-none font-[family-name:var(--font-text)]">
+            <span className="hidden sm:inline text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-tertiary)]">
               Modeller
             </span>
-            <span className="text-gray-800 text-xs font-bold font-mono hidden sm:inline">/</span>
-            <span className="text-[10px] font-display font-semibold uppercase tracking-widest text-[#E50914] title-glow">
-              {showAdminTab ? "Admin Control" : (STEPS.find(s => s.id === currentStep)?.name?.replace(/^\d+\.\s*/, '') || 'Red Pill')}
+            <span className="hidden sm:inline text-[var(--label-quaternary)] text-[length:var(--text-footnote-size)]">/</span>
+            <span className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] tracking-[var(--text-subhead-tracking)] font-semibold text-[var(--label)] truncate">
+              {showAdminTab ? "Admin" : (STEPS.find(s => s.id === currentStep)?.name?.replace(/^\d+\.\s*/, '') || 'Red Pill')}
             </span>
             {!showAdminTab && (
               <>
-                <span className="text-gray-800 text-xs font-bold font-mono">/</span>
+                <span className="text-[var(--label-quaternary)] text-[length:var(--text-footnote-size)]">/</span>
                 <span 
-                  className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/5 text-gray-300 max-w-[120px] sm:max-w-xs truncate"
+                  className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] tracking-[var(--text-caption-1-tracking)] px-[var(--space-2)] py-[var(--space-1)] rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] text-[var(--label-secondary)] max-w-[120px] sm:max-w-xs truncate"
                   title={`Active Design Template: ${currentTemplateName}`}
                 >
                   {currentTemplateName}
@@ -1911,18 +1935,17 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right: User Profile Controls alongside Day/Night Theme Toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[var(--space-2)] shrink-0">
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-2 bg-white/[0.03] hover:bg-white/5 border border-white/5 hover:border-white/10 rounded-xl text-gray-400 hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center group"
+            className="flex items-center justify-center w-9 h-9 rounded-[var(--radius-capsule)] bg-[var(--fill-tertiary)] text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label)] cursor-pointer"
             title={isDarkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
             aria-label="Toggle Theme"
           >
             {isDarkMode ? (
-              <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform duration-300" />
+              <Sun className="w-4 h-4" />
             ) : (
-              <Moon className="w-4 h-4 text-[#E50914] group-hover:rotate-12 transition-transform duration-300" />
+              <Moon className="w-4 h-4" />
             )}
           </button>
 
@@ -1930,16 +1953,16 @@ export default function App() {
             <div className="relative">
               <button
                 onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded-xl transition-all cursor-pointer border border-transparent hover:border-white/5 group"
+                className="flex items-center gap-[var(--space-2)] h-9 pl-1 pr-[var(--space-2)] rounded-[var(--radius-capsule)] hover:bg-[var(--fill-quaternary)] cursor-pointer"
                 id="user-profile-menu-trigger"
               >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#E50914] to-orange-500 flex items-center justify-center text-[10px] font-display font-black text-white uppercase shrink-0 select-none shadow-md shadow-red-600/20 group-hover:scale-105 transition-transform duration-300">
+                <div className="w-7 h-7 rounded-full bg-[var(--tint)] flex items-center justify-center text-[length:var(--text-caption-2-size)] font-semibold text-[var(--on-tint)] uppercase shrink-0 select-none">
                   {currentUser.username.substring(0, 2)}
                 </div>
-                <span className="hidden sm:inline text-xs font-semibold tracking-tight text-gray-300 group-hover:text-white uppercase select-none transition-colors">
+                <span className="hidden sm:inline text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-medium text-[var(--label)] select-none">
                   {currentUser.username}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-300 transition-colors" />
+                <ChevronDown className="w-3.5 h-3.5 text-[var(--label-tertiary)]" />
               </button>
 
               {isUserDropdownOpen && (
@@ -1949,24 +1972,25 @@ export default function App() {
                     onClick={() => setIsUserDropdownOpen(false)} 
                   />
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 6, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 top-11 mt-2 w-56 bg-[#121212] border border-white/5 rounded-2xl p-3 shadow-2xl z-50 space-y-2.5 shadow-red-950/25"
+                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                    className="absolute right-0 top-11 mt-1 w-56 z-50 p-[var(--space-2)] rounded-[var(--radius-sheet)] bg-[var(--material-ultra-thin-fill)] backdrop-blur-[var(--material-blur-ultra-thin)] backdrop-saturate-[var(--material-saturate)] shadow-[var(--glass-highlight),var(--shadow-menu)]"
                   >
-                    <div className="px-2 py-1.5 border-b border-white/5 pb-2.5">
-                      <p className="text-[9px] font-display font-bold text-gray-500 uppercase tracking-widest leading-none">Logged In As</p>
-                      <p className="text-xs font-bold text-white uppercase mt-1.5 truncate">{currentUser.username}</p>
-                      <span className={`inline-block text-[8px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded mt-1.5 ${
-                        currentUser.role === 'admin' 
-                          ? 'bg-[#E50914]/15 text-[#F40F1D] border border-[#E50914]/20' 
-                          : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                      }`}>
-                        {currentUser.role === 'admin' ? 'System Admin' : 'Standard User'}
+                    <div className="px-[var(--space-3)] py-[var(--space-2)] mb-[var(--space-1)] shadow-[inset_0_-0.5px_0_var(--separator)]">
+                      <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] text-[var(--label-tertiary)]">Signed in as</p>
+                      <p className="mt-0.5 text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-semibold text-[var(--label)] truncate">{currentUser.username}</p>
+                      <span className={cn(
+                        "inline-block mt-[var(--space-1)] text-[length:var(--text-caption-2-size)] leading-[var(--text-caption-2-line)] tracking-[var(--text-caption-2-tracking)] px-[var(--space-2)] py-0.5 rounded-[var(--radius-capsule)]",
+                        currentUser.role === 'admin'
+                          ? "bg-[var(--tint-soft)] text-[var(--tint)]"
+                          : "bg-[var(--fill-tertiary)] text-[var(--label-secondary)]"
+                      )}>
+                        {currentUser.role === 'admin' ? 'Admin' : 'User'}
                       </span>
                     </div>
 
-                    <div className="space-y-0.5">
+                    <div className="flex flex-col">
                       {currentUser.role === 'admin' && (
                         <button
                           onClick={() => {
@@ -1974,21 +1998,21 @@ export default function App() {
                             setIsUserDropdownOpen(false);
                           }}
                           className={cn(
-                            "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-[9px] font-display font-medium uppercase tracking-wider transition-all border text-left",
-                            showAdminTab 
-                              ? "bg-[#E50914]/10 hover:bg-[#E50914]/20 text-red-400 border-red-500/20" 
-                              : "bg-transparent hover:bg-white/5 text-gray-300 border-transparent"
+                            "w-full text-left px-[var(--space-3)] py-[var(--space-2)] rounded-[var(--radius-control)] text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)]",
+                            showAdminTab
+                              ? "bg-[var(--tint-soft)] text-[var(--tint)]"
+                              : "text-[var(--label)] hover:bg-[var(--fill-quaternary)]"
                           )}
                         >
-                          {showAdminTab ? "Back to Modeller" : "Open Admin Panel"}
+                          {showAdminTab ? "Back to modeller" : "Open admin panel"}
                         </button>
                       )}
 
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 hover:bg-[#E50914]/15 text-gray-400 hover:text-red-400 rounded-lg text-[9px] font-display font-medium uppercase tracking-wider transition-all text-left"
+                        className="w-full text-left px-[var(--space-3)] py-[var(--space-2)] rounded-[var(--radius-control)] text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] text-[var(--system-red)] hover:bg-[var(--fill-quaternary)]"
                       >
-                        Sign Out
+                        Sign out
                       </button>
                     </div>
                   </motion.div>
@@ -2002,88 +2026,88 @@ export default function App() {
       {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed left-0 top-0 h-full w-72 bg-[#0e0e0e] border-r border-white/5 z-[70] flex flex-col transition-transform duration-300 lg:translate-x-0 shadow-2xl",
+        "fixed left-0 top-0 h-full w-[var(--sidebar-width)] z-[70] flex flex-col transition-transform duration-[var(--duration-normal)] ease-[var(--ease-standard)] lg:translate-x-0",
+        "bg-[var(--material-regular-fill)] backdrop-blur-[var(--material-blur-regular)] backdrop-saturate-[var(--material-saturate-regular)] shadow-[var(--glass-highlight),0.5px_0_0_var(--separator)]",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="p-8 relative border-b border-white/5">
-          {/* Mobile Close Button */}
+        <div className="px-[var(--space-4)] pt-[var(--space-6)] pb-[var(--space-4)] relative shadow-[inset_0_-0.5px_0_var(--separator)]">
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden absolute top-6 right-6 p-2 hover:bg-white/5 rounded-lg transition-colors text-gray-400 hover:text-white"
+            className="lg:hidden absolute top-[var(--space-4)] right-[var(--space-3)] flex items-center justify-center w-11 h-11 rounded-[var(--radius-control)] text-[var(--label-secondary)] hover:bg-[var(--fill-quaternary)] hover:text-[var(--label)]"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-3 mb-4 select-none">
-            <div className="w-10 h-10 bg-[#E50914] rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-              <Zap className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-[var(--space-3)] mb-[var(--space-4)] select-none">
+            <div className="w-9 h-9 bg-[var(--tint)] rounded-[var(--radius-element)] flex items-center justify-center">
+              <Zap className="w-4 h-4 text-[var(--on-tint)]" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tighter text-white">RED PILL</h1>
-              <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Pricing Engine v2.0</p>
+              <h1 className="font-[family-name:var(--font-title)] text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] tracking-[var(--text-headline-tracking)] font-semibold text-[var(--label)]">Red Pill</h1>
+              <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] tracking-[var(--text-caption-1-tracking)] text-[var(--label-tertiary)]">Pricing Engine</p>
             </div>
           </div>
 
-          <div className="space-y-2 mt-2">
-            {/* New Project */}
-            <button 
-              onClick={handleNewProject}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] hover:bg-[#E50914]/15 hover:text-white border border-white/5 hover:border-[#E50914]/20 rounded-xl transition-all duration-300 group text-gray-300 cursor-pointer"
-            >
-              <FilePlus className="w-4 h-4 text-[#E50914] group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-[10px] font-display font-semibold uppercase tracking-wider">New Project</span>
-            </button>
+          <div className="flex flex-col gap-[var(--space-1)]">
+            <Button variant="gray" size="compact" onClick={handleNewProject} className={chromeAction}>
+              <FilePlus className="w-4 h-4 text-[var(--tint)]" />
+              New project
+            </Button>
             
-            {/* Save as Template (was Template) */}
-            <button 
+            <Button
+              variant="gray"
+              size="compact"
               onClick={() => {
                 setSaveTemplateDbName(currentTemplateName);
                 setShowSaveTemplateDbModal(true);
               }}
               title="Save this configuration as a custom project in your account"
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] hover:bg-[#E50914]/15 hover:text-white border border-white/5 hover:border-[#E50914]/20 rounded-xl transition-all duration-300 group text-gray-300 cursor-pointer"
+              className={chromeAction}
             >
-              <CheckCircle2 className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-[10px] font-display font-semibold uppercase tracking-wider">SAVE AS PROJECT</span>
-            </button>
+              <CheckCircle2 className="w-4 h-4 text-[var(--label-secondary)]" />
+              Save as project
+            </Button>
 
-            {/* Import Template */}
             <label 
               title="Upload project JSON file to your account database"
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] hover:bg-[#E50914]/15 hover:text-white border border-white/5 hover:border-[#E50914]/20 rounded-xl transition-all duration-300 group text-gray-300 cursor-pointer"
+              className={cn(
+                chromeNav(false),
+                "cursor-pointer"
+              )}
             >
-              <Upload className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-[10px] font-display font-semibold uppercase tracking-wider">Import Project</span>
+              <Upload className="w-4 h-4" />
+              Import project
               <input type="file" accept=".json" onChange={handleUploadCustomTemplate} className="hidden" />
             </label>
 
-            {/* Export Template (was Export File) */}
-            <button 
+            <Button
+              variant="gray"
+              size="compact"
               onClick={handleSaveProject}
               title="Download currently working design as a JSON project file"
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] hover:bg-[#E50914]/15 hover:text-white border border-white/5 hover:border-[#E50914]/20 rounded-xl transition-all duration-300 group text-gray-300 cursor-pointer"
+              className={chromeAction}
             >
-              <Download className="w-4 h-4 text-green-500 group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-[10px] font-display font-semibold uppercase tracking-wider">Export Project</span>
-            </button>
+              <Download className="w-4 h-4 text-[var(--label-secondary)]" />
+              Export project
+            </Button>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 mt-6 space-y-6 overflow-y-auto custom-scrollbar pb-8">
+        <nav className="flex-1 px-[var(--space-3)] mt-[var(--space-5)] flex flex-col gap-[var(--space-5)] overflow-y-auto custom-scrollbar pb-[var(--space-8)]">
           {/* User templates Database (with safe inline check delete) */}
           {userDbTemplates.length > 0 && (
-            <div className="space-y-2">
-              <span className="block text-[8px] font-black text-gray-400 uppercase tracking-widest px-4 border-b border-white/5 pb-1">
-                MY PROJECT ({userDbTemplates.length})
+            <div>
+              <span className={chromeSectionLabel}>
+                My projects ({userDbTemplates.length})
               </span>
-              <div className="space-y-1 max-h-[160px] overflow-y-auto custom-scrollbar px-1">
+              <div className="flex flex-col max-h-[160px] overflow-y-auto custom-scrollbar rounded-[var(--radius-element)] bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
                 {userDbTemplates.map((t) => (
                   <div 
                     key={t.id}
@@ -2126,9 +2150,9 @@ export default function App() {
                           ? "Click to select this project for Design Optimization"
                           : "Click to load project inputs"
                     }
-                    className="flex items-center justify-between px-3 py-2 bg-[#121212]/50 hover:bg-[#121212] border border-white/5 hover:border-white/10 rounded-xl cursor-grab active:cursor-grabbing group transition-all duration-300"
+                    className="flex items-center justify-between px-[var(--space-3)] min-h-9 cursor-grab active:cursor-grabbing group shadow-[inset_0_-0.5px_0_var(--separator)] last:shadow-none hover:bg-[var(--fill-quaternary)]"
                   >
-                    <span className="text-[11px] text-gray-400 group-hover:text-white truncate font-medium max-w-[130px] transition-colors">
+                    <span className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label)] truncate font-normal max-w-[130px]">
                       {t.name}
                     </span>
                     
@@ -2140,9 +2164,9 @@ export default function App() {
                             handleDeleteTemplateFromDb(t.id, e);
                           }}
                           title="Confirm delete"
-                          className="p-1 bg-[#E50914]/20 hover:bg-[#E50914]/40 border border-[#E50914]/30 rounded-lg text-[#F40F1D] transition-colors cursor-pointer"
+                          className="p-1 rounded-[var(--radius-control)] text-[var(--system-red)] hover:bg-[var(--fill-tertiary)] cursor-pointer"
                         >
-                          <CheckCircle2 className="w-3 h-3" />
+                          <CheckCircle2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={(e) => {
@@ -2150,9 +2174,9 @@ export default function App() {
                             setTemplateIdToDeleteConfirm(null);
                           }}
                           title="Cancel"
-                          className="p-1 bg-white/5 hover:bg-white/15 border border-white/10 rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer"
+                          className="p-1 rounded-[var(--radius-control)] text-[var(--label-tertiary)] hover:bg-[var(--fill-tertiary)] hover:text-[var(--label)] cursor-pointer"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ) : (
@@ -2161,10 +2185,10 @@ export default function App() {
                           e.stopPropagation();
                           setTemplateIdToDeleteConfirm(t.id);
                         }}
-                        className="p-1 text-gray-600 hover:text-[#F40F1D] opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                        className="p-1 text-[var(--label-quaternary)] hover:text-[var(--system-red)] opacity-0 group-hover:opacity-100 cursor-pointer"
                         title="Delete custom template"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
@@ -2173,37 +2197,28 @@ export default function App() {
             </div>
           )}
 
-          <div className="space-y-1.5 pt-1 border-t border-white/5">
-            <span className="block text-[8px] font-black text-gray-500 uppercase tracking-widest px-4 border-b border-white/5 pb-1 mb-2">
-              Analysis & Insights
+          <div>
+            <span className={chromeSectionLabel}>
+              Analysis and insights
             </span>
             <button
               onClick={() => {
                 setActiveSection('comparison');
                 setIsSidebarOpen(false);
               }}
-              className={cn(
-                "w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-300 text-left cursor-pointer group",
-                activeSection === 'comparison'
-                  ? "bg-[#E50914] text-white shadow-lg shadow-red-600/15 font-semibold" 
-                  : "text-gray-400 hover:text-white hover:bg-white/[0.03] font-medium"
-              )}
+              className={cn(chromeNav(activeSection === 'comparison'), "justify-between")}
             >
-              <div className="flex items-center gap-3">
-                <GitCompare className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-display font-medium uppercase tracking-wider">Project Comparison</span>
+              <div className="flex items-center gap-[var(--space-3)]">
+                <GitCompare className="w-4 h-4 shrink-0" />
+                <span>Project comparison</span>
               </div>
               <span 
                 className={cn(
-                  "text-[10px] px-2 py-0.5 rounded-full font-mono font-bold transition-all",
+                  "text-[length:var(--text-caption-2-size)] leading-[var(--text-caption-2-line)] px-[var(--space-2)] py-0.5 rounded-[var(--radius-capsule)] font-[family-name:var(--font-numeric)]",
                   activeSection === 'comparison'
-                    ? "bg-white text-[#E50914] shadow-sm" 
-                    : "bg-black/40 text-orange-500"
+                    ? "bg-[var(--tint)] text-[var(--on-tint)]"
+                    : "bg-[var(--fill-tertiary)] text-[var(--label-secondary)]"
                 )}
-                style={{
-                  color: activeSection === 'comparison' ? '#E50914' : '#f97316',
-                  backgroundColor: activeSection === 'comparison' ? '#ffffff' : undefined
-                }}
               >
                 {comparedProjects.length}
               </span>
@@ -2214,45 +2229,33 @@ export default function App() {
                 setActiveSection('optimization');
                 setIsSidebarOpen(false);
               }}
-              className={cn(
-                "w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-300 text-left cursor-pointer group",
-                activeSection === 'optimization'
-                  ? "bg-[#E50914] text-white shadow-lg shadow-red-600/15 font-semibold" 
-                  : "text-gray-400 hover:text-white hover:bg-white/[0.03] font-medium"
-              )}
+              className={chromeNav(activeSection === 'optimization')}
             >
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-display font-medium uppercase tracking-wider">Design Optimization</span>
-              </div>
+              <Sparkles className="w-4 h-4 shrink-0" />
+              <span>Design optimization</span>
             </button>
           </div>
 
-          <div className="space-y-1.5">
-            <span className="block text-[8px] font-black text-gray-500 uppercase tracking-widest px-4 border-b border-white/5 pb-1 mb-2">
-              Modulation Flow
+          <div>
+            <span className={chromeSectionLabel}>
+              Modulation flow
             </span>
             {STEPS.map((step) => (
-              <div key={step.id} className="space-y-1">
+              <div key={step.id}>
                 <button
                   onClick={() => {
                     setCurrentStep(step.id);
                     setActiveSection(step.sections[0]);
                     setIsSidebarOpen(false);
                   }}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 text-left cursor-pointer",
-                    currentStep === step.id 
-                      ? "bg-[#E50914] text-white shadow-lg shadow-red-600/15 font-semibold" 
-                      : "text-gray-400 hover:text-white hover:bg-white/[0.03] font-medium"
-                  )}
+                  className={chromeNav(currentStep === step.id && activeSection !== 'comparison' && activeSection !== 'optimization')}
                 >
                   <step.icon className="w-4 h-4 shrink-0" />
-                  <span className="text-[10px] font-display font-medium uppercase tracking-wider">{step.name.replace(/^\d+\.\s*/, '')}</span>
+                  <span>{step.name.replace(/^\d+\.\s*/, '')}</span>
                 </button>
 
                 {currentStep === step.id && (
-                  <div className="ml-4 pl-4 border-l border-white/5 py-1 space-y-1">
+                  <div className="ml-[var(--space-5)] pl-[var(--space-2)] shadow-[inset_0.5px_0_0_var(--separator)] py-[var(--space-1)]">
                     {step.id === 1 && (
                       <>
                         {[
@@ -2262,15 +2265,10 @@ export default function App() {
                           <button
                             key={section.id}
                             onClick={() => setActiveSection(section.id)}
-                            className={cn(
-                              "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-left cursor-pointer",
-                              activeSection === section.id 
-                                ? "bg-[#E50914] text-white font-semibold shadow-sm" 
-                                : "text-gray-500 hover:text-gray-300 hover:bg-white/[0.02]"
-                            )}
+                            className={chromeSubnav(activeSection === section.id)}
                           >
                             <section.icon className="w-3.5 h-3.5 shrink-0" />
-                            <span className="text-[11px] font-medium">{section.name}</span>
+                            <span>{section.name}</span>
                           </button>
                         ))}
                       </>
@@ -2288,15 +2286,10 @@ export default function App() {
                           <button
                             key={section.id}
                             onClick={() => setActiveSection(section.id)}
-                            className={cn(
-                              "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-left cursor-pointer",
-                              activeSection === section.id 
-                                ? "bg-[#E50914] text-white font-semibold shadow-sm" 
-                                : "text-gray-500 hover:text-gray-300 hover:bg-white/[0.02]"
-                            )}
+                            className={chromeSubnav(activeSection === section.id)}
                           >
                             <section.icon className="w-3.5 h-3.5 shrink-0" />
-                            <span className="text-[11px] font-medium">{section.name}</span>
+                            <span>{section.name}</span>
                           </button>
                         ))}
                       </>
@@ -2310,15 +2303,10 @@ export default function App() {
                           <button
                             key={section.id}
                             onClick={() => setActiveSection(section.id)}
-                            className={cn(
-                              "w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-left cursor-pointer",
-                              activeSection === section.id 
-                                ? "bg-[#E50914] text-white font-semibold shadow-sm" 
-                                : "text-gray-500 hover:text-gray-300 hover:bg-white/[0.02]"
-                            )}
+                            className={chromeSubnav(activeSection === section.id)}
                           >
                             <section.icon className="w-3.5 h-3.5 shrink-0" />
-                            <span className="text-[11px] font-medium">{section.name}</span>
+                            <span>{section.name}</span>
                           </button>
                         ))}
                       </>
@@ -2333,7 +2321,7 @@ export default function App() {
 
       </aside>
 
-      <main className="flex-1 lg:ml-72 p-4 md:p-8 pt-24 lg:pt-24 grid grid-cols-1 gap-8">
+      <main className="flex-1 lg:ml-[var(--sidebar-width)] p-[var(--space-4)] md:p-[var(--space-8)] pt-[calc(var(--toolbar-height)+var(--space-6))] lg:pt-[calc(var(--toolbar-height)+var(--space-6))] grid grid-cols-1 gap-8">
         {showAdminTab ? (
           <AdminPanel currentUser={currentUser!} isDarkMode={isDarkMode} onClose={() => {
             setShowAdminTab(false);
