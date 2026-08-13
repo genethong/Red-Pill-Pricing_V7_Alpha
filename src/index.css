@@ -626,4 +626,182 @@ input[type="number"] {
   color: inherit !important;
 }
 
+/* ==========================================================================
+   APPLE HIG / LIQUID GLASS TOKENS
+   Unused until later phases consume them. Do not remap existing utilities here.
+   Light = :root. Dark = .dark (not wired to isDarkMode yet).
+   ========================================================================== */
+
+:root {
+  --bg: #F2F2F7;
+  --bg-elevated: #FFFFFF;
+  --bg-grouped-tertiary: #FFFFFF;
+  --bg-chrome: rgba(242, 242, 247, 0.72);
+
+  --label: rgba(0, 0, 0, 0.85);
+  --label-secondary: rgba(60, 60, 67, 0.60);
+  --label-tertiary: rgba(60, 60, 67, 0.30);
+  --label-quaternary: rgba(60, 60, 67, 0.18);
+
+  --separator: rgba(60, 60, 67, 0.12);
+  --separator-opaque: #C6C6C8;
+
+  --fill: rgba(120, 120, 128, 0.20);
+  --fill-secondary: rgba(120, 120, 128, 0.16);
+  --fill-tertiary: rgba(118, 118, 128, 0.12);
+  --fill-quaternary: rgba(116, 116, 128, 0.08);
+
+  --tint: #C81018;
+  --tint-hover: #B10E15;
+  --tint-press: #8F0B11;
+  --tint-soft: rgba(200, 16, 24, 0.12);
+  --on-tint: #FFFFFF;
+
+  --system-red: #FF3B30;
+  --system-orange: #FF9500;
+  --system-green: #34C759;
+  --system-blue: #007AFF;
+  --system-yellow: #FFCC00;
+
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-title: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-numeric: "SF Mono", ui-monospace, Menlo, monospace;
+
+  --text-large-title-size: 34px;
+  --text-large-title-line: 41px;
+  --text-large-title-weight: 700;
+  --text-large-title-tracking: -0.4px;
+
+  --text-title-1-size: 28px;
+  --text-title-1-line: 34px;
+  --text-title-1-weight: 700;
+  --text-title-1-tracking: 0.36px;
+
+  --text-title-2-size: 22px;
+  --text-title-2-line: 28px;
+  --text-title-2-weight: 700;
+  --text-title-2-tracking: 0.35px;
+
+  --text-title-3-size: 20px;
+  --text-title-3-line: 25px;
+  --text-title-3-weight: 600;
+  --text-title-3-tracking: 0.38px;
+
+  --text-headline-size: 17px;
+  --text-headline-line: 22px;
+  --text-headline-weight: 600;
+  --text-headline-tracking: -0.43px;
+
+  --text-body-size: 17px;
+  --text-body-line: 22px;
+  --text-body-weight: 400;
+  --text-body-tracking: -0.43px;
+
+  --text-callout-size: 16px;
+  --text-callout-line: 21px;
+  --text-callout-weight: 400;
+  --text-callout-tracking: -0.32px;
+
+  --text-subhead-size: 15px;
+  --text-subhead-line: 20px;
+  --text-subhead-weight: 400;
+  --text-subhead-tracking: -0.24px;
+
+  --text-footnote-size: 13px;
+  --text-footnote-line: 18px;
+  --text-footnote-weight: 400;
+  --text-footnote-tracking: -0.08px;
+
+  --text-caption-1-size: 12px;
+  --text-caption-1-line: 16px;
+  --text-caption-1-weight: 400;
+  --text-caption-1-tracking: 0px;
+
+  --text-caption-2-size: 11px;
+  --text-caption-2-line: 13px;
+  --text-caption-2-weight: 400;
+  --text-caption-2-tracking: 0.06px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --sidebar-width: 280px;
+  --toolbar-height: 52px;
+  --control-height: 36px;
+  --row-height: 44px;
+  --touch-min: 44px;
+
+  --radius-control: 8px;
+  --radius-element: 10px;
+  --radius-card: 12px;
+  --radius-sheet: 16px;
+  --radius-window: 22px;
+  --radius-capsule: 9999px;
+
+  --material-ultra-thin-fill: rgba(255, 255, 255, 0.40);
+  --material-thin-fill: rgba(255, 255, 255, 0.55);
+  --material-regular-fill: var(--bg-chrome);
+  --material-thick-fill: rgba(255, 255, 255, 0.82);
+  --material-blur-ultra-thin: 20px;
+  --material-blur-thin: 24px;
+  --material-blur-regular: 40px;
+  --material-blur-thick: 48px;
+  --material-saturate: 180%;
+  --material-saturate-regular: 190%;
+  --glass-highlight: inset 0 0.5px 0 rgba(255, 255, 255, 0.45);
+  --shadow-menu: 0 10px 40px rgba(0, 0, 0, 0.12);
+  --shadow-sheet: 0 20px 60px rgba(0, 0, 0, 0.18);
+
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 180ms;
+  --duration-normal: 280ms;
+}
+
+.dark {
+  --bg: #000000;
+  --bg-elevated: #1C1C1E;
+  --bg-grouped-tertiary: #2C2C2E;
+  --bg-chrome: rgba(28, 28, 30, 0.72);
+
+  --label: #FFFFFF;
+  --label-secondary: rgba(235, 235, 245, 0.60);
+  --label-tertiary: rgba(235, 235, 245, 0.30);
+  --label-quaternary: rgba(235, 235, 245, 0.16);
+
+  --separator: rgba(84, 84, 88, 0.65);
+  --separator-opaque: #38383A;
+
+  --fill: rgba(120, 120, 128, 0.36);
+  --fill-secondary: rgba(120, 120, 128, 0.32);
+  --fill-tertiary: rgba(118, 118, 128, 0.24);
+  --fill-quaternary: rgba(116, 116, 128, 0.18);
+
+  --tint: #FF453A;
+  --tint-hover: #FF6961;
+  --tint-press: #D70015;
+  --tint-soft: rgba(255, 69, 58, 0.18);
+  --on-tint: #FFFFFF;
+
+  --system-red: #FF453A;
+  --system-orange: #FF9F0A;
+  --system-green: #30D158;
+  --system-blue: #0A84FF;
+  --system-yellow: #FFD60A;
+
+  --material-ultra-thin-fill: rgba(28, 28, 30, 0.40);
+  --material-thin-fill: rgba(28, 28, 30, 0.55);
+  --material-regular-fill: var(--bg-chrome);
+  --material-thick-fill: rgba(28, 28, 30, 0.82);
+  --glass-highlight: inset 0 0.5px 0 rgba(255, 255, 255, 0.12);
+  --shadow-menu: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --shadow-sheet: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
 
