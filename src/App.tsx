@@ -3499,25 +3499,22 @@ export default function App() {
                   </div>
 
                   {modellingResults.length === 1 ? (
-                    <div className="bg-white/5 border border-dashed border-white/10 rounded-2xl p-12 text-center space-y-4">
-                      <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-                        <Calculator className="w-6 h-6 text-red-500" />
+                    <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-12 text-center space-y-4 shadow-[0_0_0_0.5px_var(--separator)]">
+                      <div className="w-12 h-12 bg-[var(--tint-soft)] rounded-full flex items-center justify-center mx-auto">
+                        <Calculator className="w-6 h-6 text-[var(--tint)]" />
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-white font-bold">No models yet</h3>
-                        <p className="text-sm text-gray-500 max-w-sm mx-auto">
-                          Run models in Modelling before you can compare costs.
-                        </p>
-                      </div>
-                      <button 
+                      <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)] max-w-sm mx-auto">
+                        Run models before you can compare costs.
+                      </p>
+                      <Button
+                        variant="filled"
                         onClick={() => {
-                          setCurrentStep(4);
+                          setCurrentStep(3);
                           setActiveSection('modelling');
                         }}
-                        className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-bold transition-all"
                       >
                         Open Modelling
-                      </button>
+                      </Button>
                     </div>
                   ) : (
                     <>
@@ -5255,27 +5252,23 @@ export default function App() {
 
                   {userDbTemplates.length < 2 ? (
                     <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-[var(--space-8)] flex flex-col items-center justify-center text-center space-y-4 shadow-[0_0_0_0.5px_var(--separator)]">
-                      <div className="p-[var(--space-4)] bg-[color-mix(in_srgb,var(--system-orange)_12%,transparent)] rounded-full text-[var(--system-orange)]">
+                      <div className="p-[var(--space-4)] bg-[var(--tint-soft)] rounded-full text-[var(--tint)]">
                         <GitCompare className="w-8 h-8" />
                       </div>
-                      <div className="max-w-md space-y-2">
-                        <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Save at least two projects</h3>
-                        <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)]">
-                          Use <strong className="text-[var(--label)] font-medium">Save as project</strong> in the sidebar.
-                          You have <span className="text-[var(--tint)] font-semibold">{userDbTemplates.length}</span> saved. Two are needed to compare.
-                        </p>
-                      </div>
-                      {userDbTemplates.length === 1 && (
-                        <div className="pt-2">
-                          <div className="bg-[var(--bg-elevated)] rounded-[var(--radius-element)] p-4 text-left max-w-sm shadow-[0_0_0_0.5px_var(--separator)]">
-                            <span className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] block mb-1">Current saved project</span>
-                            <span className="text-[length:var(--text-subhead-size)] text-[var(--label)] font-medium font-[family-name:var(--font-numeric)] flex items-center gap-2">
-                              <span className="inline-block w-2 h-2 rounded-full bg-[var(--system-orange)]"></span>
-                              {userDbTemplates[0].name}
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                      <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)] max-w-md">
+                        {userDbTemplates.length === 1
+                          ? `“${userDbTemplates[0].name}” is saved. Save one more to compare.`
+                          : 'Save two projects to compare them.'}
+                      </p>
+                      <Button
+                        variant="filled"
+                        onClick={() => {
+                          setSaveTemplateDbName(currentTemplateName);
+                          setShowSaveTemplateDbModal(true);
+                        }}
+                      >
+                        Save as project
+                      </Button>
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -5326,10 +5319,8 @@ export default function App() {
                           </div>
 
                           {comparedProjects.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-6 text-center space-y-2">
-                              <GitCompare className="w-8 h-8 text-[var(--label-quaternary)] mb-1" />
-                              <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)]">Drag projects here, or use Quick add</p>
-                              <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)]">You can also click a project in the sidebar</p>
+                            <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+                              <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)]">Add a project with Quick add, or drag one here.</p>
                             </div>
                           ) : (
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -5598,12 +5589,16 @@ export default function App() {
                           })}
                         </div>
                       ) : (
-                        <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-[0_0_0_0.5px_var(--separator)]">
-                          <Columns className="w-10 h-10 text-[var(--label-quaternary)]" />
-                          <div className="max-w-md space-y-1">
-                            <h4 className="text-[length:var(--text-headline-size)] font-semibold text-[var(--label)]">Empty workspace</h4>
-                            <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Add a project with Quick add, or drag one from Projects.</p>
-                          </div>
+                        <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-[0_0_0_0.5px_var(--separator)]">
+                          <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)]">Add a project to compare.</p>
+                          {userDbTemplates[0] && (
+                            <Button
+                              variant="filled"
+                              onClick={() => setComparedProjects([{ id: userDbTemplates[0].id, name: userDbTemplates[0].name, data: userDbTemplates[0].data }])}
+                            >
+                              Add “{userDbTemplates[0].name}”
+                            </Button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -5653,11 +5648,23 @@ export default function App() {
                         <div className="p-4 rounded-full text-[var(--tint)] bg-[var(--tint-soft)]">
                           <Sliders className="w-8 h-8" />
                         </div>
-                        <div className="max-w-md space-y-2">
-                          <h3 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Choose a project to optimize</h3>
-                          <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)]">
-                            Drag from <strong className="text-[var(--label)] font-medium">Projects</strong>, or pick one below.
+                        <div className="max-w-md space-y-4">
+                          <p className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] text-[var(--label-secondary)]">
+                            {userDbTemplates.length === 0
+                              ? 'Save a project, then optimize it.'
+                              : 'Pick a saved project below, or drag one here.'}
                           </p>
+                          {userDbTemplates.length === 0 && (
+                            <Button
+                              variant="filled"
+                              onClick={() => {
+                                setSaveTemplateDbName(currentTemplateName);
+                                setShowSaveTemplateDbModal(true);
+                              }}
+                            >
+                              Save as project
+                            </Button>
+                          )}
                         </div>
                       </div>
 
@@ -5724,12 +5731,8 @@ export default function App() {
                               {options.length === 0 ? (
                                 <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-8 max-w-xl mx-auto text-center space-y-4 shadow-[0_0_0_0.5px_var(--separator)]">
                                   <Sparkles className="w-8 h-8 text-[var(--system-green)] mx-auto" />
-                                  <h3 className="text-[length:var(--text-headline-size)] font-semibold text-[var(--label)]">No cheaper option found</h3>
-                                  <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] leading-relaxed">
-                                    Solar, battery, and generator combinations were tested.
-                                  </p>
-                                  <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] leading-relaxed">
-                                    Changing them would raise LCOE or breakeven MRR.
+                                  <p className="text-[length:var(--text-subhead-size)] text-[var(--label-secondary)] leading-relaxed max-w-md mx-auto">
+                                    No cheaper option found — other sizes would raise LCOE or breakeven MRR.
                                   </p>
                                 </div>
                               ) : (
@@ -6045,6 +6048,10 @@ export default function App() {
                 <div className="space-y-6">
                   <LifeSimulationPanel
                     projects={userDbTemplates.map(t => ({ id: t.id, name: t.name, data: t.data }))}
+                    onSaveProject={() => {
+                      setSaveTemplateDbName(currentTemplateName);
+                      setShowSaveTemplateDbModal(true);
+                    }}
                   />
                 </div>
               )}

@@ -12,6 +12,7 @@ import {
   Bar
 } from 'recharts';
 import { AlertTriangle, Activity, GitCompare, TrendingUp, FolderOpen, Info } from 'lucide-react';
+import { Button } from './ui';
 import { SiteInputs } from '../types';
 import {
   LifeSimMode,
@@ -53,11 +54,11 @@ function projectSummary(data: SiteInputs): string {
 }
 
 interface Props {
-  /** Saved projects from MY PROJECT for the current user */
   projects: LifeSimProjectRef[];
+  onSaveProject?: () => void;
 }
 
-export function LifeSimulationPanel({ projects }: Props) {
+export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
   const [baselineId, setBaselineId] = useState<string>('');
   const [changeId, setChangeId] = useState<string>('');
   const [mode, setMode] = useState<LifeSimMode>('compare');
@@ -156,14 +157,16 @@ export function LifeSimulationPanel({ projects }: Props) {
         </div>
 
         {projects.length < 2 && (
-          <div className="mb-4 flex items-start gap-2 rounded-[var(--radius-element)] bg-[color-mix(in_srgb,var(--system-orange)_12%,transparent)] p-3 text-[length:var(--text-footnote-size)] text-[var(--system-orange)]">
-            <Info size={16} className="shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold">Save two projects first</p>
-              <p className="mt-1 opacity-80">
-                Save the baseline design. Save the post-change site (for example a worse grid) as a second project. Then pick both here.
-              </p>
-            </div>
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-3 rounded-[var(--radius-element)] bg-[var(--fill-tertiary)] p-4">
+            <Info size={16} className="shrink-0 text-[var(--tint)]" />
+            <p className="flex-1 text-[length:var(--text-subhead-size)] text-[var(--label)]">
+              Save two projects to compare a baseline and a change.
+            </p>
+            {onSaveProject && (
+              <Button variant="filled" size="compact" onClick={onSaveProject}>
+                Save as project
+              </Button>
+            )}
           </div>
         )}
 
@@ -317,9 +320,9 @@ export function LifeSimulationPanel({ projects }: Props) {
         </div>
       </div>
 
-      {!canRun && (
-        <div className="text-center text-[length:var(--text-subhead-size)] text-[var(--label-tertiary)] py-12 rounded-[var(--radius-element)] shadow-[0_0_0_0.5px_var(--separator)]">
-          Choose two different projects to run the simulation.
+      {!canRun && projects.length >= 2 && (
+        <div className="text-center text-[length:var(--text-subhead-size)] text-[var(--label-secondary)] py-12 rounded-[var(--radius-element)] shadow-[0_0_0_0.5px_var(--separator)]">
+          Choose two different projects above.
         </div>
       )}
 
