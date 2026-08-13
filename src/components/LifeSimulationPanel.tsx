@@ -9,7 +9,8 @@ import {
   ResponsiveContainer,
   Legend,
   BarChart,
-  Bar
+  Bar,
+  Cell
 } from 'recharts';
 import { AlertTriangle, Activity, GitCompare, TrendingUp, FolderOpen, Info, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from './ui';
@@ -66,7 +67,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
   const [changeYear, setChangeYear] = useState(3);
   const [loadChangeYear, setLoadChangeYear] = useState(3);
   const [loadDeltaKw, setLoadDeltaKw] = useState(0);
-  const [runSweep, setRunSweep] = useState(false);
+  const [runSweep, setRunSweep] = useState(true);
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
   // Keep selection valid when project list changes
@@ -305,15 +306,20 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                   ? 'A keeps year-0 kit. B may add kit when grid or load changes.'
                   : 'Mode A keeps the year-0 plant. Grid and load follow the years you set. Hours the battery cannot cover stay unserved if there is no genset.'}
             </p>
-            <label className="flex items-center gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-3">
+            <label className="flex items-start gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-3">
               <input
                 type="checkbox"
                 checked={runSweep}
                 onChange={e => setRunSweep(e.target.checked)}
-                className="accent-[var(--tint)]"
+                className="accent-[var(--tint)] mt-0.5"
                 disabled={!canRun}
               />
-              Sweep grid change year ({mode === 'B' ? 'Mode B' : 'Mode A'})
+              <span>
+                Show “what if the grid changes in a different year?”
+                <span className="block text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] font-normal">
+                  Scroll down for a year-by-year extra-cost table. Load year stays {loadChangeYear}.
+                </span>
+              </span>
             </label>
             {simResult && (
               <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] rounded-[var(--radius-control)] p-2 bg-[var(--fill-tertiary)] mt-2">
@@ -867,23 +873,74 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
           )}
 
           {runSweep && sweep.length > 0 && (
-            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)]">
-              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-3">
-                Δ NPV vs grid change year (load year {loadChangeYear} fixed)
-              </h3>
+            <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)] space-y-3">
+              <div>
+                <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)]">
+                  What if the grid goes bad in a different year?
+                </h3>
+                <p className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)] mt-1 max-w-3xl">
+                  Each bar is one full-life rerun. Taller bar = that timing costs you more over the tenure
+                  (extra NPV outflow vs never changing the grid). Load still changes in year {loadChangeYear}.
+                  The highlighted bar is the grid year you picked above ({changeYear}).
+                </p>
+              </div>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sweep}>
+                  <BarChart data={sweep} margin={{ top: 8, right: 8, left: 8, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={chartGrid} />
-                    <XAxis dataKey="changeYear" stroke={chartAxis} tick={{ fontSize: 11 }} />
-                    <YAxis stroke={chartAxis} tick={{ fontSize: 11 }} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                    <XAxis
+                      dataKey="changeYear"
+                      stroke={chartAxis}
+                      tick={{ fontSize: 11 }}
+                      label={{ value: 'Grid goes bad in year…', position: 'insideBottom', offset: -12, fontSize: 11, fill: 'var(--label-tertiary)' }}
+                    />
+                    <YAxis
+                      stroke={chartAxis}
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={v => `${(v / 1000).toFixed(0)}k`}
+                      label={{ value: 'Extra lifetime cost', angle: -90, position: 'insideLeft', fontSize: 11, fill: 'var(--label-tertiary)' }}
+                    />
                     <Tooltip
                       contentStyle={chartTooltipStyle}
-                      formatter={(v) => `${currency}${fmt(Number(v))}`}
+                      formatter={(v) => [`${currency}${fmt(Number(v))}`, 'Extra lifetime cost']}
+                      labelFormatter={(y) => `If grid changes in year ${y}`}
                     />
-                    <Bar dataKey="deltaNpvOperator" name="Δ NPV operator" fill="var(--tint)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="deltaNpvOperator" name="Extra lifetime cost" radius={[4, 4, 0, 0]}>
+                      {sweep.map((row) => (
+                        <Cell
+                          key={row.changeYear}
+                          fill={row.changeYear === changeYear ? 'var(--tint)' : 'var(--fill)'}
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-[length:var(--text-footnote-size)] min-w-[360px]">
+                  <thead>
+                    <tr className="text-[var(--label-secondary)] shadow-[inset_0_-0.5px_0_var(--separator)]">
+                      <th className="text-left py-2 font-semibold">If grid changes in…</th>
+                      <th className="text-right py-2 font-semibold">Extra lifetime cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sweep.map((row) => (
+                      <tr
+                        key={row.changeYear}
+                        className={`shadow-[inset_0_-0.5px_0_var(--separator)] ${row.changeYear === changeYear ? 'bg-[var(--tint-soft)]' : ''}`}
+                      >
+                        <td className="py-1.5 text-[var(--label)]">
+                          Year {row.changeYear}
+                          {row.changeYear === changeYear ? ' (your pick)' : ''}
+                        </td>
+                        <td className="py-1.5 text-right font-[family-name:var(--font-numeric)] text-[var(--label)]">
+                          {row.deltaNpvOperator >= 0 ? '+' : ''}{currency}{fmt(row.deltaNpvOperator)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
