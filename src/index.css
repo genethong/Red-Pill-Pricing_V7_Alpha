@@ -931,4 +931,52 @@ input[type="number"] {
   color: var(--label) !important;
 }
 
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.sheet {
+  width: 100%;
+  color: var(--label);
+  border-radius: var(--radius-sheet);
+  padding: var(--space-6);
+  background: var(--material-thick-fill);
+  backdrop-filter: blur(var(--material-blur-thick)) saturate(var(--material-saturate));
+  box-shadow: var(--glass-highlight), var(--shadow-sheet);
+}
+
+.sheet input[type="text"],
+.sheet input[type="number"],
+.sheet select {
+  background-color: var(--fill-tertiary) !important;
+  border-color: transparent !important;
+  color: var(--label) !important;
+  border-radius: var(--radius-control) !important;
+  min-height: var(--control-height);
+  box-shadow: 0 0 0 0.5px var(--separator);
+}
+
+.sheet input[type="text"]:focus,
+.sheet input[type="number"]:focus,
+.sheet select:focus {
+  border-color: transparent !important;
+  box-shadow: 0 0 0 2px var(--tint-soft), 0 0 0 0.5px var(--tint) !important;
+}
+
+.sheet option {
+  background-color: var(--bg-elevated) !important;
+  color: var(--label) !important;
+}
+
+.sheet input[type="checkbox"] {
+  accent-color: var(--tint);
+}
+
 

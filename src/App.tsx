@@ -83,7 +83,7 @@ import {
 import { LoginScreen } from './components/LoginScreen';
 import { AdminPanel } from './components/AdminPanel';
 import { NumericInput } from './components/NumericInput';
-import { Button } from './components/ui';
+import { Button, Field } from './components/ui';
 import { calculateAllStats } from './lib/dcEngine';
 import { LifeSimulationPanel } from './components/LifeSimulationPanel';
 import { CHART_SERIES, chartAxis, chartGrid, chartTooltipLabelStyle, chartTooltipStyle } from './lib/chartTheme';
@@ -6089,28 +6089,25 @@ export default function App() {
 
       <AnimatePresence>
         {showNewProjectModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="sheet-backdrop z-[200]">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-dark bg-gray-900 border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              className="sheet max-w-md"
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-red-500/10 rounded-xl">
-                  <FilePlus className="w-6 h-6 text-red-500" />
+              <div className="flex items-center gap-[var(--space-3)] mb-[var(--space-6)]">
+                <div className="p-[var(--space-3)] bg-[var(--tint-soft)] rounded-[var(--radius-element)]">
+                  <FilePlus className="w-5 h-5 text-[var(--tint)]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">New Project</h2>
-                  <p className="text-sm text-gray-400">Choose a starting point for your design</p>
+                  <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">New project</h2>
+                  <p className="text-[length:var(--text-footnote-size)] leading-[var(--text-footnote-line)] text-[var(--label-secondary)]">Choose a starting point for your design</p>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-                    Select Template
-                  </label>
+              <div className="flex flex-col gap-[var(--space-5)]">
+                <Field label="Template">
                   <div className="relative">
                     <select
                       value={selectedTemplate}
@@ -6123,42 +6120,37 @@ export default function App() {
                           setNewProjectName(val);
                         }
                       }}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors appearance-none cursor-pointer text-sm"
+                      className="w-full appearance-none cursor-pointer px-[var(--space-4)] pr-10"
                     >
-                      <option value="" disabled className="bg-gray-900">Choose a template...</option>
+                      <option value="" disabled>Choose a template…</option>
                       {systemTemplates.map(t => (
-                        <option key={t.name} value={t.name} className="bg-gray-900">{t.name}</option>
+                        <option key={t.name} value={t.name}>{t.name}</option>
                       ))}
-                      <option value="blank" className="bg-gray-900">Start from Scratch (Blank)</option>
+                      <option value="blank">Start from scratch (blank)</option>
                     </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--label-tertiary)] pointer-events-none" />
                   </div>
-                </div>
+                </Field>
 
                 {selectedTemplate && (
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-                      {selectedTemplate === 'blank' ? "Project Name (Required)" : "Project / Template Name"}
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-red-500 transition-colors placeholder-gray-600 font-medium"
-                      placeholder="e.g. My Custom Project"
-                      value={newProjectName}
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                      autoFocus
-                    />
-                  </div>
+                  <Field
+                    label={selectedTemplate === 'blank' ? "Project name (required)" : "Project / template name"}
+                    type="text"
+                    placeholder="e.g. My custom project"
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    autoFocus
+                  />
                 )}
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowNewProjectModal(false)}
-                    className="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all cursor-pointer text-sm"
-                  >
+                <div className="flex gap-[var(--space-3)]">
+                  <Button variant="gray" className="flex-1" onClick={() => setShowNewProjectModal(false)}>
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="filled"
+                    className="flex-1"
+                    disabled={!selectedTemplate || !newProjectName.trim()}
                     onClick={() => {
                       if (!selectedTemplate || !newProjectName.trim()) return;
                       if (selectedTemplate === 'blank') {
@@ -6168,86 +6160,67 @@ export default function App() {
                         if (template) confirmNewProject(template.data, newProjectName.trim());
                       }
                     }}
-                    disabled={!selectedTemplate || !newProjectName.trim()}
-                    className={cn(
-                      "flex-1 px-6 py-3 font-bold rounded-xl shadow-lg transition-all cursor-pointer text-sm",
-                      (selectedTemplate && newProjectName.trim())
-                        ? "bg-[#E50914] hover:bg-[#F40F1D] text-white shadow-red-600/20 animate-none" 
-                        : "bg-gray-800 text-gray-500 cursor-not-allowed shadow-none"
-                    )}
                   >
-                    Create Project
-                  </button>
+                    Create project
+                  </Button>
                 </div>
               </div>
             </motion.div>
           </div>
         )}
         {promptOpen && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="sheet-backdrop z-[300]">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-dark bg-gray-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              className="sheet max-w-sm"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-red-500/10 rounded-xl">
-                  <Download className="w-5 h-5 text-red-500" />
+              <div className="flex items-center gap-[var(--space-3)] mb-[var(--space-4)]">
+                <div className="p-2.5 bg-[var(--tint-soft)] rounded-[var(--radius-element)]">
+                  <Download className="w-5 h-5 text-[var(--tint)]" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-white uppercase tracking-wide">{promptTitle}</h2>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Specify a filename</p>
+                  <h2 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">{promptTitle}</h2>
+                  <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] text-[var(--label-secondary)]">Specify a filename</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">
-                    Filename
-                  </label>
-                  <input
-                    type="text"
-                    value={promptInputValue}
-                    onChange={(e) => setPromptInputValue(e.target.value)}
-                    placeholder="Enter filename..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 transition-colors text-xs font-mono"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        if (promptInputValue.trim()) {
-                          promptOnConfirm?.(promptInputValue.trim());
-                          setPromptOpen(false);
-                        }
+              <div className="flex flex-col gap-[var(--space-4)]">
+                <Field
+                  label="Filename"
+                  type="text"
+                  value={promptInputValue}
+                  onChange={(e) => setPromptInputValue(e.target.value)}
+                  placeholder="Enter filename…"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      if (promptInputValue.trim()) {
+                        promptOnConfirm?.(promptInputValue.trim());
+                        setPromptOpen(false);
                       }
-                    }}
-                  />
-                </div>
+                    }
+                  }}
+                />
 
-                <div className="flex gap-2 pt-2">
-                  <button
-                    onClick={() => setPromptOpen(false)}
-                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase font-black tracking-wider rounded-xl transition-all"
-                  >
+                <div className="flex gap-[var(--space-2)]">
+                  <Button variant="gray" className="flex-1" onClick={() => setPromptOpen(false)}>
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="filled"
+                    className="flex-1"
+                    disabled={!promptInputValue.trim()}
                     onClick={() => {
                       if (promptInputValue.trim()) {
                         promptOnConfirm?.(promptInputValue.trim());
                         setPromptOpen(false);
                       }
                     }}
-                    disabled={!promptInputValue.trim()}
-                    className={cn(
-                      "flex-1 px-4 py-2 text-[10px] uppercase font-black tracking-wider rounded-xl transition-all shadow-md",
-                      promptInputValue.trim()
-                        ? "bg-red-600 hover:bg-red-700 text-white shadow-red-600/10"
-                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
-                    )}
                   >
                     Download
-                  </button>
+                  </Button>
                 </div>
               </div>
             </motion.div>
@@ -6255,72 +6228,62 @@ export default function App() {
         )}
 
         {showSaveTemplateDbModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="sheet-backdrop z-[300]">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-dark bg-gray-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              className="sheet max-w-sm"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-orange-500/10 rounded-xl">
-                  <CheckCircle2 className="w-5 h-5 text-orange-500" />
+              <div className="flex items-center gap-[var(--space-3)] mb-[var(--space-4)]">
+                <div className="p-2.5 bg-[var(--tint-soft)] rounded-[var(--radius-element)]">
+                  <CheckCircle2 className="w-5 h-5 text-[var(--tint)]" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-white uppercase tracking-wide">Save Design as Project</h2>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Save project to database for comparative analysis</p>
+                  <h2 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Save as project</h2>
+                  <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] text-[var(--label-secondary)]">Save to your project list for comparison</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Project Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ECPH_Bad Grid_G4"
-                    value={saveTemplateDbName}
-                    onChange={(e) => setSaveTemplateDbName(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-orange-500 text-white font-medium"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && saveTemplateDbName.trim()) {
-                        handleSaveTemplateToDb(saveTemplateDbName.trim());
-                      }
-                    }}
-                  />
-                </div>
+              <div className="flex flex-col gap-[var(--space-4)]">
+                <Field
+                  label="Project name"
+                  type="text"
+                  placeholder="e.g. ECPH_Bad Grid_G4"
+                  value={saveTemplateDbName}
+                  onChange={(e) => setSaveTemplateDbName(e.target.value)}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && saveTemplateDbName.trim()) {
+                      handleSaveTemplateToDb(saveTemplateDbName.trim());
+                    }
+                  }}
+                />
 
                 {currentUser?.role === 'admin' && (
-                  <label className="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer select-none py-1">
+                  <label className="flex items-center gap-2 text-[length:var(--text-footnote-size)] text-[var(--label)] cursor-pointer select-none py-1">
                     <input
                       type="checkbox"
                       checked={saveAsSystem}
                       onChange={(e) => setSaveAsSystem(e.target.checked)}
-                      className="rounded bg-white/5 border-white/10 text-[#E50914] focus:ring-0 focus:ring-offset-0 w-3.5 h-3.5"
+                      className="w-3.5 h-3.5"
                     />
-                    <span>Save as System Template (applies to all users in New Project)</span>
+                    <span>Save as system template (all users, New project)</span>
                   </label>
                 )}
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowSaveTemplateDbModal(false)}
-                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase font-black tracking-wider rounded-xl transition-all"
-                  >
+                <div className="flex gap-[var(--space-2)]">
+                  <Button variant="gray" className="flex-1" onClick={() => setShowSaveTemplateDbModal(false)}>
                     Cancel
-                  </button>
-                  <button
-                    onClick={() => handleSaveTemplateToDb(saveTemplateDbName.trim())}
+                  </Button>
+                  <Button
+                    variant="filled"
+                    className="flex-1"
                     disabled={!saveTemplateDbName.trim()}
-                    className={cn(
-                      "flex-1 px-4 py-2 text-[10px] uppercase font-black tracking-wider rounded-xl transition-all shadow-md",
-                      saveTemplateDbName.trim()
-                        ? "bg-orange-600 hover:bg-orange-700 text-white shadow-orange-600/10"
-                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
-                    )}
+                    onClick={() => handleSaveTemplateToDb(saveTemplateDbName.trim())}
                   >
-                    Save Project
-                  </button>
+                    Save project
+                  </Button>
                 </div>
               </div>
             </motion.div>
@@ -6328,66 +6291,56 @@ export default function App() {
         )}
 
         {showSaveOptimizedModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="sheet-backdrop z-[300]">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-dark bg-gray-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4"
+              initial={{ opacity: 0, scale: 0.98, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              className="sheet max-w-sm"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-amber-500/10 rounded-xl">
-                  <Sparkles className="w-5 h-5 text-amber-500" />
+              <div className="flex items-center gap-[var(--space-3)] mb-[var(--space-4)]">
+                <div className="p-2.5 bg-[var(--tint-soft)] rounded-[var(--radius-element)]">
+                  <Sparkles className="w-5 h-5 text-[var(--tint)]" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-black text-white uppercase tracking-wide">Save Optimized Design</h2>
-                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Save as a new project in your repository</p>
+                  <h2 className="text-[length:var(--text-headline-size)] leading-[var(--text-headline-line)] font-semibold text-[var(--label)]">Save optimized design</h2>
+                  <p className="text-[length:var(--text-caption-1-size)] leading-[var(--text-caption-1-line)] text-[var(--label-secondary)]">Save as a new project</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Project Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Project Alpha (LCOE Optimized)"
-                    value={newOptimizedProjectName}
-                    onChange={(e) => setNewOptimizedProjectName(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-amber-500 text-white font-medium font-mono"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newOptimizedProjectName.trim() && selectedOptimizationOptionIndex !== null && optimizedProject) {
-                        const options = getOptimizationOptions(optimizedProject.data);
-                        handleSaveOptimizedProject(options[selectedOptimizationOptionIndex].data);
-                      }
-                    }}
-                  />
-                </div>
+              <div className="flex flex-col gap-[var(--space-4)]">
+                <Field
+                  label="Project name"
+                  type="text"
+                  placeholder="e.g. Project Alpha (LCOE Optimized)"
+                  value={newOptimizedProjectName}
+                  onChange={(e) => setNewOptimizedProjectName(e.target.value)}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newOptimizedProjectName.trim() && selectedOptimizationOptionIndex !== null && optimizedProject) {
+                      const options = getOptimizationOptions(optimizedProject.data);
+                      handleSaveOptimizedProject(options[selectedOptimizationOptionIndex].data);
+                    }
+                  }}
+                />
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowSaveOptimizedModal(false)}
-                    className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] uppercase font-black tracking-wider rounded-xl transition-all cursor-pointer"
-                  >
+                <div className="flex gap-[var(--space-2)]">
+                  <Button variant="gray" className="flex-1" onClick={() => setShowSaveOptimizedModal(false)}>
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="filled"
+                    className="flex-1"
+                    disabled={!newOptimizedProjectName.trim()}
                     onClick={() => {
                       if (selectedOptimizationOptionIndex !== null && optimizedProject) {
                         const options = getOptimizationOptions(optimizedProject.data);
                         handleSaveOptimizedProject(options[selectedOptimizationOptionIndex].data);
                       }
                     }}
-                    disabled={!newOptimizedProjectName.trim()}
-                    className={cn(
-                      "flex-1 px-4 py-2 text-[10px] uppercase font-black tracking-wider rounded-xl transition-all shadow-md cursor-pointer",
-                      newOptimizedProjectName.trim()
-                        ? "bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/10"
-                        : "bg-gray-800 text-gray-500 cursor-not-allowed"
-                    )}
                   >
-                    Save Project
-                  </button>
+                    Save project
+                  </Button>
                 </div>
               </div>
             </motion.div>
