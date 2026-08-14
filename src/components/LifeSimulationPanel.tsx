@@ -539,7 +539,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       mode
                     });
                     const stamp = new Date().toISOString().slice(0, 10);
-                    downloadLifeSimExcel(xml, `LifeSim_${baselineProject?.name || 'export'}_${stamp}.xls`);
+                    downloadLifeSimExcel(xml, `LifeSim_${baselineProject?.name || 'export'}_${stamp}.xlsx`);
                   }}
                 >
                   <Download className="w-4 h-4" />
