@@ -12,7 +12,7 @@ import {
   Bar,
   Cell
 } from 'recharts';
-import { AlertTriangle, Activity, GitCompare, TrendingUp, FolderOpen, Info, ChevronDown, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Activity, GitCompare, TrendingUp, FolderOpen, Info, ChevronDown, ChevronRight, Download } from 'lucide-react';
 import { Button } from './ui';
 import { SiteInputs } from '../types';
 import {
@@ -22,6 +22,7 @@ import {
   totalAverageLoadKw
 } from '../lib/lifeSimulation';
 import { chartAxis, chartGrid, chartTooltipStyle } from '../lib/chartTheme';
+import { buildLifeSimSpreadsheetXml, downloadLifeSimExcel } from '../lib/lifeSimExcel';
 
 /** Saved entry from MY PROJECT (user templates / projects). */
 export type LifeSimProjectRef = {
@@ -522,7 +523,29 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
           {/* Financial KPIs + cash flow (same metrics as Costs → Financials) */}
           {simResult && (
             <div className="bg-[var(--fill-quaternary)] rounded-[var(--radius-element)] p-4 shadow-[0_0_0_0.5px_var(--separator)] space-y-4">
-              <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)]">Financials over tenure</h3>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)]">Financials over tenure</h3>
+                <Button
+                  variant="gray"
+                  size="compact"
+                  onClick={() => {
+                    if (!simResult || !baselineInputs) return;
+                    const xml = buildLifeSimSpreadsheetXml(simResult, baselineInputs, {
+                      baselineName: baselineProject?.name || 'Baseline',
+                      changeName: changeProject?.name || 'Change',
+                      gridChangeYear: changeYear,
+                      loadChangeYear,
+                      loadDeltaKw,
+                      mode
+                    });
+                    const stamp = new Date().toISOString().slice(0, 10);
+                    downloadLifeSimExcel(xml, `LifeSim_${baselineProject?.name || 'export'}_${stamp}.xls`);
+                  }}
+                >
+                  <Download className="w-4 h-4" />
+                  Excel (formulas)
+                </Button>
+              </div>
               <div className={`grid grid-cols-1 ${mode === 'compare' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-3`}>
                 <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
                   <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-2">Baseline (grid never changes)</div>
