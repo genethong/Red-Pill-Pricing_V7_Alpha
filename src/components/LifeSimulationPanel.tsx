@@ -155,7 +155,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             <h2 className="text-[length:var(--text-title-3-size)] leading-[var(--text-title-3-line)] font-semibold text-[var(--label)]">Life simulation</h2>
             <p className="text-[length:var(--text-subhead-size)] leading-[var(--text-subhead-line)] font-medium text-[var(--label-secondary)] mt-1 max-w-3xl">
               Pick a <strong className="text-[var(--label)] font-medium">baseline</strong> and a <strong className="text-[var(--label)] font-medium">change</strong> from Projects.
-              Grid and load can change in different years. Extra load is in kW. Mode A keeps this plant. Mode B may add kit at each change.
+              Grid and load can change in different years. Extra load is in kW. Keep this config leaves year-0 kit as-is. Upgrade may add kit at each change.
             </p>
           </div>
         </div>
@@ -277,9 +277,9 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             <label className="text-[length:var(--text-footnote-size)] text-[var(--label-secondary)]">Commercial response</label>
             <div className="flex flex-col gap-1">
               {([
-                { id: 'A' as const, label: 'Mode A — Keep this plant' },
-                { id: 'B' as const, label: 'Mode B — Resize at each change' },
-                { id: 'compare' as const, label: 'Compare A and B' }
+                { id: 'A' as const, label: 'Keep this config' },
+                { id: 'B' as const, label: 'Upgrade at each change' },
+                { id: 'compare' as const, label: 'Compare both' }
               ]).map(opt => (
                 <label
                   key={opt.id}
@@ -302,10 +302,10 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             </div>
             <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] leading-relaxed">
               {mode === 'B'
-                ? 'Mode B may add kit at the grid year and again at the load year if those years differ.'
+                ? 'Upgrade may add kit at the grid year and again at the load year if those years differ.'
                 : mode === 'compare'
-                  ? 'A keeps year-0 kit. B may add kit when grid or load changes.'
-                  : 'Mode A keeps the year-0 plant. Grid and load follow the years you set. Hours the battery cannot cover stay unserved if there is no genset.'}
+                  ? 'Keep this config leaves year-0 kit as-is. Upgrade may add kit when grid or load changes.'
+                  : 'Keep this config leaves year-0 kit as-is. Grid and load follow the years you set. Hours the battery cannot cover stay unserved if there is no genset.'}
             </p>
             <label className="flex items-start gap-2 text-[length:var(--text-subhead-size)] text-[var(--label)] mt-3">
               <input
@@ -345,15 +345,15 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
           {/* Delta cards */}
           {mode === 'compare' && simResult.deltaA && simResult.deltaB && simResult.deltaBminusA ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <DeltaCard title="Mode A vs Baseline" currency={currency} delta={simResult.deltaA} accent="amber" />
-              <DeltaCard title="Mode B vs Baseline" currency={currency} delta={simResult.deltaB} accent="emerald" />
-              <DeltaCard title="B − A (value of resizing)" currency={currency} delta={simResult.deltaBminusA} accent="sky" />
+              <DeltaCard title="Keep this config vs no change" currency={currency} delta={simResult.deltaA} accent="amber" />
+              <DeltaCard title="Upgrade vs no change" currency={currency} delta={simResult.deltaB} accent="emerald" />
+              <DeltaCard title="Upgrade − Keep (value of adding kit)" currency={currency} delta={simResult.deltaBminusA} accent="sky" />
             </div>
           ) : (
             (mode === 'B' ? simResult.deltaB : simResult.deltaA) && (
               <div className="grid grid-cols-1 md:grid-cols-1 gap-3 max-w-md">
                 <DeltaCard
-                  title={`${mode === 'B' ? 'Mode B' : 'Mode A'} vs Baseline`}
+                  title={`${mode === 'B' ? 'Upgrade' : 'Keep this config'} vs no change`}
                   currency={currency}
                   delta={(mode === 'B' ? simResult.deltaB : simResult.deltaA)!}
                   accent={mode === 'B' ? 'emerald' : 'amber'}
@@ -362,7 +362,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
             )
           )}
           <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] -mt-1">
-            Extra CAPEX is new spend only (replacements and add-on kit) versus keeping the baseline grid for the whole tenure. Year-0 spend is the same; it is not reversed.
+            Δ CAPEX and Δ OPEX + Fuel are undiscounted sums (escalation is already in each year’s cheque). Replacing earlier can make Δ CAPEX negative because you avoid later inflated prices — not because spend is reversed. Δ NPV is discounted at WACC.
           </p>
 
           {/* DC availability */}
@@ -371,7 +371,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
               <h3 className="text-[length:var(--text-subhead-size)] font-semibold text-[var(--label)] mb-1">DC availability</h3>
               <p className="text-[length:var(--text-caption-1-size)] text-[var(--label-tertiary)] mb-3 max-w-3xl">
                 Time-based: (24 − unserved hours) / 24. Residual outage is grid-down time the plant cannot cover.
-                Mode A never adds a genset. Mode B may add one when grid or load changes.
+                Keep this config never adds a genset. Upgrade may add one when grid or load changes.
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs min-w-[640px]">
@@ -561,7 +561,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                 </div>
                 {(mode === 'A' || mode === 'compare') && comparePathA && (
                   <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
-                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--system-orange)] mb-2">Mode A</div>
+                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--system-orange)] mb-2">Keep this config</div>
                     <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Breakeven MRR</div>
                     <div className="text-[length:var(--text-title-3-size)] font-semibold font-[family-name:var(--font-numeric)] text-[var(--system-orange)]">
                       {currency}{fmt(comparePathA.breakevenMRR)}
@@ -575,7 +575,7 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                 )}
                 {(mode === 'B' || mode === 'compare') && comparePathB && (
                   <div className="rounded-[var(--radius-element)] p-3 bg-[var(--bg-elevated)] shadow-[0_0_0_0.5px_var(--separator)]">
-                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--system-green)] mb-2">Mode B</div>
+                    <div className="text-[length:var(--text-caption-1-size)] text-[var(--system-green)] mb-2">Upgrade</div>
                     <div className="text-[length:var(--text-caption-1-size)] text-[var(--label-secondary)]">Breakeven MRR</div>
                     <div className="text-[length:var(--text-title-3-size)] font-semibold font-[family-name:var(--font-numeric)] text-[var(--system-green)]">
                       {currency}{fmt(comparePathB.breakevenMRR)}
@@ -600,8 +600,8 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                       <tr className="text-[var(--label-secondary)] shadow-[inset_0_-0.5px_0_var(--separator)]">
                         <th className="text-left py-3 pr-2 font-semibold">Year</th>
                         <th className="text-right py-3 px-2 font-semibold">Baseline</th>
-                        <th className="text-right py-3 px-2 font-semibold text-[var(--system-orange)]">Mode A</th>
-                        <th className="text-right py-3 px-2 font-semibold text-[var(--system-green)]">Mode B</th>
+                        <th className="text-right py-3 px-2 font-semibold text-[var(--system-orange)]">Keep this config</th>
+                        <th className="text-right py-3 px-2 font-semibold text-[var(--system-green)]">Upgrade</th>
                         <th className="w-10"></th>
                       </tr>
                     </thead>
@@ -632,8 +632,8 @@ export function LifeSimulationPanel({ projects, onSaveProject }: Props) {
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {[
                                       { title: 'Baseline', cf: bcf },
-                                      { title: 'Mode A', cf: a },
-                                      { title: 'Mode B', cf: b }
+                                      { title: 'Keep this config', cf: a },
+                                      { title: 'Upgrade', cf: b }
                                     ].map(col => col.cf && (
                                       <div key={col.title}>
                                         <div className="font-semibold text-[var(--label)] mb-1">{col.title}</div>
@@ -1002,15 +1002,15 @@ function DeltaCard({
       <div className={`text-[length:var(--text-footnote-size)] font-semibold ${titleColor} mb-3`}>{title}</div>
       <div className="grid grid-cols-2 gap-2 text-[length:var(--text-footnote-size)]">
         <div>
-          <div className="text-[var(--label-tertiary)]">Δ NPV (operator)</div>
+          <div className="text-[var(--label-tertiary)]">Δ NPV (operator, discounted)</div>
           <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.npvOperator)}</div>
         </div>
         <div>
-          <div className="text-[var(--label-tertiary)]">Extra CAPEX vs keep-this-grid</div>
+          <div className="text-[var(--label-tertiary)]">Δ CAPEX (undiscounted)</div>
           <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.totalCapex)}</div>
         </div>
         <div>
-          <div className="text-[var(--label-tertiary)]">Δ OPEX + Fuel</div>
+          <div className="text-[var(--label-tertiary)]">Δ OPEX + Fuel (undiscounted)</div>
           <div className="font-[family-name:var(--font-numeric)] text-[var(--label)] text-[length:var(--text-subhead-size)]">{signed(delta.totalOpexFuel)}</div>
         </div>
         <div>
